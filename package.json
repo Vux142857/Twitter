@@ -17,6 +17,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/cookie-parser": "^1.4.4",
+    "@types/lodash": "^4.14.199",
     "@types/node": "^20.5.1",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^6.4.0",
@@ -40,6 +41,7 @@
     "express-validate": "^0.0.8",
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
     "mongodb": "^6.0.0"
   }
 }

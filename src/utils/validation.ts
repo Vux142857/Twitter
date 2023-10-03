@@ -1,25 +1,25 @@
 import { validationResult, ValidationChain } from 'express-validator';
 import { NextFunction, Request, Response } from 'express'
 import { RunnableValidationChains } from 'express-validator/src/middlewares/schema';
-import ErrorWithStatus from '~/models/Errors';
-import httpStatus from '~/constants/httpStatus';
+import { EntityError, ErrorWithStatus } from '~/models/Errors';
+import HTTP_STATUS from '~/constants/httpStatus';
 
 export const validate = (validations: RunnableValidationChains<ValidationChain>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     await validations.run(req);
     const errors = validationResult(req);
     const errorObject = errors.mapped()
-
-    console.log(errorObject['type']);
+    const entityError = new EntityError({ errors: {} })
     for (const key in errorObject) {
       const { msg } = errorObject[key]
-      if (msg instanceof ErrorWithStatus && msg.status !== httpStatus.UNPROCESSABLE_ENTITY) {
+      if (msg instanceof ErrorWithStatus && msg.status !== HTTP_STATUS.UNPROCESSABLE_ENTITY) {
         return next(msg)
       }
+      entityError.errors[key] = errorObject[key]
     }
     if (errors.isEmpty()) {
       return next();
     }
-    res.status(422).json({ errors: errorObject });
+    next(entityError)
   };
 };

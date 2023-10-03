@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from 'express'
 import { checkSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
 import userService from '~/services/users.services'
-import ErrorWithStatus from '~/models/Errors'
+import {ErrorWithStatus} from '~/models/Errors'
+import HTTP_STATUS from '~/constants/httpStatus'
 
 export const loginValidator = (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body
@@ -36,7 +37,7 @@ export const registerValidator = validate(
         options: async (value) => {
           const existedEmail = await userService.checkExistedEmail(value)
           if (existedEmail) {
-            throw new ErrorWithStatus({ message: 'Email already used !', status: 401 })
+            throw new ErrorWithStatus({ message: 'Email already used !', status: HTTP_STATUS.UNAUTHORIZED })
           }
           return true
         }
