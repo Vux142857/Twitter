@@ -15,10 +15,16 @@ const USERS_MESSAGES = {
   CONFIRM_PASSWORD_IS_REQUIRED: 'Confirm password is required',
   PASSWORD_TOO_SHORT: 'Password is too short',
   PASSWORD_TOO_WEAK: 'Password is too weak',
-  // ELSE
+  // Else
   INVALID_DATE_OF_BIRTH_FORMAT: 'Date of birth is invalid',
   USER_NOT_FOUND: 'User not found',
-  INVALID_CREDENTIALS: 'Invalid credentials'
+  INVALID_CREDENTIALS: 'Invalid credentials',
+  // Login
+  LOGIN_SUCCESS: 'Login successful',
+  LOGIN_FAILURE: 'Login failed',
+  // Register
+  REGISTER_SUCCESS: 'Register successful',
+  REGISTER_FAILURE: 'Register failed'
 }
 
 export default USERS_MESSAGES

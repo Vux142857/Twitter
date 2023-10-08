@@ -1,6 +1,6 @@
 import { UserVerifyStatus } from '~/constants/enum'
 
-export default interface RegisterReqBody {
+export interface RegisterReqBody {
   name: string
   email: string
   password: string
@@ -9,7 +9,7 @@ export default interface RegisterReqBody {
   verify: UserVerifyStatus.Verified
 }
 
-export default interface LoginReqBody {
+export interface LoginReqBody {
   email: string
   password: string
 }

@@ -6,15 +6,24 @@ import { ErrorWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
 import USERS_MESSAGES from '~/constants/messages'
 
-export const loginValidator = (req: Request, res: Response, next: NextFunction) => {
-  const { email, password } = req.body
-  if (!email || !password) {
-    res.status(400).json({
-      error: USERS_MESSAGES.MISSING_EMAIL_OR_PASSWORD
-    })
-  }
-  next()
-}
+export const loginValidator = validate(
+  checkSchema({
+    email: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+      },
+      trim: true,
+      isEmail: {
+        errorMessage: USERS_MESSAGES.INVALID_EMAIL_FORMAT
+      }
+    },
+    password: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+      }
+    }
+  })
+)
 
 export const registerValidator = validate(
   checkSchema({

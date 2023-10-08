@@ -1,10 +1,9 @@
 import User from '~/models/schemas/User.schema'
 import databaseService from './database/database.services'
-import RegisterReqBody from '~/models/requests/User.requests'
-import LoginReqBody from '~/models/requests/User.requests'
+import { RegisterReqBody, LoginReqBody } from '~/models/requests/User.requests'
 import { signToken } from '~/utils/jwt'
 import { TokenType, UserVerifyStatus } from '~/constants/enum'
-import { hashPassword } from '~/utils/crypto'
+import { encryptPassword, comparePassword } from '~/utils/crypto'
 
 class UserService {
   private signAccessToken(userID: string): Promise<string> {
@@ -31,38 +30,33 @@ class UserService {
     })
   }
 
+  private async signAccessAndRefeshToken(user_id: string) {
+    return await Promise.all([this.signAccessToken(user_id), this.signRefeshToken(user_id)])
+  }
+
   async register(payload: RegisterReqBody) {
     const result = await databaseService.users.insertOne(
       new User({
         ...payload,
         date_of_birth: new Date(payload.date_of_birth),
-        password: hashPassword(payload.password),
+        password: await encryptPassword(payload.password),
         verify: UserVerifyStatus.Verified
       })
     )
     const user_id = result.insertedId.toString()
-    const [accessToken, refeshToken] = await Promise.all([this.signAccessToken(user_id), this.signRefeshToken(user_id)])
+    const [accessToken, refeshToken] = await this.signAccessAndRefeshToken(user_id)
     return {
       accessToken,
       refeshToken
     }
   }
 
-  async checkExistedEmail(email: string) {
-    return await databaseService.users.findOne({
-      $and: [{ email }, { verify: UserVerifyStatus.Verified }]
-    })
-  }
-
   async login(payload: LoginReqBody) {
     if (payload.email && payload.password) {
-      const existedUser = await userService.checkExistedEmail(payload.email)
-      if (existedUser && existedUser.username === payload.password) {
-        const user_id = existedUser._id.toString()
-        const [accessToken, refeshToken] = await Promise.all([
-          this.signAccessToken(user_id),
-          this.signRefeshToken(user_id)
-        ])
+      const user = await userService.checkExistedEmail(payload.email)
+      if (user && (await comparePassword(payload.password, user.password))) {
+        const user_id = user._id.toString()
+        const [accessToken, refeshToken] = await this.signAccessAndRefeshToken(user_id)
         return {
           accessToken,
           refeshToken
@@ -71,6 +65,12 @@ class UserService {
     } else {
       throw new Error(':((')
     }
+  }
+
+  async checkExistedEmail(email: string) {
+    return await databaseService.users.findOne({
+      $and: [{ email }, { verify: UserVerifyStatus.Verified }]
+    })
   }
 }
 
