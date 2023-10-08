@@ -4,12 +4,13 @@ import { validate } from '~/utils/validation'
 import userService from '~/services/users.services'
 import { ErrorWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
+import USERS_MESSAGES from '~/constants/messages'
 
 export const loginValidator = (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body
   if (!email || !password) {
     res.status(400).json({
-      error: 'Missing email or password'
+      error: USERS_MESSAGES.MISSING_EMAIL_OR_PASSWORD
     })
   }
   next()
@@ -18,7 +19,9 @@ export const loginValidator = (req: Request, res: Response, next: NextFunction) 
 export const registerValidator = validate(
   checkSchema({
     name: {
-      notEmpty: true,
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
+      },
       trim: true,
       isLength: {
         options: {
@@ -26,27 +29,35 @@ export const registerValidator = validate(
           max: 100
         }
       },
-      errorMessage: 'Invalid name'
+      errorMessage: USERS_MESSAGES.INVALID_NAME_FORMAT
     },
     email: {
-      notEmpty: true,
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+      },
       trim: true,
       isEmail: true,
-      errorMessage: 'Invalid email',
+      errorMessage: USERS_MESSAGES.INVALID_EMAIL_FORMAT,
       custom: {
         options: async (value) => {
           const existedEmail = await userService.checkExistedEmail(value)
           if (existedEmail) {
-            throw new ErrorWithStatus({ message: 'Email already used !', status: HTTP_STATUS.UNAUTHORIZED })
+            throw new ErrorWithStatus({
+              message: USERS_MESSAGES.EMAIL_ALREADY_EXISTS,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
           }
           return true
         }
       }
     },
     password: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+      },
       isLength: {
         options: { min: 8 },
-        errorMessage: 'Password should be at least 8 chars'
+        errorMessage: USERS_MESSAGES.PASSWORD_TOO_SHORT
       },
       isStrongPassword: {
         options: {
@@ -55,14 +66,17 @@ export const registerValidator = validate(
           minUppercase: 1,
           minSymbols: 1
         },
-        errorMessage: 'Weak password'
+        errorMessage: USERS_MESSAGES.PASSWORD_TOO_WEAK
       }
     },
     confirm_password: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.CONFIRM_EMAIL_IS_REQUIRED
+      },
       custom: {
         options: (value, { req }) => {
           if (value !== req.body.password) {
-            throw new Error('Password not match !')
+            throw new Error(USERS_MESSAGES.PASSWORDS_DO_NOT_MATCH)
           }
           return true
         }
@@ -76,7 +90,7 @@ export const registerValidator = validate(
           strictSeparator: true
         }
       },
-      errorMessage: 'Invalid date of birth'
+      errorMessage: USERS_MESSAGES.INVALID_DATE_OF_BIRTH_FORMAT
     }
   })
 )
