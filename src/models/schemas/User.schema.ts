@@ -6,6 +6,7 @@ interface UserType {
   name: string
   email: string
   password: string
+  // date_of_birth: iso_string
   date_of_birth: Date
   email_verify_token?: string
   forgot_password_token?: string

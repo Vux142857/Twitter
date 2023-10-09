@@ -2,7 +2,7 @@ import { MongoClient, ServerApiVersion, Db, Collection } from 'mongodb'
 import User from '~/models/schemas/User.schema'
 import 'dotenv/config'
 
-const uri = (process.env.DB_URI as string) || ''
+const uri = process.env.DB_URI as string
 class DatabaseService {
   private client: MongoClient
   private db: Db
@@ -14,7 +14,7 @@ class DatabaseService {
         deprecationErrors: true
       }
     })
-    this.db = this.client.db('twitter-clone')
+    this.db = this.client.db(process.env.DATABASE_NAME as string)
   }
   async connect() {
     try {

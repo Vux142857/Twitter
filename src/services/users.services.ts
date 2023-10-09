@@ -4,6 +4,9 @@ import { RegisterReqBody, LoginReqBody } from '~/models/requests/User.requests'
 import { signToken } from '~/utils/jwt'
 import { TokenType, UserVerifyStatus } from '~/constants/enum'
 import { encryptPassword, comparePassword } from '~/utils/crypto'
+import USERS_MESSAGES from '~/constants/messages'
+import { ErrorWithStatus } from '~/models/Errors'
+import HTTP_STATUS from '~/constants/httpStatus'
 
 class UserService {
   private signAccessToken(userID: string): Promise<string> {
@@ -63,7 +66,7 @@ class UserService {
         }
       }
     } else {
-      throw new Error(':((')
+      return
     }
   }
 
