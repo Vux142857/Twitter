@@ -20,7 +20,8 @@ interface UserType {
   updated_at?: Date
   verify?: UserVerifyStatus
 }
-export default class User {
+
+class User {
   _id?: ObjectId
   name: string
   email: string
@@ -57,3 +58,5 @@ export default class User {
     this.verify = user.verify || UserVerifyStatus.Unverified
   }
 }
+
+export default User

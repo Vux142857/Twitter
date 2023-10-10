@@ -1,8 +1,9 @@
 import { MongoClient, ServerApiVersion, Db, Collection } from 'mongodb'
 import User from '~/models/schemas/User.schema'
 import 'dotenv/config'
+import RefreshToken from '~/models/schemas/RefreshToken.schema'
 
-const uri = process.env.DB_URI as string
+const uri = process.env.DATABASE_URI as string
 class DatabaseService {
   private client: MongoClient
   private db: Db
@@ -26,12 +27,12 @@ class DatabaseService {
   }
 
   get users(): Collection<User> {
-    return this.db.collection('users')
+    return this.db.collection(process.env.COLLECTION_USERS as string)
   }
 
-  // get users(): Collection<User> {
-  //   return this.db.collection('users')
-  // }
+  get refreshTokens(): Collection<RefreshToken> {
+    return this.db.collection(process.env.COLLECTION_REFRESH_TOKEN as string)
+  }
 }
 const databaseService = new DatabaseService()
 export default databaseService

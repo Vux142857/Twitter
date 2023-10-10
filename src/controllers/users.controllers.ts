@@ -6,8 +6,8 @@ import USERS_MESSAGES from '~/constants/messages'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const result = await userService.login(req.body)
-  const status = (result) ? 200 : 401
-  const message = (result) ? USERS_MESSAGES.LOGIN_SUCCESS : USERS_MESSAGES.LOGIN_FAILURE
+  const status = result ? 200 : 401
+  const message = result ? USERS_MESSAGES.LOGIN_SUCCESS : USERS_MESSAGES.LOGIN_FAILURE
   res.status(status).json({
     result,
     message
