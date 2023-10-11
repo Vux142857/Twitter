@@ -7,6 +7,8 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import USERS_MESSAGES from '~/constants/messages'
 import { verifyToken } from '~/utils/jwt'
 import tokenService from '~/services/tokens.services'
+import { JsonWebTokenError } from 'jsonwebtoken'
+import { capitalize } from 'lodash'
 
 export const loginValidator = validate(
   checkSchema(
@@ -124,15 +126,24 @@ export const accessTokenValidator = validate(
         },
         custom: {
           options: async (value: string, { req }) => {
-            const accessToken = value.split(' ')[1]
-            if (accessToken === '') {
-              throw new ErrorWithStatus({
-                message: USERS_MESSAGES.ACCESS_TOKEN_INVALID,
-                status: HTTP_STATUS.UNAUTHORIZED
-              })
+            try {
+              const accessToken = value.split(' ')[1]
+              if (accessToken === '') {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGES.ACCESS_TOKEN_INVALID,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
+              const decoded_access_token = await verifyToken({ token: accessToken })
+              req.decoded_authorization = decoded_access_token
+            } catch (error) {
+              if (error instanceof JsonWebTokenError) {
+                throw new ErrorWithStatus({
+                  message: capitalize((error as JsonWebTokenError).message),
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
             }
-            const decoded_access_token = await verifyToken({ token: accessToken })
-            req.decoded_authorization = decoded_access_token
             return true
           }
         }
@@ -167,10 +178,12 @@ export const refreshTokenValidator = validate(
               }
               req.decoded_refresh_token = decoded_refresh_token
             } catch (error) {
-              throw new ErrorWithStatus({
-                message: USERS_MESSAGES.REFRESH_TOKEN_INVALID,
-                status: HTTP_STATUS.UNAUTHORIZED
-              })
+              if (error instanceof JsonWebTokenError) {
+                throw new ErrorWithStatus({
+                  message: capitalize((error as JsonWebTokenError).message),
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
             }
             return true
           }

@@ -4,6 +4,7 @@ import tokenService from './tokens.services'
 import { RegisterReqBody, LoginReqBody } from '~/models/requests/User.requests'
 import { encryptPassword, comparePassword } from '~/utils/crypto'
 import { UserVerifyStatus } from '~/constants/enum'
+import USERS_MESSAGES from '~/constants/messages'
 
 class UserService {
   async register(payload: RegisterReqBody) {
@@ -38,6 +39,13 @@ class UserService {
       }
     }
     return
+  }
+
+  async logout(refresh_token: string) {
+    const result = await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    return {
+      message: USERS_MESSAGES.LOGOUT_SUCCESS
+    }
   }
 
   async checkExistedEmail(email: string) {

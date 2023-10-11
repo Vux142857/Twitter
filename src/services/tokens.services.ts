@@ -47,9 +47,7 @@ class TokenService {
   }
 
   async checkExistedRefeshToken(refreshToken: string) {
-    return await databaseService.refreshTokens.findOne(
-      { token: refreshToken }
-    )
+    return await databaseService.refreshTokens.findOne({ token: refreshToken })
   }
 }
 
