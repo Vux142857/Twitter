@@ -24,7 +24,15 @@ const USERS_MESSAGES = {
   LOGIN_FAILURE: 'Login failed',
   // Register
   REGISTER_SUCCESS: 'Register successful',
-  REGISTER_FAILURE: 'Register failed'
+  REGISTER_FAILURE: 'Register failed',
+  // Logout
+  LOGOUT_SUCCESS: 'Logout successful',
+  LOGOUT_FAILURE: 'Logout failed',
+  // Authentication
+  ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
+  ACCESS_TOKEN_INVALID: 'Access token invalid',
+  REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',
+  REFRESH_TOKEN_INVALID: 'Refresh token invalid'
 }
 
 export default USERS_MESSAGES

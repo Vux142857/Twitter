@@ -45,6 +45,12 @@ class TokenService {
       { $set: { token: newRefreshToken } }
     )
   }
+
+  async checkExistedRefeshToken(refreshToken: string) {
+    return await databaseService.refreshTokens.findOne(
+      { token: refreshToken }
+    )
+  }
 }
 
 const tokenService = new TokenService()
