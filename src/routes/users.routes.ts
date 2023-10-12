@@ -7,10 +7,8 @@ import {
   refreshTokenValidator,
   registerValidator
 } from '~/middlewares/users.middlewares'
-import databaseService from '~/services/database/database.services'
+import databaseService from '~/services/database/database.services' // test clear database
 import { wrapAsync } from '~/utils/handler'
-databaseService
-loginController
 const userRouter = Router()
 
 userRouter.get(

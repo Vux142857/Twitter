@@ -32,7 +32,8 @@ const USERS_MESSAGES = {
   ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
   ACCESS_TOKEN_INVALID: 'Access token invalid',
   REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',
-  REFRESH_TOKEN_INVALID: 'Refresh token invalid'
+  REFRESH_TOKEN_INVALID: 'Refresh token invalid',
+  VERIFY_EMAIL_TOKEN_INVALID: 'Verify email token invalid'
 }
 
 export default USERS_MESSAGES

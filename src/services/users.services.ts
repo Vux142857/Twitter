@@ -13,7 +13,7 @@ class UserService {
         ...payload,
         date_of_birth: new Date(payload.date_of_birth),
         password: await encryptPassword(payload.password),
-        verify: UserVerifyStatus.Verified
+        verify: UserVerifyStatus.Unverified
       })
     )
     const user_id = result.insertedId.toString()
@@ -42,7 +42,7 @@ class UserService {
   }
 
   async logout(refresh_token: string) {
-    const result = await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
     return {
       message: USERS_MESSAGES.LOGOUT_SUCCESS
     }
@@ -50,7 +50,7 @@ class UserService {
 
   async checkExistedEmail(email: string) {
     return await databaseService.users.findOne({
-      $and: [{ email }, { verify: UserVerifyStatus.Verified }]
+      $and: [{ email }, { verify: UserVerifyStatus.Verified | UserVerifyStatus.Unverified }]
     })
   }
 }

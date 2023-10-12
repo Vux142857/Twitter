@@ -1,4 +1,3 @@
-import { NextFunction, Request, Response } from 'express'
 import { checkSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
 import userService from '~/services/users.services'
@@ -134,7 +133,10 @@ export const accessTokenValidator = validate(
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }
-              const decoded_access_token = await verifyToken({ token: accessToken })
+              const decoded_access_token = await verifyToken({
+                token: accessToken,
+                secretKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
+              })
               req.decoded_authorization = decoded_access_token
             } catch (error) {
               if (error instanceof JsonWebTokenError) {
@@ -168,7 +170,7 @@ export const refreshTokenValidator = validate(
             try {
               const [refreshToken, decoded_refresh_token] = await Promise.all([
                 tokenService.checkExistedRefreshToken(value),
-                verifyToken({ token: value })
+                verifyToken({ token: value, secretKey: process.env.JWT_SECRET_REFRESH_TOKEN as string })
               ])
               if (refreshToken === null) {
                 throw new ErrorWithStatus({
@@ -193,3 +195,5 @@ export const refreshTokenValidator = validate(
     ['body']
   )
 )
+
+export const verifyEmailTokenValidator = validate(checkSchema({}))

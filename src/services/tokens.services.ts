@@ -3,6 +3,7 @@ import { signToken } from '~/utils/jwt'
 import { TokenType } from '~/constants/enum'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { ObjectId } from 'mongodb'
+import 'dotenv/config'
 
 class TokenService {
   signAccessToken(userID: string): Promise<string> {
@@ -11,6 +12,7 @@ class TokenService {
         userID,
         token_type: TokenType.AccessToken
       },
+      privateKey: process.env.JWT_SECRET_ACCESS_TOKEN,
       options: {
         expiresIn: '15min'
       }
@@ -23,6 +25,7 @@ class TokenService {
         userID,
         token_type: TokenType.RefreshToken
       },
+      privateKey: process.env.JWT_SECRET_REFRESH_TOKEN,
       options: {
         expiresIn: '24h'
       }
