@@ -31,7 +31,7 @@ class UserService {
       if (user && (await comparePassword(payload.password, user.password))) {
         const user_id = user._id.toString()
         const [accessToken, refeshToken] = await tokenService.signAccessAndRefeshToken(user_id)
-        await tokenService.storeRefreshToken(user_id, refeshToken)
+        await tokenService.updateRefeshToken(user_id, refeshToken)
         return {
           accessToken,
           refeshToken
