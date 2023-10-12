@@ -17,11 +17,11 @@ class TokenService {
     })
   }
 
-  signRefeshToken(userID: string): Promise<string> {
+  signRefreshToken(userID: string): Promise<string> {
     return signToken({
       payload: {
         userID,
-        token_type: TokenType.RefeshToken
+        token_type: TokenType.RefreshToken
       },
       options: {
         expiresIn: '24h'
@@ -29,24 +29,24 @@ class TokenService {
     })
   }
 
-  async signAccessAndRefeshToken(user_id: string) {
-    return await Promise.all([this.signAccessToken(user_id), this.signRefeshToken(user_id)])
+  async signAccessAndRefreshToken(user_id: string) {
+    return await Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
   }
 
-  async storeRefreshToken(user_id: string, refeshToken: string) {
+  async storeRefreshToken(user_id: string, refreshToken: string) {
     return await databaseService.refreshTokens.insertOne(
-      new RefreshToken({ token: refeshToken, user_id: new ObjectId(user_id) })
+      new RefreshToken({ token: refreshToken, user_id: new ObjectId(user_id) })
     )
   }
 
-  async updateRefeshToken(user_id: string, newRefreshToken: string) {
+  async updateRefreshToken(user_id: string, newRefreshToken: string) {
     return await databaseService.refreshTokens.updateOne(
       { user_id: new ObjectId(user_id) },
       { $set: { token: newRefreshToken } }
     )
   }
 
-  async checkExistedRefeshToken(refreshToken: string) {
+  async checkExistedRefreshToken(refreshToken: string) {
     return await databaseService.refreshTokens.findOne({ token: refreshToken })
   }
 }

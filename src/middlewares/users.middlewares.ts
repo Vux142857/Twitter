@@ -167,7 +167,7 @@ export const refreshTokenValidator = validate(
           options: async (value: string, { req }) => {
             try {
               const [refreshToken, decoded_refresh_token] = await Promise.all([
-                tokenService.checkExistedRefeshToken(value),
+                tokenService.checkExistedRefreshToken(value),
                 verifyToken({ token: value })
               ])
               if (refreshToken === null) {

@@ -17,11 +17,11 @@ class UserService {
       })
     )
     const user_id = result.insertedId.toString()
-    const [accessToken, refeshToken] = await tokenService.signAccessAndRefeshToken(user_id)
-    await tokenService.storeRefreshToken(user_id, refeshToken)
+    const [accessToken, refreshToken] = await tokenService.signAccessAndRefreshToken(user_id)
+    await tokenService.storeRefreshToken(user_id, refreshToken)
     return {
       accessToken,
-      refeshToken
+      refreshToken
     }
   }
 
@@ -30,11 +30,11 @@ class UserService {
       const user = await userService.checkExistedEmail(payload.email)
       if (user && (await comparePassword(payload.password, user.password))) {
         const user_id = user._id.toString()
-        const [accessToken, refeshToken] = await tokenService.signAccessAndRefeshToken(user_id)
-        await tokenService.updateRefeshToken(user_id, refeshToken)
+        const [accessToken, refreshToken] = await tokenService.signAccessAndRefreshToken(user_id)
+        await tokenService.updateRefreshToken(user_id, refreshToken)
         return {
           accessToken,
-          refeshToken
+          refreshToken
         }
       }
     }
