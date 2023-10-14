@@ -8,7 +8,7 @@ interface UserType {
   password: string
   // date_of_birth: iso_string
   date_of_birth: Date
-  email_verify_token?: string
+  verify_email_token?: string
   forgot_password_token?: string
   bio?: string
   location?: string
@@ -27,7 +27,7 @@ class User {
   email: string
   password: string
   date_of_birth: Date
-  email_verify_token: string
+  verify_email_token: string
   forgot_password_token: string
   bio: string
   location: string
@@ -45,7 +45,7 @@ class User {
     this.email = user.email
     this.password = user.password
     this.date_of_birth = user.date_of_birth || new Date()
-    this.email_verify_token = user.email_verify_token || ''
+    this.verify_email_token = user.verify_email_token || ''
     this.forgot_password_token = user.forgot_password_token || ''
     this.bio = user.bio || ''
     this.location = user.location || ''

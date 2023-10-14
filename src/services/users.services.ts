@@ -5,6 +5,7 @@ import { RegisterReqBody, LoginReqBody } from '~/models/requests/User.requests'
 import { encryptPassword, comparePassword } from '~/utils/crypto'
 import { UserVerifyStatus } from '~/constants/enum'
 import USERS_MESSAGES from '~/constants/messages'
+import { ObjectId } from 'mongodb'
 
 class UserService {
   async register(payload: RegisterReqBody) {
@@ -31,7 +32,7 @@ class UserService {
       if (user && (await comparePassword(payload.password, user.password))) {
         const user_id = user._id.toString()
         const [accessToken, refreshToken] = await tokenService.signAccessAndRefreshToken(user_id)
-        await tokenService.updateRefreshToken(user_id, refreshToken)
+        await tokenService.storeRefreshToken(user_id, refreshToken)
         return {
           accessToken,
           refreshToken
@@ -50,8 +51,18 @@ class UserService {
 
   async checkExistedEmail(email: string) {
     return await databaseService.users.findOne({
-      $and: [{ email }, { verify: UserVerifyStatus.Verified | UserVerifyStatus.Unverified }]
+      email
     })
+  }
+
+  async verifyEmail(user_id: string) {
+    const result = await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      { $set: { email_verify_token: '' } }
+    )
+    return {
+      message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESS as string
+    }
   }
 }
 

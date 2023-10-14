@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import userService from '~/services/users.services'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { RegisterReqBody, LoginReqBody, LogoutReqBody } from '~/models/requests/User.requests'
+import { RegisterReqBody, LoginReqBody, LogoutReqBody, VerifyEmailToken } from '~/models/requests/User.requests'
 import USERS_MESSAGES from '~/constants/messages'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
@@ -26,4 +26,8 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
   const { refresh_token } = req.body
   const result = await userService.logout(refresh_token)
   res.status(200).json(result)
+}
+
+export const verifyEmailValidator = async (req: Request<ParamsDictionary, any, VerifyEmailToken>, res: Response) => {
+  const { decoded_verify_email_token } = req
 }

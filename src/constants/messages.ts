@@ -25,6 +25,7 @@ const USERS_MESSAGES = {
   // Register
   REGISTER_SUCCESS: 'Register successful',
   REGISTER_FAILURE: 'Register failed',
+  VERIFY_EMAIL_SUCCESS: 'Verified email successfully',
   // Logout
   LOGOUT_SUCCESS: 'Logout successful',
   LOGOUT_FAILURE: 'Logout failed',
@@ -33,6 +34,7 @@ const USERS_MESSAGES = {
   ACCESS_TOKEN_INVALID: 'Access token invalid',
   REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',
   REFRESH_TOKEN_INVALID: 'Refresh token invalid',
+  VERIFY_EMAIL_TOKEN_IS_REQUIRED: 'Verify email token is required',
   VERIFY_EMAIL_TOKEN_INVALID: 'Verify email token invalid'
 }
 

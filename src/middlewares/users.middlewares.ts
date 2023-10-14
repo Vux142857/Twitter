@@ -7,7 +7,6 @@ import USERS_MESSAGES from '~/constants/messages'
 import { verifyToken } from '~/utils/jwt'
 import tokenService from '~/services/tokens.services'
 import { JsonWebTokenError } from 'jsonwebtoken'
-import { capitalize } from 'lodash'
 
 export const loginValidator = validate(
   checkSchema(
@@ -139,12 +138,10 @@ export const accessTokenValidator = validate(
               })
               req.decoded_authorization = decoded_access_token
             } catch (error) {
-              if (error instanceof JsonWebTokenError) {
-                throw new ErrorWithStatus({
-                  message: capitalize((error as JsonWebTokenError).message),
-                  status: HTTP_STATUS.UNAUTHORIZED
-                })
-              }
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.ACCESS_TOKEN_INVALID,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
             }
             return true
           }
@@ -168,21 +165,50 @@ export const refreshTokenValidator = validate(
         custom: {
           options: async (value: string, { req }) => {
             try {
-              const [refreshToken, decoded_refresh_token] = await Promise.all([
-                tokenService.checkExistedRefreshToken(value),
-                verifyToken({ token: value, secretKey: process.env.JWT_SECRET_REFRESH_TOKEN as string })
-              ])
-              if (refreshToken === null) {
-                throw new ErrorWithStatus({
-                  message: USERS_MESSAGES.REFRESH_TOKEN_INVALID,
-                  status: HTTP_STATUS.UNAUTHORIZED
-                })
-              }
+              const refreshToken = await tokenService.checkExistedRefreshToken(value)
+              const existedToken = refreshToken ? refreshToken.token : ''
+              const decoded_refresh_token = await verifyToken({
+                token: existedToken,
+                secretKey: process.env.JWT_SECRET_REFRESH_TOKEN as string
+              })
               req.decoded_refresh_token = decoded_refresh_token
+            } catch (error) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.REFRESH_TOKEN_INVALID,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const verifyEmailTokenValidator = validate(
+  checkSchema(
+    {
+      email_verify_token: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.VERIFY_EMAIL_TOKEN_IS_REQUIRED
+        },
+        isString: {
+          errorMessage: USERS_MESSAGES.VERIFY_EMAIL_TOKEN_INVALID
+        },
+        custom: {
+          options: async (value: string, { req }) => {
+            try {
+              const decoded_verify_email_token = await verifyToken({
+                token: value,
+                secretKey: process.env.JWT_SECRET_VERIFY_EMAIL_TOKEN as string
+              })
+              req.decoded_verify_email_token = decoded_verify_email_token
             } catch (error) {
               if (error instanceof JsonWebTokenError) {
                 throw new ErrorWithStatus({
-                  message: capitalize((error as JsonWebTokenError).message),
+                  message: USERS_MESSAGES.VERIFY_EMAIL_TOKEN_INVALID,
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }
@@ -195,5 +221,3 @@ export const refreshTokenValidator = validate(
     ['body']
   )
 )
-
-export const verifyEmailTokenValidator = validate(checkSchema({}))
