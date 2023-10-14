@@ -1,8 +1,15 @@
 import { Request, Response } from 'express'
 import userService from '~/services/users.services'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { RegisterReqBody, LoginReqBody, LogoutReqBody, VerifyEmailToken } from '~/models/requests/User.requests'
+import {
+  RegisterReqBody,
+  LoginReqBody,
+  LogoutReqBody,
+  VerifyEmailReqBody,
+  TokenPayload
+} from '~/models/requests/User.requests'
 import USERS_MESSAGES from '~/constants/messages'
+import HTTP_STATUS from '~/constants/httpStatus'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const result = await userService.login(req.body)
@@ -28,6 +35,19 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
   res.status(200).json(result)
 }
 
-export const verifyEmailValidator = async (req: Request<ParamsDictionary, any, VerifyEmailToken>, res: Response) => {
-  const { decoded_verify_email_token } = req
+export const verifyEmailValidator = async (req: Request<ParamsDictionary, any, VerifyEmailReqBody>, res: Response) => {
+  const { user_id } = req.decoded_verify_email_token as TokenPayload
+  const user = await userService.checkExistedUser(user_id)
+
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGES.USER_NOT_FOUND
+    })
+  } else if (user && user.verify_email_token === '') {
+    return res.status(HTTP_STATUS.OK).json({
+      message: USERS_MESSAGES.EMAIL_ALREADY_VERIFIED
+    })
+  }
+  const result = await userService.verifyEmail(user?._id.toString() || '')
+  res.status(HTTP_STATUS.OK).json(result)
 }

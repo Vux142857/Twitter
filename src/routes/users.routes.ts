@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express'
-import { loginController, logoutController } from '~/controllers/users.controllers'
+import { loginController, logoutController, verifyEmailValidator } from '~/controllers/users.controllers'
 import { registerController } from '~/controllers/users.controllers'
 import {
   accessTokenValidator,
   loginValidator,
   refreshTokenValidator,
-  registerValidator
+  registerValidator,
+  verifyEmailTokenValidator
 } from '~/middlewares/users.middlewares'
 import databaseService from '~/services/database/database.services' // test clear database
 import { wrapAsync } from '~/utils/handler'
@@ -21,6 +22,8 @@ userRouter.get(
 userRouter.post('/login', loginValidator, wrapAsync(loginController))
 userRouter.post('/register', registerValidator, wrapAsync(registerController))
 userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapAsync(logoutController))
+userRouter.post('/verify-email', verifyEmailTokenValidator, wrapAsync(verifyEmailValidator))
+
 userRouter.post(
   '/clear-database',
   wrapAsync((req: Request, res: Response) => {

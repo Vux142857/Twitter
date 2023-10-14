@@ -8,6 +8,7 @@ const USERS_MESSAGES = {
   CONFIRM_EMAIL_IS_REQUIRED: 'Confirm email is required',
   INVALID_EMAIL_FORMAT: 'Invalid email format',
   EMAIL_ALREADY_EXISTS: 'Email already exists',
+  EMAIL_ALREADY_VERIFIED: 'Email already verified',
   MISSING_EMAIL_OR_PASSWORD: 'Missing email or password',
   // Password
   PASSWORD_IS_REQUIRED: 'Password is required',

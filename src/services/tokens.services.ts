@@ -6,7 +6,7 @@ import { ObjectId } from 'mongodb'
 import 'dotenv/config'
 
 class TokenService {
-  signAccessToken(userID: string): Promise<string> {
+  private signAccessToken(userID: string): Promise<string> {
     return signToken({
       payload: {
         userID,
@@ -14,12 +14,25 @@ class TokenService {
       },
       privateKey: process.env.JWT_SECRET_ACCESS_TOKEN as string,
       options: {
-        expiresIn: '15min'
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRED as string
       }
     })
   }
 
-  signRefreshToken(userID: string): Promise<string> {
+  private signVerifyEmailToken(userID: string): Promise<string> {
+    return signToken({
+      payload: {
+        userID,
+        token_type: TokenType.VerifyEmailToken
+      },
+      privateKey: process.env.JWT_SECRET_VERIFY_EMAIL_TOKEN as string,
+      options: {
+        expiresIn: process.env.VERIFY_EMAIL_TOKEN_EXPIRED as string
+      }
+    })
+  }
+
+  private signRefreshToken(userID: string): Promise<string> {
     return signToken({
       payload: {
         userID,
@@ -27,13 +40,21 @@ class TokenService {
       },
       privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string,
       options: {
-        expiresIn: '24h'
+        expiresIn: process.env.REFRESH_TOKEN_EXPIRED as string
       }
     })
   }
 
   async signAccessAndRefreshToken(user_id: string) {
     return await Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
+  }
+
+  async signTokenAfterRegister(user_id: string) {
+    return await Promise.all([
+      this.signAccessToken(user_id),
+      this.signRefreshToken(user_id),
+      this.signVerifyEmailToken(user_id)
+    ])
   }
 
   async storeRefreshToken(user_id: string, refreshToken: string) {

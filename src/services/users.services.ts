@@ -18,11 +18,12 @@ class UserService {
       })
     )
     const user_id = result.insertedId.toString()
-    const [accessToken, refreshToken] = await tokenService.signAccessAndRefreshToken(user_id)
+    const [accessToken, refreshToken, verify_email_token] = await tokenService.signTokenForRegister(user_id)
     await tokenService.storeRefreshToken(user_id, refreshToken)
     return {
       accessToken,
-      refreshToken
+      refreshToken,
+      verify_email_token
     }
   }
 
@@ -55,11 +56,14 @@ class UserService {
     })
   }
 
+  async checkExistedUser(user_id: string) {
+    return await databaseService.users.findOne({
+      _id: new ObjectId(user_id)
+    })
+  }
+
   async verifyEmail(user_id: string) {
-    const result = await databaseService.users.updateOne(
-      { _id: new ObjectId(user_id) },
-      { $set: { email_verify_token: '' } }
-    )
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, { $set: { email_verify_token: '' } })
     return {
       message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESS as string
     }
