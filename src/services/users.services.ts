@@ -18,12 +18,15 @@ class UserService {
       })
     )
     const user_id = result.insertedId.toString()
-    const [accessToken, refreshToken, verify_email_token] = await tokenService.signTokenForRegister(user_id)
-    await tokenService.storeRefreshToken(user_id, refreshToken)
+    const [accessToken, refreshToken, verifyEmailToken] = await tokenService.signTokenForRegister(user_id)
+    await Promise.all([
+      tokenService.storeRefreshToken(user_id, refreshToken),
+      tokenService.storeVerifyEmailToken(user_id, verifyEmailToken)
+    ])
     return {
       accessToken,
       refreshToken,
-      verify_email_token
+      verifyEmailToken
     }
   }
 
@@ -63,9 +66,32 @@ class UserService {
   }
 
   async verifyEmail(user_id: string) {
-    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, { $set: { email_verify_token: '' } })
+    const [token] = await Promise.all([
+      tokenService.signAccessAndRefreshToken(user_id),
+      await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+        { $set: { verify_email_token: '', verify: UserVerifyStatus.Verified, updated_at: '$$NOW' } }
+      ])
+    ])
+    const [accessToken, refreshToken] = token
     return {
-      message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESS as string
+      accessToken,
+      refreshToken
+    }
+  }
+
+  async resendVerifyEmailToken(user_id: string) {
+    const [accessToken, verifyEmailToken] = await tokenService.signAccessAndVerifyEmailToken(user_id)
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          verify_email_token: verifyEmailToken,
+          updated_at: '$$NOW'
+        }
+      }
+    ])
+    return {
+      accessToken,
+      verifyEmailToken
     }
   }
 }

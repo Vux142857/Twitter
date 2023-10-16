@@ -38,7 +38,6 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
 export const verifyEmailValidator = async (req: Request<ParamsDictionary, any, VerifyEmailReqBody>, res: Response) => {
   const { user_id } = req.decoded_verify_email_token as TokenPayload
   const user = await userService.checkExistedUser(user_id)
-
   if (!user) {
     return res.status(HTTP_STATUS.NOT_FOUND).json({
       message: USERS_MESSAGES.USER_NOT_FOUND
@@ -49,5 +48,29 @@ export const verifyEmailValidator = async (req: Request<ParamsDictionary, any, V
     })
   }
   const result = await userService.verifyEmail(user?._id.toString() || '')
-  res.status(HTTP_STATUS.OK).json(result)
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESS,
+    result
+  })
+}
+
+export const resendVerifyEmail = async (req: Request<ParamsDictionary, any, TokenPayload>, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const [user, result] = await Promise.all([
+    userService.checkExistedUser(user_id),
+    userService.resendVerifyEmailToken(user_id)
+  ])
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGES.USER_NOT_FOUND
+    })
+  } else if (user && user.verify_email_token === '') {
+    return res.status(HTTP_STATUS.OK).json({
+      message: USERS_MESSAGES.EMAIL_ALREADY_VERIFIED
+    })
+  }
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.RESEND_EMAIL_SUCCESS,
+    result
+  })
 }

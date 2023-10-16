@@ -190,7 +190,7 @@ export const refreshTokenValidator = validate(
 export const verifyEmailTokenValidator = validate(
   checkSchema(
     {
-      email_verify_token: {
+      verify_email_token: {
         notEmpty: {
           errorMessage: USERS_MESSAGES.VERIFY_EMAIL_TOKEN_IS_REQUIRED
         },

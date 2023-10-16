@@ -27,6 +27,7 @@ const USERS_MESSAGES = {
   REGISTER_SUCCESS: 'Register successful',
   REGISTER_FAILURE: 'Register failed',
   VERIFY_EMAIL_SUCCESS: 'Verified email successfully',
+  RESEND_EMAIL_SUCCESS: 'Resend verify email successfully',
   // Logout
   LOGOUT_SUCCESS: 'Logout successful',
   LOGOUT_FAILURE: 'Logout failed',

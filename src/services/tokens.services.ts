@@ -6,10 +6,10 @@ import { ObjectId } from 'mongodb'
 import 'dotenv/config'
 
 class TokenService {
-  private signAccessToken(userID: string): Promise<string> {
+  private signAccessToken(user_id: string): Promise<string> {
     return signToken({
       payload: {
-        userID,
+        user_id,
         token_type: TokenType.AccessToken
       },
       privateKey: process.env.JWT_SECRET_ACCESS_TOKEN as string,
@@ -19,10 +19,10 @@ class TokenService {
     })
   }
 
-  private signVerifyEmailToken(userID: string): Promise<string> {
+  private signVerifyEmailToken(user_id: string): Promise<string> {
     return signToken({
       payload: {
-        userID,
+        user_id,
         token_type: TokenType.VerifyEmailToken
       },
       privateKey: process.env.JWT_SECRET_VERIFY_EMAIL_TOKEN as string,
@@ -32,10 +32,10 @@ class TokenService {
     })
   }
 
-  private signRefreshToken(userID: string): Promise<string> {
+  private signRefreshToken(user_id: string): Promise<string> {
     return signToken({
       payload: {
-        userID,
+        user_id,
         token_type: TokenType.RefreshToken
       },
       privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string,
@@ -49,7 +49,11 @@ class TokenService {
     return await Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
   }
 
-  async signTokenAfterRegister(user_id: string) {
+  async signAccessAndVerifyEmailToken(user_id: string) {
+    return await Promise.all([this.signAccessToken(user_id), this.signVerifyEmailToken(user_id)])
+  }
+
+  async signTokenForRegister(user_id: string) {
     return await Promise.all([
       this.signAccessToken(user_id),
       this.signRefreshToken(user_id),
@@ -60,6 +64,15 @@ class TokenService {
   async storeRefreshToken(user_id: string, refreshToken: string) {
     return await databaseService.refreshTokens.insertOne(
       new RefreshToken({ token: refreshToken, user_id: new ObjectId(user_id) })
+    )
+  }
+
+  async storeVerifyEmailToken(user_id: string, verify_email_token: string) {
+    return await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      {
+        $set: { verify_email_token }
+      }
     )
   }
 
