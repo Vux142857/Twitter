@@ -1,4 +1,4 @@
-import { checkSchema } from 'express-validator'
+import { check, checkSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
 import userService from '~/services/users.services'
 import { ErrorWithStatus } from '~/models/Errors'
@@ -221,3 +221,36 @@ export const verifyEmailTokenValidator = validate(
     ['body']
   )
 )
+
+export const forgotPasswordValidator = validate(
+  checkSchema(
+    {
+      email: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+        },
+        trim: true,
+        isEmail: true,
+        errorMessage: USERS_MESSAGES.INVALID_EMAIL_FORMAT,
+        custom: {
+          options: async (value, { req }) => {
+            const user = await userService.checkExistedEmail(value)
+            if (!user) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.USER_NOT_FOUND,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            } else {
+              const user_id = user._id.toString()
+              req.user_id = user_id
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const forgotPasswordTokenValidator = validate(checkSchema({}))

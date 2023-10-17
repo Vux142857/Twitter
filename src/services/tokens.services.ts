@@ -19,19 +19,6 @@ class TokenService {
     })
   }
 
-  private signVerifyEmailToken(user_id: string): Promise<string> {
-    return signToken({
-      payload: {
-        user_id,
-        token_type: TokenType.VerifyEmailToken
-      },
-      privateKey: process.env.JWT_SECRET_VERIFY_EMAIL_TOKEN as string,
-      options: {
-        expiresIn: process.env.VERIFY_EMAIL_TOKEN_EXPIRED as string
-      }
-    })
-  }
-
   private signRefreshToken(user_id: string): Promise<string> {
     return signToken({
       payload: {
@@ -45,12 +32,34 @@ class TokenService {
     })
   }
 
-  async signAccessAndRefreshToken(user_id: string) {
-    return await Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
+  async signVerifyEmailToken(user_id: string): Promise<string> {
+    return signToken({
+      payload: {
+        user_id,
+        token_type: TokenType.VerifyEmailToken
+      },
+      privateKey: process.env.JWT_SECRET_VERIFY_EMAIL_TOKEN as string,
+      options: {
+        expiresIn: process.env.VERIFY_EMAIL_TOKEN_EXPIRED as string
+      }
+    })
   }
 
-  async signAccessAndVerifyEmailToken(user_id: string) {
-    return await Promise.all([this.signAccessToken(user_id), this.signVerifyEmailToken(user_id)])
+  async signForgotPasswordToken(user_id: string): Promise<string> {
+    return signToken({
+      payload: {
+        user_id,
+        token_type: TokenType.ForgotPasswordToken
+      },
+      privateKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string,
+      options: {
+        expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRED as string
+      }
+    })
+  }
+
+  async signAccessAndRefreshToken(user_id: string) {
+    return await Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
   }
 
   async signTokenForRegister(user_id: string) {

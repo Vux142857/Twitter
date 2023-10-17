@@ -31,7 +31,9 @@ const USERS_MESSAGES = {
   // Logout
   LOGOUT_SUCCESS: 'Logout successful',
   LOGOUT_FAILURE: 'Logout failed',
-  // Authentication
+  //Forgot password
+  FORGOT_PASSWORD_TOKEN_DONE: 'Create forgot password token successfully',
+  // Authentication token
   ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
   ACCESS_TOKEN_INVALID: 'Access token invalid',
   REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',

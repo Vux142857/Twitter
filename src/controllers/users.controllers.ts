@@ -35,7 +35,7 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
   res.status(200).json(result)
 }
 
-export const verifyEmailValidator = async (req: Request<ParamsDictionary, any, VerifyEmailReqBody>, res: Response) => {
+export const verifyEmailController = async (req: Request<ParamsDictionary, any, VerifyEmailReqBody>, res: Response) => {
   const { user_id } = req.decoded_verify_email_token as TokenPayload
   const user = await userService.checkExistedUser(user_id)
   if (!user) {
@@ -54,7 +54,7 @@ export const verifyEmailValidator = async (req: Request<ParamsDictionary, any, V
   })
 }
 
-export const resendVerifyEmail = async (req: Request<ParamsDictionary, any, TokenPayload>, res: Response) => {
+export const resendVerifyEmailController = async (req: Request<ParamsDictionary, any, TokenPayload>, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const [user, result] = await Promise.all([
     userService.checkExistedUser(user_id),
@@ -69,8 +69,11 @@ export const resendVerifyEmail = async (req: Request<ParamsDictionary, any, Toke
       message: USERS_MESSAGES.EMAIL_ALREADY_VERIFIED
     })
   }
-  res.status(HTTP_STATUS.OK).json({
-    message: USERS_MESSAGES.RESEND_EMAIL_SUCCESS,
-    result
-  })
+  res.status(HTTP_STATUS.OK).json(result)
+}
+
+export const createForgotPasswordController = async (req: Request<ParamsDictionary, any, string>, res: Response) => {
+  const user_id = req.user_id as string
+  const result = await userService.createForgotPasswordToken(user_id)
+  res.status(HTTP_STATUS.OK).json(result)
 }

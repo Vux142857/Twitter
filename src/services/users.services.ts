@@ -80,7 +80,7 @@ class UserService {
   }
 
   async resendVerifyEmailToken(user_id: string) {
-    const [accessToken, verifyEmailToken] = await tokenService.signAccessAndVerifyEmailToken(user_id)
+    const verifyEmailToken = await tokenService.signVerifyEmailToken(user_id)
     await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
       {
         $set: {
@@ -90,8 +90,22 @@ class UserService {
       }
     ])
     return {
-      accessToken,
-      verifyEmailToken
+      message: USERS_MESSAGES.RESEND_EMAIL_SUCCESS
+    }
+  }
+
+  async createForgotPasswordToken(user_id: string) {
+    const forgotPasswordToken = await tokenService.signForgotPasswordToken(user_id)
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          forgot_password_token: forgotPasswordToken,
+          updated_at: '$$NOW'
+        }
+      }
+    ])
+    return {
+      message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_DONE
     }
   }
 }
