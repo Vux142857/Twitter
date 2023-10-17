@@ -89,9 +89,7 @@ class UserService {
         }
       }
     ])
-    return {
-      message: USERS_MESSAGES.RESEND_EMAIL_SUCCESS
-    }
+    return {}
   }
 
   async createForgotPasswordToken(user_id: string) {
@@ -106,6 +104,26 @@ class UserService {
     ])
     return {
       message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_DONE
+    }
+  }
+
+  async resetPassword(user_id: string, password: string) {
+    const [token] = await Promise.all([
+      tokenService.signAccessAndRefreshToken(user_id),
+      await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+        {
+          $set: {
+            forgot_password_token: '',
+            password: await encryptPassword(password),
+            updated_at: '$$NOW'
+          }
+        }
+      ])
+    ])
+    const [accessToken, refreshToken] = token
+    return {
+      accessToken,
+      refreshToken
     }
   }
 }

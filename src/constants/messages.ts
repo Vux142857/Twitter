@@ -13,6 +13,7 @@ const USERS_MESSAGES = {
   // Password
   PASSWORD_IS_REQUIRED: 'Password is required',
   PASSWORDS_DO_NOT_MATCH: 'Passwords do not match',
+  INVALID_PASSWORD_FORMAT: 'Invalid password format',
   CONFIRM_PASSWORD_IS_REQUIRED: 'Confirm password is required',
   PASSWORD_TOO_SHORT: 'Password is too short',
   PASSWORD_TOO_WEAK: 'Password is too weak',
@@ -33,13 +34,17 @@ const USERS_MESSAGES = {
   LOGOUT_FAILURE: 'Logout failed',
   //Forgot password
   FORGOT_PASSWORD_TOKEN_DONE: 'Create forgot password token successfully',
+  FORGOT_PASSWORD_VALID: 'Forgot password token valid',
+  RESET_PASSWORD_SUCCESS: 'Reset password successfully',
   // Authentication token
   ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
   ACCESS_TOKEN_INVALID: 'Access token invalid',
   REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',
   REFRESH_TOKEN_INVALID: 'Refresh token invalid',
   VERIFY_EMAIL_TOKEN_IS_REQUIRED: 'Verify email token is required',
-  VERIFY_EMAIL_TOKEN_INVALID: 'Verify email token invalid'
+  VERIFY_EMAIL_TOKEN_INVALID: 'Verify email token invalid',
+  FORGOT_PASSWORD_TOKEN_IS_REQUIRED: 'Forgot password token is required',
+  FORGOT_PASSWORD_TOKEN_INVALID: 'Forgot password token invalid'
 }
 
 export default USERS_MESSAGES

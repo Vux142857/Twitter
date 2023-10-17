@@ -1,4 +1,4 @@
-import { check, checkSchema } from 'express-validator'
+import { ParamSchema, checkSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
 import userService from '~/services/users.services'
 import { ErrorWithStatus } from '~/models/Errors'
@@ -7,6 +7,70 @@ import USERS_MESSAGES from '~/constants/messages'
 import { verifyToken } from '~/utils/jwt'
 import tokenService from '~/services/tokens.services'
 import { JsonWebTokenError } from 'jsonwebtoken'
+
+const passwordSchema: ParamSchema = {
+  notEmpty: {
+    errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+  },
+  isString: {
+    errorMessage: USERS_MESSAGES.INVALID_PASSWORD_FORMAT
+  },
+  isLength: {
+    options: { min: 8 },
+    errorMessage: USERS_MESSAGES.PASSWORD_TOO_SHORT
+  },
+  isStrongPassword: {
+    options: {
+      minLowercase: 1,
+      minNumbers: 1,
+      minUppercase: 1,
+      minSymbols: 1
+    },
+    errorMessage: USERS_MESSAGES.PASSWORD_TOO_WEAK
+  }
+}
+
+const confirmPasswordSchema: ParamSchema = {
+  notEmpty: {
+    errorMessage: USERS_MESSAGES.CONFIRM_EMAIL_IS_REQUIRED
+  },
+  custom: {
+    options: (value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error(USERS_MESSAGES.PASSWORDS_DO_NOT_MATCH)
+      }
+      return true
+    }
+  }
+}
+
+const forgotPasswordTokenSchema: ParamSchema = {
+  notEmpty: {
+    errorMessage: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED
+  },
+  isString: {
+    errorMessage: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_INVALID
+  },
+  custom: {
+    options: async (value: string, { req }) => {
+      try {
+        const decoded_forgot_password_token = await verifyToken({
+          token: value,
+          secretKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
+        })
+        req.decoded_forgot_password_token = decoded_forgot_password_token
+      } catch (error) {
+        if (error instanceof JsonWebTokenError) {
+          throw new ErrorWithStatus({
+            message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_INVALID,
+            status: HTTP_STATUS.UNAUTHORIZED
+          })
+        }
+      }
+      return true
+    }
+  }
+}
 
 export const loginValidator = validate(
   checkSchema(
@@ -66,37 +130,8 @@ export const registerValidator = validate(
           }
         }
       },
-      password: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
-        },
-        isLength: {
-          options: { min: 8 },
-          errorMessage: USERS_MESSAGES.PASSWORD_TOO_SHORT
-        },
-        isStrongPassword: {
-          options: {
-            minLowercase: 1,
-            minNumbers: 1,
-            minUppercase: 1,
-            minSymbols: 1
-          },
-          errorMessage: USERS_MESSAGES.PASSWORD_TOO_WEAK
-        }
-      },
-      confirm_password: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGES.CONFIRM_EMAIL_IS_REQUIRED
-        },
-        custom: {
-          options: (value, { req }) => {
-            if (value !== req.body.password) {
-              throw new Error(USERS_MESSAGES.PASSWORDS_DO_NOT_MATCH)
-            }
-            return true
-          }
-        }
-      },
+      password: passwordSchema,
+      confirm_password: confirmPasswordSchema,
       date_of_birth: {
         notEmpty: true,
         isISO8601: {
@@ -222,7 +257,7 @@ export const verifyEmailTokenValidator = validate(
   )
 )
 
-export const forgotPasswordValidator = validate(
+export const forgotPasswordEmailValidator = validate(
   checkSchema(
     {
       email: {
@@ -253,4 +288,19 @@ export const forgotPasswordValidator = validate(
   )
 )
 
-export const forgotPasswordTokenValidator = validate(checkSchema({}))
+export const forgotPasswordTokenValidator = validate(
+  checkSchema(
+    {
+      forgot_password_token: forgotPasswordTokenSchema
+    },
+    ['body']
+  )
+)
+
+export const resetPasswordValidator = validate(
+  checkSchema({
+    password: passwordSchema,
+    confirm_password: confirmPasswordSchema,
+    forgot_password_token: forgotPasswordTokenSchema
+  })
+)

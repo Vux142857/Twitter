@@ -69,11 +69,54 @@ export const resendVerifyEmailController = async (req: Request<ParamsDictionary,
       message: USERS_MESSAGES.EMAIL_ALREADY_VERIFIED
     })
   }
-  res.status(HTTP_STATUS.OK).json(result)
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.RESEND_EMAIL_SUCCESS
+  })
 }
 
 export const createForgotPasswordController = async (req: Request<ParamsDictionary, any, string>, res: Response) => {
   const user_id = req.user_id as string
   const result = await userService.createForgotPasswordToken(user_id)
   res.status(HTTP_STATUS.OK).json(result)
+}
+
+export const verifyForgotPasswordController = async (
+  req: Request<ParamsDictionary, any, TokenPayload>,
+  res: Response
+) => {
+  const { user_id } = req.decoded_forgot_password_token as TokenPayload
+  const { forgot_password_token, password } = req.body
+  const user = await userService.checkExistedUser(user_id)
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGES.USER_NOT_FOUND
+    })
+  } else if (user.forgot_password_token !== forgot_password_token) {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_INVALID
+    })
+  }
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.FORGOT_PASSWORD_VALID
+  })
+}
+
+export const resetPasswordController = async (req: Request<ParamsDictionary, any, TokenPayload>, res: Response) => {
+  const { user_id } = req.decoded_forgot_password_token as TokenPayload
+  const { forgot_password_token, password } = req.body
+  const user = await userService.checkExistedUser(user_id)
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGES.USER_NOT_FOUND
+    })
+  } else if (user.forgot_password_token !== forgot_password_token) {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_INVALID
+    })
+  }
+  const result = await userService.resetPassword(user_id, password)
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS,
+    result
+  })
 }

@@ -4,16 +4,20 @@ import {
   loginController,
   logoutController,
   resendVerifyEmailController,
-  verifyEmailController
+  resetPasswordController,
+  verifyEmailController,
+  verifyForgotPasswordController
 } from '~/controllers/users.controllers'
 import { registerController } from '~/controllers/users.controllers'
 import {
   accessTokenValidator,
-  forgotPasswordValidator,
+  forgotPasswordTokenValidator,
+  forgotPasswordEmailValidator,
   loginValidator,
   refreshTokenValidator,
   registerValidator,
-  verifyEmailTokenValidator
+  verifyEmailTokenValidator,
+  resetPasswordValidator
 } from '~/middlewares/users.middlewares'
 import databaseService from '~/services/database/database.services' // test clear database
 import { wrapAsync } from '~/utils/handler'
@@ -31,8 +35,9 @@ userRouter.post('/register', registerValidator, wrapAsync(registerController))
 userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapAsync(logoutController))
 userRouter.post('/verify-email', verifyEmailTokenValidator, wrapAsync(verifyEmailController))
 userRouter.post('/resend-verify-email', accessTokenValidator, wrapAsync(resendVerifyEmailController))
-userRouter.post('/create-forgot-password', forgotPasswordValidator, wrapAsync(createForgotPasswordController))
-userRouter.post('/verify-forgot-password', forgotPasswordValidator, wrapAsync(createForgotPasswordController))
+userRouter.post('/create-forgot-password', forgotPasswordEmailValidator, wrapAsync(createForgotPasswordController))
+userRouter.post('/verify-forgot-password', forgotPasswordTokenValidator, wrapAsync(verifyForgotPasswordController))
+userRouter.post('/reset-password', resetPasswordValidator, wrapAsync(resetPasswordController))
 
 userRouter.post(
   '/clear-database',
