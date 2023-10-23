@@ -1,16 +1,17 @@
 import databaseService from './database/database.services'
 import { signToken } from '~/utils/jwt'
-import { TokenType } from '~/constants/enum'
+import { TokenType, UserVerifyStatus } from '~/constants/enum'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { ObjectId } from 'mongodb'
 import 'dotenv/config'
 
 class TokenService {
-  private signAccessToken(user_id: string): Promise<string> {
+  private signAccessToken(user_id: string, verify_status?: UserVerifyStatus): Promise<string> {
     return signToken({
       payload: {
         user_id,
-        token_type: TokenType.AccessToken
+        token_type: TokenType.AccessToken,
+        verify: verify_status || UserVerifyStatus.Unverified
       },
       privateKey: process.env.JWT_SECRET_ACCESS_TOKEN as string,
       options: {
@@ -58,8 +59,8 @@ class TokenService {
     })
   }
 
-  async signAccessAndRefreshToken(user_id: string) {
-    return await Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
+  async signAccessAndRefreshToken(user_id: string, verify_status?: UserVerifyStatus) {
+    return await Promise.all([this.signAccessToken(user_id, verify_status), this.signRefreshToken(user_id)])
   }
 
   async signTokenForRegister(user_id: string) {

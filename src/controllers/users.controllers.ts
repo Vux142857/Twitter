@@ -6,7 +6,8 @@ import {
   LoginReqBody,
   LogoutReqBody,
   VerifyEmailReqBody,
-  TokenPayload
+  TokenPayload,
+  UpdateProfileBody
 } from '~/models/requests/User.requests'
 import USERS_MESSAGES from '~/constants/messages'
 import HTTP_STATUS from '~/constants/httpStatus'
@@ -54,9 +55,9 @@ export const verifyEmailController = async (req: Request<ParamsDictionary, any, 
   })
 }
 
-export const resendVerifyEmailController = async (req: Request<ParamsDictionary, any, TokenPayload>, res: Response) => {
+export const resendVerifyEmailController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
-  const [user, result] = await Promise.all([
+  const [user] = await Promise.all([
     userService.checkExistedUser(user_id),
     userService.resendVerifyEmailToken(user_id)
   ])
@@ -74,18 +75,15 @@ export const resendVerifyEmailController = async (req: Request<ParamsDictionary,
   })
 }
 
-export const createForgotPasswordController = async (req: Request<ParamsDictionary, any, string>, res: Response) => {
+export const createForgotPasswordController = async (req: Request, res: Response) => {
   const user_id = req.user_id as string
   const result = await userService.createForgotPasswordToken(user_id)
   res.status(HTTP_STATUS.OK).json(result)
 }
 
-export const verifyForgotPasswordController = async (
-  req: Request<ParamsDictionary, any, TokenPayload>,
-  res: Response
-) => {
+export const verifyForgotPasswordController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_forgot_password_token as TokenPayload
-  const { forgot_password_token, password } = req.body
+  const { forgot_password_token } = req.body
   const user = await userService.checkExistedUser(user_id)
   if (!user) {
     return res.status(HTTP_STATUS.NOT_FOUND).json({
@@ -101,7 +99,7 @@ export const verifyForgotPasswordController = async (
   })
 }
 
-export const resetPasswordController = async (req: Request<ParamsDictionary, any, TokenPayload>, res: Response) => {
+export const resetPasswordController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_forgot_password_token as TokenPayload
   const { forgot_password_token, password } = req.body
   const user = await userService.checkExistedUser(user_id)
@@ -118,5 +116,24 @@ export const resetPasswordController = async (req: Request<ParamsDictionary, any
   res.status(HTTP_STATUS.OK).json({
     message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS,
     result
+  })
+}
+
+export const getMeController = async (req: Request, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const user = await userService.getUser(user_id)
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.GET_USER_SUCCESS,
+    user
+  })
+}
+
+export const updateMeController = async (req: Request<ParamsDictionary, any, UpdateProfileBody>, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const body = req.body
+  const result = await userService.updateProfileUser(user_id, body)
+  console.log(result)
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.UPDATE_USER_SUCCESS
   })
 }

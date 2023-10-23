@@ -7,6 +7,9 @@ import USERS_MESSAGES from '~/constants/messages'
 import { verifyToken } from '~/utils/jwt'
 import tokenService from '~/services/tokens.services'
 import { JsonWebTokenError } from 'jsonwebtoken'
+import { Request, Response, NextFunction } from 'express'
+import { TokenPayload } from '~/models/requests/User.requests'
+import { UserVerifyStatus } from '~/constants/enum'
 
 const passwordSchema: ParamSchema = {
   notEmpty: {
@@ -72,6 +75,45 @@ const forgotPasswordTokenSchema: ParamSchema = {
   }
 }
 
+const nameSchema: ParamSchema = {
+  notEmpty: {
+    errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
+  },
+  trim: true,
+  isLength: {
+    options: {
+      min: 1,
+      max: 100
+    }
+  },
+  errorMessage: USERS_MESSAGES.INVALID_NAME_FORMAT
+}
+
+const dateOfBirthSchema: ParamSchema = {
+  notEmpty: true,
+  isISO8601: {
+    options: {
+      strict: true,
+      strictSeparator: true
+    }
+  },
+  errorMessage: USERS_MESSAGES.INVALID_DATE_OF_BIRTH_FORMAT
+}
+
+const imageSchema: ParamSchema = {
+  optional: true,
+  trim: true,
+  isURL: {
+    errorMessage: USERS_MESSAGES.INVALID_AVATAR_FORMAT
+  },
+  isLength: {
+    options: {
+      min: 3,
+      max: 400
+    }
+  }
+}
+
 export const loginValidator = validate(
   checkSchema(
     {
@@ -97,19 +139,7 @@ export const loginValidator = validate(
 export const registerValidator = validate(
   checkSchema(
     {
-      name: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
-        },
-        trim: true,
-        isLength: {
-          options: {
-            min: 1,
-            max: 100
-          }
-        },
-        errorMessage: USERS_MESSAGES.INVALID_NAME_FORMAT
-      },
+      name: nameSchema,
       email: {
         notEmpty: {
           errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
@@ -132,16 +162,7 @@ export const registerValidator = validate(
       },
       password: passwordSchema,
       confirm_password: confirmPasswordSchema,
-      date_of_birth: {
-        notEmpty: true,
-        isISO8601: {
-          options: {
-            strict: true,
-            strictSeparator: true
-          }
-        },
-        errorMessage: USERS_MESSAGES.INVALID_DATE_OF_BIRTH_FORMAT
-      }
+      date_of_birth: dateOfBirthSchema
     },
     ['body']
   )
@@ -303,4 +324,84 @@ export const resetPasswordValidator = validate(
     confirm_password: confirmPasswordSchema,
     forgot_password_token: forgotPasswordTokenSchema
   })
+)
+
+export const verifedUserValidator = (req: Request, res: Response, next: NextFunction) => {
+  const { verify } = req.decoded_authorization as TokenPayload
+  if (verify !== UserVerifyStatus.Verified) {
+    next(new ErrorWithStatus({ message: USERS_MESSAGES.USER_NOT_VERIFIED, status: HTTP_STATUS.FORBIDDEN }))
+  }
+  next()
+}
+
+export const updateMeValidator = validate(
+  checkSchema(
+    {
+      name: {
+        ...nameSchema,
+        notEmpty: false,
+        optional: true
+      },
+      date_of_birth: {
+        ...dateOfBirthSchema,
+        optional: true
+      },
+      bio: {
+        optional: true,
+        isString: {
+          errorMessage: USERS_MESSAGES.INVALID_BIO_FORMAT
+        },
+        isLength: {
+          options: {
+            min: 1,
+            max: 255
+          },
+          errorMessage: USERS_MESSAGES.BIO_TOO_LONG
+        }
+      },
+      location: {
+        optional: true,
+        isString: {
+          errorMessage: USERS_MESSAGES.INVALID_BIO_FORMAT
+        },
+        isLength: {
+          options: {
+            max: 200
+          },
+          errorMessage: USERS_MESSAGES.LOCATION_TOO_LONG
+        }
+      },
+      username: {
+        optional: true,
+        isString: {
+          errorMessage: USERS_MESSAGES.INVALID_USERNAME_FORMAT
+        },
+        trim: true,
+        isLength: {
+          options: {
+            min: 3,
+            max: 20
+          },
+          errorMessage: USERS_MESSAGES.USERNAME_LENGTH
+        }
+      },
+      avatar: imageSchema,
+      cover_photo: imageSchema,
+      website: {
+        optional: true,
+        isURL: {
+          errorMessage: USERS_MESSAGES.INVALID_WEBSITE_URL_FORMAT
+        },
+        trim: true,
+        isLength: {
+          options: {
+            min: 3,
+            max: 400
+          },
+          errorMessage: USERS_MESSAGES.WEBSITE_URL_LENGTH
+        }
+      }
+    },
+    ['body']
+  )
 )

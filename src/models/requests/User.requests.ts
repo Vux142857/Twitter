@@ -27,3 +27,14 @@ export interface TokenPayload extends JwtPayload {
   token: string
   user_id: string
 }
+
+export interface UpdateProfileBody {
+  name?: string
+  date_of_birth?: string // Data user patch is string
+  bio?: string
+  location?: string
+  username?: string
+  avatar?: string
+  cover_photo?: string
+  website?: string
+}

@@ -1,7 +1,7 @@
 import User from '~/models/schemas/User.schema'
 import databaseService from './database/database.services'
 import tokenService from './tokens.services'
-import { RegisterReqBody, LoginReqBody } from '~/models/requests/User.requests'
+import { RegisterReqBody, LoginReqBody, UpdateProfileBody } from '~/models/requests/User.requests'
 import { encryptPassword, comparePassword } from '~/utils/crypto'
 import { UserVerifyStatus } from '~/constants/enum'
 import USERS_MESSAGES from '~/constants/messages'
@@ -13,12 +13,12 @@ class UserService {
       new User({
         ...payload,
         date_of_birth: new Date(payload.date_of_birth),
-        password: await encryptPassword(payload.password),
-        verify: UserVerifyStatus.Unverified
+        password: await encryptPassword(payload.password)
       })
     )
     const user_id = result.insertedId.toString()
     const [accessToken, refreshToken, verifyEmailToken] = await tokenService.signTokenForRegister(user_id)
+
     await Promise.all([
       tokenService.storeRefreshToken(user_id, refreshToken),
       tokenService.storeVerifyEmailToken(user_id, verifyEmailToken)
@@ -32,10 +32,11 @@ class UserService {
 
   async login(payload: LoginReqBody) {
     if (payload.email && payload.password) {
-      const user = await userService.checkExistedEmail(payload.email)
+      const user = await this.checkExistedEmail(payload.email)
       if (user && (await comparePassword(payload.password, user.password))) {
         const user_id = user._id.toString()
-        const [accessToken, refreshToken] = await tokenService.signAccessAndRefreshToken(user_id)
+        const [accessToken, refreshToken] = await tokenService.signAccessAndRefreshToken(user_id, user.verify)
+
         await tokenService.storeRefreshToken(user_id, refreshToken)
         return {
           accessToken,
@@ -67,7 +68,7 @@ class UserService {
 
   async verifyEmail(user_id: string) {
     const [token] = await Promise.all([
-      tokenService.signAccessAndRefreshToken(user_id),
+      tokenService.signAccessAndRefreshToken(user_id, UserVerifyStatus.Verified),
       await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
         { $set: { verify_email_token: '', verify: UserVerifyStatus.Verified, updated_at: '$$NOW' } }
       ])
@@ -108,23 +109,53 @@ class UserService {
   }
 
   async resetPassword(user_id: string, password: string) {
+    const [newPassword, user] = await Promise.all([encryptPassword(password), this.checkExistedUser(user_id)])
     const [token] = await Promise.all([
-      tokenService.signAccessAndRefreshToken(user_id),
-      await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      tokenService.signAccessAndRefreshToken(user_id, user?.verify),
+      databaseService.users.updateOne(
+        { _id: new ObjectId(user_id) },
         {
           $set: {
             forgot_password_token: '',
-            password: await encryptPassword(password),
-            updated_at: '$$NOW'
-          }
+            password: newPassword
+          },
+          $currentDate: { updated_at: true }
         }
-      ])
+      )
     ])
     const [accessToken, refreshToken] = token
+
     return {
       accessToken,
       refreshToken
     }
+  }
+
+  async getUser(user_id: string) {
+    return await databaseService.users.findOne(
+      {
+        _id: new ObjectId(user_id)
+      },
+      {
+        projection: {
+          password: 0,
+          verify_email_token: 0,
+          forgot_password_token: 0
+        }
+      }
+    )
+  }
+
+  async updateProfileUser(user_id: string, requestBody: UpdateProfileBody) {
+    return await databaseService.users.updateOne(
+      {
+        _id: new ObjectId(user_id)
+      },
+      {
+        $set: { ...requestBody, date_of_birth: requestBody.date_of_birth as Date | undefined },
+        $currentDate: { updated_at: true }
+      }
+    )
   }
 }
 

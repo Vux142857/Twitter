@@ -21,9 +21,23 @@ const USERS_MESSAGES = {
   INVALID_DATE_OF_BIRTH_FORMAT: 'Date of birth is invalid',
   USER_NOT_FOUND: 'User not found',
   INVALID_CREDENTIALS: 'Invalid credentials',
+  INVALID_BIO_FORMAT: 'Bio must be a string',
+  BIO_TOO_LONG: 'Bio is too long',
+  LOCATION_TOO_LONG: 'Location is too long',
+  INVALID_AVATAR_FORMAT: 'Avatar must be a string',
+  INVALID_USERNAME_FORMAT: 'Username must be a string',
+  USERNAME_LENGTH: 'Username must be between 3 and 20 characters',
+  IMG_URL_LENGTH: 'Image url must be between 3 and 400 characters',
+  INVALID_IMG_URL_FORMAT: 'Image url must be a string',
+  WEBSITE_URL_LENGTH: 'Image url must be between 3 and 400 characters',
+  INVALID_WEBSITE_URL_FORMAT: 'Image url must be a string',
+  // Update user's profile
+  UPDATE_USER_SUCCESS: 'Update user successfully',
+  UPDATE_USER_FAILURE: 'Update user failed',
   // Login
   LOGIN_SUCCESS: 'Login successful',
   LOGIN_FAILURE: 'Login failed',
+  GET_USER_SUCCESS: 'Get user success',
   // Register
   REGISTER_SUCCESS: 'Register successful',
   REGISTER_FAILURE: 'Register failed',
@@ -44,7 +58,8 @@ const USERS_MESSAGES = {
   VERIFY_EMAIL_TOKEN_IS_REQUIRED: 'Verify email token is required',
   VERIFY_EMAIL_TOKEN_INVALID: 'Verify email token invalid',
   FORGOT_PASSWORD_TOKEN_IS_REQUIRED: 'Forgot password token is required',
-  FORGOT_PASSWORD_TOKEN_INVALID: 'Forgot password token invalid'
+  FORGOT_PASSWORD_TOKEN_INVALID: 'Forgot password token invalid',
+  USER_NOT_VERIFIED: 'User have not been verified'
 }
 
 export default USERS_MESSAGES
