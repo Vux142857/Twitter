@@ -57,10 +57,7 @@ export const verifyEmailController = async (req: Request<ParamsDictionary, any, 
 
 export const resendVerifyEmailController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
-  const [user] = await Promise.all([
-    userService.checkExistedUser(user_id),
-    userService.resendVerifyEmailToken(user_id)
-  ])
+  const [user] = await Promise.all([userService.checkExistedUser(user_id), userService.resendVerifyEmailToken(user_id)])
   if (!user) {
     return res.status(HTTP_STATUS.NOT_FOUND).json({
       message: USERS_MESSAGES.USER_NOT_FOUND
@@ -131,9 +128,17 @@ export const getMeController = async (req: Request, res: Response) => {
 export const updateMeController = async (req: Request<ParamsDictionary, any, UpdateProfileBody>, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const body = req.body
-  const result = await userService.updateProfileUser(user_id, body)
-  console.log(result)
+  await userService.updateProfileUser(user_id, body)
   res.status(HTTP_STATUS.OK).json({
     message: USERS_MESSAGES.UPDATE_USER_SUCCESS
+  })
+}
+
+export const getUserController = async (req: Request, res: Response) => {
+  const { username } = req.params
+  const user = await userService.getUserByUsername(username)
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.USER_FOUND,
+    user
   })
 }

@@ -55,9 +55,11 @@ class UserService {
   }
 
   async checkExistedEmail(email: string) {
-    return await databaseService.users.findOne({
-      email
-    })
+    return await databaseService.users.findOne({ email })
+  }
+
+  async checkExistedUsername(username: string) {
+    return await databaseService.users.findOne({ username })
   }
 
   async checkExistedUser(user_id: string) {
@@ -154,6 +156,26 @@ class UserService {
       {
         $set: { ...requestBody, date_of_birth: requestBody.date_of_birth as Date | undefined },
         $currentDate: { updated_at: true }
+      }
+    )
+  }
+
+  async getUserByUsername(username: string) {
+    return await databaseService.users.findOne(
+      {
+        username,
+        verify: { $in: [UserVerifyStatus.Verified, UserVerifyStatus.Unverified] }
+      },
+      {
+        projection: {
+          _id: 0,
+          password: 0,
+          verify_email_token: 0,
+          forgot_password_token: 0,
+          created_at: 0,
+          updated_at: 0,
+          verify: 0
+        }
       }
     )
   }

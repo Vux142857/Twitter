@@ -1,5 +1,9 @@
 const USERS_MESSAGES = {
   VALIDATION_ERROR: 'Validation error',
+  // Username
+  USERNAME_LENGTH: 'Username must be between 3 and 20 characters',
+  USERNAME_ALREADY_EXISTS: 'Username already exists',
+  USERNAME_IS_REQUIRED: 'Username is required',
   // Name
   NAME_IS_REQUIRED: 'Name is required',
   INVALID_NAME_FORMAT: 'Name is invalid',
@@ -26,7 +30,6 @@ const USERS_MESSAGES = {
   LOCATION_TOO_LONG: 'Location is too long',
   INVALID_AVATAR_FORMAT: 'Avatar must be a string',
   INVALID_USERNAME_FORMAT: 'Username must be a string',
-  USERNAME_LENGTH: 'Username must be between 3 and 20 characters',
   IMG_URL_LENGTH: 'Image url must be between 3 and 400 characters',
   INVALID_IMG_URL_FORMAT: 'Image url must be a string',
   WEBSITE_URL_LENGTH: 'Image url must be between 3 and 400 characters',
@@ -34,6 +37,7 @@ const USERS_MESSAGES = {
   // Update user's profile
   UPDATE_USER_SUCCESS: 'Update user successfully',
   UPDATE_USER_FAILURE: 'Update user failed',
+  USER_FOUND: 'User found',
   // Login
   LOGIN_SUCCESS: 'Login successful',
   LOGIN_FAILURE: 'Login failed',

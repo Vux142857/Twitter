@@ -114,6 +114,36 @@ const imageSchema: ParamSchema = {
   }
 }
 
+const usernameSchema: ParamSchema = {
+  trim: true,
+  isString: {
+    errorMessage: USERS_MESSAGES.INVALID_USERNAME_FORMAT
+  },
+  matches: {
+    options: /^[a-zA-Z0-9_]{3,20}$/,
+    errorMessage: USERS_MESSAGES.INVALID_USERNAME_FORMAT
+  },
+  isLength: {
+    options: {
+      min: 3,
+      max: 20
+    },
+    errorMessage: USERS_MESSAGES.USERNAME_LENGTH
+  },
+  custom: {
+    options: async (value) => {
+      const existedUser = await userService.checkExistedUsername(value)
+      if (existedUser) {
+        throw new ErrorWithStatus({
+          message: USERS_MESSAGES.USERNAME_ALREADY_EXISTS,
+          status: HTTP_STATUS.CONFLICT
+        })
+      }
+      return true
+    }
+  }
+}
+
 export const loginValidator = validate(
   checkSchema(
     {
@@ -140,6 +170,12 @@ export const registerValidator = validate(
   checkSchema(
     {
       name: nameSchema,
+      username: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.USERNAME_IS_REQUIRED
+        },
+        ...usernameSchema
+      },
       email: {
         notEmpty: {
           errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
@@ -153,7 +189,7 @@ export const registerValidator = validate(
             if (existedEmail) {
               throw new ErrorWithStatus({
                 message: USERS_MESSAGES.EMAIL_ALREADY_EXISTS,
-                status: HTTP_STATUS.UNAUTHORIZED
+                status: HTTP_STATUS.CONFLICT
               })
             }
             return true
@@ -371,20 +407,7 @@ export const updateMeValidator = validate(
           errorMessage: USERS_MESSAGES.LOCATION_TOO_LONG
         }
       },
-      username: {
-        optional: true,
-        isString: {
-          errorMessage: USERS_MESSAGES.INVALID_USERNAME_FORMAT
-        },
-        trim: true,
-        isLength: {
-          options: {
-            min: 3,
-            max: 20
-          },
-          errorMessage: USERS_MESSAGES.USERNAME_LENGTH
-        }
-      },
+      username: { ...usernameSchema, optional: true },
       avatar: imageSchema,
       cover_photo: imageSchema,
       website: {

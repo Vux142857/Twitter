@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import {
   createForgotPasswordController,
   getMeController,
+  getUserController,
   loginController,
   logoutController,
   resendVerifyEmailController,
@@ -35,7 +36,9 @@ userRouter.get(
     res.send('Hello World!')
   })
 )
-
+// Description: Register new user
+// Route: POST /api/users/register
+// Access: Public
 userRouter.post('/login', loginValidator, wrapAsync(loginController))
 userRouter.post('/register', registerValidator, wrapAsync(registerController))
 userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapAsync(logoutController))
@@ -45,7 +48,6 @@ userRouter.post('/create-forgot-password', forgotPasswordEmailValidator, wrapAsy
 userRouter.post('/verify-forgot-password', forgotPasswordTokenValidator, wrapAsync(verifyForgotPasswordController))
 userRouter.post('/reset-password', resetPasswordValidator, wrapAsync(resetPasswordController))
 userRouter.get('/me', accessTokenValidator, wrapAsync(getMeController))
-userRouter.get('/:username')
 userRouter.patch(
   '/me',
   accessTokenValidator,
@@ -63,6 +65,7 @@ userRouter.patch(
   ]),
   wrapAsync(updateMeController)
 )
+userRouter.get('/:username', wrapAsync(getUserController))
 
 userRouter.post(
   '/clear-database',
