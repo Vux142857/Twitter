@@ -20,7 +20,20 @@ class TokenService {
     })
   }
 
-  private signRefreshToken(user_id: string): Promise<string> {
+  private signRefreshToken(user_id: string, exp?: number): Promise<string> {
+    if (exp) {
+      return signToken({
+        payload: {
+          user_id,
+          token_type: TokenType.RefreshToken,
+          exp
+        },
+        privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string,
+        options: {
+          expiresIn: process.env.REFRESH_TOKEN_EXPIRED as string
+        }
+      })
+    }
     return signToken({
       payload: {
         user_id,
@@ -59,8 +72,8 @@ class TokenService {
     })
   }
 
-  async signAccessAndRefreshToken(user_id: string, verify_status?: UserVerifyStatus) {
-    return await Promise.all([this.signAccessToken(user_id, verify_status), this.signRefreshToken(user_id)])
+  async signAccessAndRefreshToken(user_id: string, verify_status?: UserVerifyStatus, exp?: number) {
+    return await Promise.all([this.signAccessToken(user_id, verify_status), this.signRefreshToken(user_id, exp)])
   }
 
   async signTokenForRegister(user_id: string) {

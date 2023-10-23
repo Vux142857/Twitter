@@ -26,6 +26,7 @@ export interface VerifyEmailReqBody {
 export interface TokenPayload extends JwtPayload {
   token: string
   user_id: string
+  exp: number
 }
 
 export interface UpdateProfileBody {
