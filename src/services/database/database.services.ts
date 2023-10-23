@@ -33,6 +33,23 @@ class DatabaseService {
   get refreshTokens(): Collection<RefreshToken> {
     return this.db.collection(process.env.COLLECTION_REFRESH_TOKEN as string)
   }
+
+  async indexesUsers() {
+    const checkExisted = await this.users.indexExists(['email_1', 'username_1', 'username_1_verify_1'])
+    if (!checkExisted) {
+      this.users.createIndex({ email: 1 }, { unique: true })
+      this.users.createIndex({ username: 1, verify: 1 }, { unique: true })
+      this.users.createIndex({ username: 1 }, { unique: true })
+    }
+  }
+
+  async indexesRefreshTokens() {
+    const checkExisted = await this.refreshTokens.indexExists(['user_id_1', 'token_1'])
+    if (!checkExisted) {
+      this.refreshTokens.createIndex({ user_id: 1 })
+      this.refreshTokens.createIndex({ token: 1 }, { unique: true })
+    }
+  }
 }
 const databaseService = new DatabaseService()
 export default databaseService

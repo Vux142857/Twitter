@@ -36,9 +36,6 @@ userRouter.get(
     res.send('Hello World!')
   })
 )
-// Description: Register new user
-// Route: POST /api/users/register
-// Access: Public
 userRouter.post('/login', loginValidator, wrapAsync(loginController))
 userRouter.post('/register', registerValidator, wrapAsync(registerController))
 userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapAsync(logoutController))
