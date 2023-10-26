@@ -4,7 +4,6 @@ import userService from '~/services/users.services'
 import { ErrorWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
 import USERS_MESSAGES from '~/constants/messages'
-import { verifyToken } from '~/utils/jwt'
 import tokenService from '~/services/tokens.services'
 import { JsonWebTokenError } from 'jsonwebtoken'
 import { Request, Response, NextFunction } from 'express'
@@ -57,10 +56,7 @@ const forgotPasswordTokenSchema: ParamSchema = {
   custom: {
     options: async (value: string, { req }) => {
       try {
-        const decoded_forgot_password_token = await verifyToken({
-          token: value,
-          secretKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
-        })
+        const decoded_forgot_password_token = await tokenService.decodeForgotPasswordToken(value)
         req.decoded_forgot_password_token = decoded_forgot_password_token
       } catch (error) {
         if (error instanceof JsonWebTokenError) {
@@ -224,10 +220,7 @@ export const accessTokenValidator = validate(
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }
-              const decoded_access_token = await verifyToken({
-                token: accessToken,
-                secretKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
-              })
+              const decoded_access_token = await tokenService.decodeAccessToken(accessToken)
               req.decoded_authorization = decoded_access_token
             } catch (error) {
               throw new ErrorWithStatus({
@@ -259,10 +252,7 @@ export const refreshTokenValidator = validate(
             try {
               const refreshToken = await tokenService.checkExistedRefreshToken(value)
               const existedToken = refreshToken ? refreshToken.token : ''
-              const decoded_refresh_token = await verifyToken({
-                token: existedToken,
-                secretKey: process.env.JWT_SECRET_REFRESH_TOKEN as string
-              })
+              const decoded_refresh_token = await tokenService.decodeRefreshToken(existedToken)
               req.decoded_refresh_token = decoded_refresh_token
             } catch (error) {
               throw new ErrorWithStatus({
@@ -292,10 +282,7 @@ export const verifyEmailTokenValidator = validate(
         custom: {
           options: async (value: string, { req }) => {
             try {
-              const decoded_verify_email_token = await verifyToken({
-                token: value,
-                secretKey: process.env.JWT_SECRET_VERIFY_EMAIL_TOKEN as string
-              })
+              const decoded_verify_email_token = await tokenService.decodeVerifyEmailToken(value)
               req.decoded_verify_email_token = decoded_verify_email_token
             } catch (error) {
               if (error instanceof JsonWebTokenError) {

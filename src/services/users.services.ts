@@ -18,7 +18,6 @@ class UserService {
     )
     const user_id = result.insertedId.toString()
     const [accessToken, refreshToken, verifyEmailToken] = await tokenService.signTokenForRegister(user_id)
-
     await Promise.all([
       tokenService.storeRefreshToken(user_id, refreshToken),
       tokenService.storeVerifyEmailToken(user_id, verifyEmailToken)
@@ -36,7 +35,6 @@ class UserService {
       if (user && (await comparePassword(payload.password, user.password))) {
         const user_id = user._id.toString()
         const [accessToken, refreshToken] = await tokenService.signAccessAndRefreshToken(user_id, user.verify)
-
         await tokenService.storeRefreshToken(user_id, refreshToken)
         return {
           accessToken,
@@ -69,13 +67,16 @@ class UserService {
   }
 
   async verifyEmail(user_id: string) {
+    const expOfRefreshToken = await tokenService.getExpOfRefreshToken(user_id)
+    const expOld = expOfRefreshToken?.exp
     const [token] = await Promise.all([
-      tokenService.signAccessAndRefreshToken(user_id, UserVerifyStatus.Verified),
+      tokenService.signAccessAndRefreshToken(user_id, UserVerifyStatus.Verified, expOld),
       await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
         { $set: { verify_email_token: '', verify: UserVerifyStatus.Verified, updated_at: '$$NOW' } }
       ])
     ])
     const [accessToken, refreshToken] = token
+    await tokenService.storeRefreshToken(user_id, refreshToken)
     return {
       accessToken,
       refreshToken
@@ -111,9 +112,14 @@ class UserService {
   }
 
   async resetPassword(user_id: string, password: string) {
-    const [newPassword, user] = await Promise.all([encryptPassword(password), this.checkExistedUser(user_id)])
+    const [newPassword, user, expOfRefreshToken] = await Promise.all([
+      encryptPassword(password),
+      this.checkExistedUser(user_id),
+      tokenService.getExpOfRefreshToken(user_id)
+    ])
+    const expOld = expOfRefreshToken?.exp
     const [token] = await Promise.all([
-      tokenService.signAccessAndRefreshToken(user_id, user?.verify),
+      tokenService.signAccessAndRefreshToken(user_id, user?.verify, expOld),
       databaseService.users.updateOne(
         { _id: new ObjectId(user_id) },
         {
@@ -126,7 +132,7 @@ class UserService {
       )
     ])
     const [accessToken, refreshToken] = token
-
+    await tokenService.storeRefreshToken(user_id, refreshToken)
     return {
       accessToken,
       refreshToken
