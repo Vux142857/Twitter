@@ -7,10 +7,13 @@ import {
   LogoutReqBody,
   VerifyEmailReqBody,
   TokenPayload,
-  UpdateProfileBody
+  UpdateProfileBody,
+  followBody,
+  unfollowParams
 } from '~/models/requests/User.requests'
 import USERS_MESSAGES from '~/constants/messages'
 import HTTP_STATUS from '~/constants/httpStatus'
+import followService from '~/services/followers.services'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const result = await userService.login(req.body)
@@ -140,5 +143,23 @@ export const getUserController = async (req: Request, res: Response) => {
   res.status(HTTP_STATUS.OK).json({
     message: USERS_MESSAGES.USER_FOUND,
     user
+  })
+}
+
+export const followController = async (req: Request<ParamsDictionary, any, followBody>, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { following_user_id } = req.body as followBody
+  await userService.followUser(user_id, following_user_id)
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.FOLLOW_USER_SUCCESS
+  })
+}
+
+export const unfollowController = async (req: Request<unfollowParams>, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { following_user_id } = req.params as unfollowParams
+  await userService.unfollowUser(user_id, following_user_id)
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.UNFOLLOW_USER_SUCCESS
   })
 }

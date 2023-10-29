@@ -1,7 +1,8 @@
 import { MongoClient, ServerApiVersion, Db, Collection } from 'mongodb'
-import User from '~/models/schemas/User.schema'
 import 'dotenv/config'
+import User from '~/models/schemas/User.schema'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
+import Follow from '~/models/schemas/Follow.schema'
 
 const uri = process.env.DATABASE_URI as string
 class DatabaseService {
@@ -34,6 +35,10 @@ class DatabaseService {
     return this.db.collection(process.env.COLLECTION_REFRESH_TOKEN as string)
   }
 
+  get follows(): Collection<Follow> {
+    return this.db.collection(process.env.COLLECTION_FOLLOW as string)
+  }
+
   async indexesUsers() {
     const checkExisted = await this.users.indexExists(['email_1', 'username_1', 'username_1_verify_1'])
     if (!checkExisted) {
@@ -48,6 +53,19 @@ class DatabaseService {
     if (!checkExisted) {
       this.refreshTokens.createIndex({ user_id: 1 })
       this.refreshTokens.createIndex({ token: 1 }, { unique: true })
+    }
+  }
+
+  async indexesFollow() {
+    const checkExisted = await this.follows.indexExists([
+      'user_id_1',
+      'following_user_id_1',
+      'user_id_1_following_user_id_1'
+    ])
+    if (!checkExisted) {
+      this.follows.createIndex({ user_id: 1 })
+      this.follows.createIndex({ following_user_id: 1 })
+      this.follows.createIndex({ user_id: 1, following_user_id: 1 }, { unique: true })
     }
   }
 }

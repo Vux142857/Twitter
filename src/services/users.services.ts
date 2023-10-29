@@ -6,6 +6,7 @@ import { encryptPassword, comparePassword } from '~/utils/crypto'
 import { UserVerifyStatus } from '~/constants/enum'
 import USERS_MESSAGES from '~/constants/messages'
 import { ObjectId } from 'mongodb'
+import followService from './followers.services'
 
 class UserService {
   async register(payload: RegisterReqBody) {
@@ -184,6 +185,22 @@ class UserService {
         }
       }
     )
+  }
+
+  async followUser(user_id: string, following_user_id: string) {
+    return await followService.storeFollow(user_id, following_user_id)
+  }
+
+  async unfollowUser(user_id: string, following_user_id: string) {
+    return await followService.deleteFollow(user_id, following_user_id)
+  }
+
+  async getFollowers(user_id: string) {
+    return await followService.getFollowers(user_id)
+  }
+
+  async getFollowing(user_id: string) {
+    return await followService.getFollowings(user_id)
   }
 }
 

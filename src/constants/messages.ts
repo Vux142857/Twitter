@@ -63,7 +63,15 @@ const USERS_MESSAGES = {
   VERIFY_EMAIL_TOKEN_INVALID: 'Verify email token invalid',
   FORGOT_PASSWORD_TOKEN_IS_REQUIRED: 'Forgot password token is required',
   FORGOT_PASSWORD_TOKEN_INVALID: 'Forgot password token invalid',
-  USER_NOT_VERIFIED: 'User have not been verified'
+  USER_NOT_VERIFIED: 'User have not been verified',
+  // Follow
+  FOLLOW_USER_SUCCESS: 'Follow user successfully',
+  FOLLOWING_USER_ID_IS_REQUIRED: 'Following user id is required',
+  INVALID_FOLLOWING_USER_ID_FORMAT: 'Following user id must be a string',
+  FOLLOW_USER_FAILURE: 'Follow user failed',
+  USER_ALREADY_FOLLOWED: 'User already followed',
+  USER_ALREADY_UNFOLLOWED: 'User already unfollowed',
+  UNFOLLOW_USER_SUCCESS: 'Unfollow user successfully'
 }
 
 export default USERS_MESSAGES

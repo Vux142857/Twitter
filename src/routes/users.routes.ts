@@ -1,12 +1,14 @@
 import { Router, Request, Response } from 'express'
 import {
   createForgotPasswordController,
+  followController,
   getMeController,
   getUserController,
   loginController,
   logoutController,
   resendVerifyEmailController,
   resetPasswordController,
+  unfollowController,
   updateMeController,
   verifyEmailController,
   verifyForgotPasswordController
@@ -23,7 +25,9 @@ import {
   verifyEmailTokenValidator,
   resetPasswordValidator,
   verifedUserValidator,
-  updateMeValidator
+  updateMeValidator,
+  followValidator,
+  unfollowValidator
 } from '~/middlewares/users.middlewares'
 import { UpdateProfileBody } from '~/models/requests/User.requests'
 import databaseService from '~/services/database/database.services' // test clear database
@@ -63,7 +67,15 @@ userRouter.patch(
   wrapAsync(updateMeController)
 )
 userRouter.get('/:username', wrapAsync(getUserController))
-
+userRouter.post('/follow', accessTokenValidator, followValidator, verifedUserValidator, wrapAsync(followController))
+userRouter.delete(
+  '/follow/:following_user_id',
+  accessTokenValidator,
+  unfollowValidator,
+  verifedUserValidator,
+  wrapAsync(unfollowController)
+)
+// test clear database
 userRouter.post(
   '/clear-database',
   wrapAsync((req: Request, res: Response) => {

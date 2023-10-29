@@ -9,6 +9,7 @@ import { JsonWebTokenError } from 'jsonwebtoken'
 import { Request, Response, NextFunction } from 'express'
 import { TokenPayload } from '~/models/requests/User.requests'
 import { UserVerifyStatus } from '~/constants/enum'
+import followService from '~/services/followers.services'
 
 const passwordSchema: ParamSchema = {
   notEmpty: {
@@ -413,5 +414,81 @@ export const updateMeValidator = validate(
       }
     },
     ['body']
+  )
+)
+
+export const followValidator = validate(
+  checkSchema(
+    {
+      following_user_id: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.FOLLOWING_USER_ID_IS_REQUIRED
+        },
+        isString: {
+          errorMessage: USERS_MESSAGES.INVALID_FOLLOWING_USER_ID_FORMAT
+        },
+        custom: {
+          options: async (value, { req }) => {
+            const { user_id } = req.decoded_authorization as TokenPayload
+            const [existedUser, existedfollow] = await Promise.all([
+              userService.checkExistedUser(value),
+              followService.findFollow(user_id, value)
+            ])
+            if (!existedUser) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.USER_NOT_FOUND,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+            if (existedfollow) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.USER_ALREADY_FOLLOWED,
+                status: HTTP_STATUS.CONFLICT
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const unfollowValidator = validate(
+  checkSchema(
+    {
+      following_user_id: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.FOLLOWING_USER_ID_IS_REQUIRED
+        },
+        isString: {
+          errorMessage: USERS_MESSAGES.INVALID_FOLLOWING_USER_ID_FORMAT
+        },
+        custom: {
+          options: async (value, { req }) => {
+            const { user_id } = req.decoded_authorization as TokenPayload
+            const [existedUser, existedfollow] = await Promise.all([
+              userService.checkExistedUser(value),
+              followService.findFollow(user_id, value)
+            ])
+            if (!existedUser) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.USER_NOT_FOUND,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+            if (!existedfollow) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.USER_ALREADY_UNFOLLOWED,
+                status: HTTP_STATUS.CONFLICT
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params']
   )
 )

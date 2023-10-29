@@ -7,7 +7,11 @@ import { defaultErrorHandler } from './middlewares/errors.middlewares'
 const app = express()
 const port = 3000
 databaseService.connect().then(async () => {
-  await Promise.all([databaseService.indexesUsers(), databaseService.indexesRefreshTokens()])
+  await Promise.all([
+    databaseService.indexesUsers(),
+    databaseService.indexesRefreshTokens(),
+    databaseService.indexesFollow()
+  ])
 })
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
