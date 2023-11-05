@@ -1,15 +1,15 @@
 import { ParamSchema, checkSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
-import userService from '~/services/users.services'
-import { ErrorWithStatus } from '~/models/Errors'
+import userService from '~/services/user.services'
+import { ErrorWithStatus } from '~/models/Error'
 import HTTP_STATUS from '~/constants/httpStatus'
 import USERS_MESSAGES from '~/constants/messages'
-import tokenService from '~/services/tokens.services'
+import tokenService from '~/services/token.services'
 import { JsonWebTokenError } from 'jsonwebtoken'
 import { Request, Response, NextFunction } from 'express'
 import { TokenPayload } from '~/models/requests/User.requests'
 import { UserVerifyStatus } from '~/constants/enum'
-import followService from '~/services/followers.services'
+import followService from '~/services/follower.services'
 
 const passwordSchema: ParamSchema = {
   notEmpty: {

@@ -1,12 +1,12 @@
 import User from '~/models/schemas/User.schema'
 import databaseService from './database/database.services'
-import tokenService from './tokens.services'
+import tokenService from './token.services'
 import { RegisterReqBody, LoginReqBody, UpdateProfileBody } from '~/models/requests/User.requests'
 import { encryptPassword, comparePassword } from '~/utils/crypto'
 import { UserVerifyStatus } from '~/constants/enum'
 import USERS_MESSAGES from '~/constants/messages'
 import { ObjectId } from 'mongodb'
-import followService from './followers.services'
+import followService from './follower.services'
 
 class UserService {
   async register(payload: RegisterReqBody) {

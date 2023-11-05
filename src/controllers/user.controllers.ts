@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import userService from '~/services/users.services'
+import userService from '~/services/user.services'
 import { ParamsDictionary } from 'express-serve-static-core'
 import {
   RegisterReqBody,
@@ -13,7 +13,7 @@ import {
 } from '~/models/requests/User.requests'
 import USERS_MESSAGES from '~/constants/messages'
 import HTTP_STATUS from '~/constants/httpStatus'
-import followService from '~/services/followers.services'
+import followService from '~/services/follower.services'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const result = await userService.login(req.body)

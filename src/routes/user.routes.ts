@@ -12,8 +12,8 @@ import {
   updateMeController,
   verifyEmailController,
   verifyForgotPasswordController
-} from '~/controllers/users.controllers'
-import { registerController } from '~/controllers/users.controllers'
+} from '~/controllers/user.controllers'
+import { registerController } from '~/controllers/user.controllers'
 import { filterMiddleware } from '~/middlewares/common.middlewares'
 import {
   accessTokenValidator,
@@ -28,7 +28,7 @@ import {
   updateMeValidator,
   followValidator,
   unfollowValidator
-} from '~/middlewares/users.middlewares'
+} from '~/middlewares/user.middlewares'
 import { UpdateProfileBody } from '~/models/requests/User.requests'
 import databaseService from '~/services/database/database.services' // test clear database
 import { wrapAsync } from '~/utils/handler'

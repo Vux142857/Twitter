@@ -1,7 +1,7 @@
 import { validationResult, ValidationChain } from 'express-validator';
 import { NextFunction, Request, Response } from 'express'
 import { RunnableValidationChains } from 'express-validator/src/middlewares/schema';
-import { EntityError, ErrorWithStatus } from '~/models/Errors';
+import { EntityError, ErrorWithStatus } from '~/models/Error';
 import HTTP_STATUS from '~/constants/httpStatus';
 
 export const validate = (validations: RunnableValidationChains<ValidationChain>) => {
