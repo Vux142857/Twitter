@@ -1,4 +1,4 @@
-const USERS_MESSAGES = {
+export const USER_MESSAGES = {
   VALIDATION_ERROR: 'Validation error',
   // Username
   USERNAME_LENGTH: 'Username must be between 3 and 20 characters',
@@ -74,4 +74,10 @@ const USERS_MESSAGES = {
   UNFOLLOW_USER_SUCCESS: 'Unfollow user successfully'
 }
 
-export default USERS_MESSAGES
+export const MEDIA_MESSAGES = {
+  INTERNAL_SERVER_ERROR: 'Internal Server Error',
+  IMAGE_IS_REQUIRED: 'Image is required',
+  IMAGE_IS_INVALID: 'Image is invalid',
+  ONLY_IMAGES_ARE_ALLOWED: 'Only images are allowed',
+  UPLOAD_IMAGE_SUCCESS: 'Upload image success!'
+}

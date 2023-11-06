@@ -4,7 +4,7 @@ import tokenService from './token.services'
 import { RegisterReqBody, LoginReqBody, UpdateProfileBody } from '~/models/requests/User.requests'
 import { encryptPassword, comparePassword } from '~/utils/crypto'
 import { UserVerifyStatus } from '~/constants/enum'
-import USERS_MESSAGES from '~/constants/messages'
+import { USER_MESSAGES } from '~/constants/messages'
 import { ObjectId } from 'mongodb'
 import followService from './follower.services'
 
@@ -49,7 +49,7 @@ class UserService {
   async logout(refresh_token: string) {
     await databaseService.refreshTokens.deleteOne({ token: refresh_token })
     return {
-      message: USERS_MESSAGES.LOGOUT_SUCCESS
+      message: USER_MESSAGES.LOGOUT_SUCCESS
     }
   }
 
@@ -108,7 +108,7 @@ class UserService {
       }
     ])
     return {
-      message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_DONE
+      message: USER_MESSAGES.FORGOT_PASSWORD_TOKEN_DONE
     }
   }
 

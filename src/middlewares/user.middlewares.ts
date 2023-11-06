@@ -3,7 +3,7 @@ import { validate } from '~/utils/validation'
 import userService from '~/services/user.services'
 import { ErrorWithStatus } from '~/models/Error'
 import HTTP_STATUS from '~/constants/httpStatus'
-import USERS_MESSAGES from '~/constants/messages'
+import { USER_MESSAGES } from '~/constants/messages'
 import tokenService from '~/services/token.services'
 import { JsonWebTokenError } from 'jsonwebtoken'
 import { Request, Response, NextFunction } from 'express'
@@ -13,14 +13,14 @@ import followService from '~/services/follower.services'
 
 const passwordSchema: ParamSchema = {
   notEmpty: {
-    errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+    errorMessage: USER_MESSAGES.PASSWORD_IS_REQUIRED
   },
   isString: {
-    errorMessage: USERS_MESSAGES.INVALID_PASSWORD_FORMAT
+    errorMessage: USER_MESSAGES.INVALID_PASSWORD_FORMAT
   },
   isLength: {
     options: { min: 8 },
-    errorMessage: USERS_MESSAGES.PASSWORD_TOO_SHORT
+    errorMessage: USER_MESSAGES.PASSWORD_TOO_SHORT
   },
   isStrongPassword: {
     options: {
@@ -29,18 +29,18 @@ const passwordSchema: ParamSchema = {
       minUppercase: 1,
       minSymbols: 1
     },
-    errorMessage: USERS_MESSAGES.PASSWORD_TOO_WEAK
+    errorMessage: USER_MESSAGES.PASSWORD_TOO_WEAK
   }
 }
 
 const confirmPasswordSchema: ParamSchema = {
   notEmpty: {
-    errorMessage: USERS_MESSAGES.CONFIRM_EMAIL_IS_REQUIRED
+    errorMessage: USER_MESSAGES.CONFIRM_EMAIL_IS_REQUIRED
   },
   custom: {
     options: (value, { req }) => {
       if (value !== req.body.password) {
-        throw new Error(USERS_MESSAGES.PASSWORDS_DO_NOT_MATCH)
+        throw new Error(USER_MESSAGES.PASSWORDS_DO_NOT_MATCH)
       }
       return true
     }
@@ -49,10 +49,10 @@ const confirmPasswordSchema: ParamSchema = {
 
 const forgotPasswordTokenSchema: ParamSchema = {
   notEmpty: {
-    errorMessage: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED
+    errorMessage: USER_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED
   },
   isString: {
-    errorMessage: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_INVALID
+    errorMessage: USER_MESSAGES.FORGOT_PASSWORD_TOKEN_INVALID
   },
   custom: {
     options: async (value: string, { req }) => {
@@ -62,7 +62,7 @@ const forgotPasswordTokenSchema: ParamSchema = {
       } catch (error) {
         if (error instanceof JsonWebTokenError) {
           throw new ErrorWithStatus({
-            message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_INVALID,
+            message: USER_MESSAGES.FORGOT_PASSWORD_TOKEN_INVALID,
             status: HTTP_STATUS.UNAUTHORIZED
           })
         }
@@ -74,7 +74,7 @@ const forgotPasswordTokenSchema: ParamSchema = {
 
 const nameSchema: ParamSchema = {
   notEmpty: {
-    errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
+    errorMessage: USER_MESSAGES.NAME_IS_REQUIRED
   },
   trim: true,
   isLength: {
@@ -83,7 +83,7 @@ const nameSchema: ParamSchema = {
       max: 100
     }
   },
-  errorMessage: USERS_MESSAGES.INVALID_NAME_FORMAT
+  errorMessage: USER_MESSAGES.INVALID_NAME_FORMAT
 }
 
 const dateOfBirthSchema: ParamSchema = {
@@ -94,14 +94,14 @@ const dateOfBirthSchema: ParamSchema = {
       strictSeparator: true
     }
   },
-  errorMessage: USERS_MESSAGES.INVALID_DATE_OF_BIRTH_FORMAT
+  errorMessage: USER_MESSAGES.INVALID_DATE_OF_BIRTH_FORMAT
 }
 
 const imageSchema: ParamSchema = {
   optional: true,
   trim: true,
   isURL: {
-    errorMessage: USERS_MESSAGES.INVALID_AVATAR_FORMAT
+    errorMessage: USER_MESSAGES.INVALID_AVATAR_FORMAT
   },
   isLength: {
     options: {
@@ -114,25 +114,25 @@ const imageSchema: ParamSchema = {
 const usernameSchema: ParamSchema = {
   trim: true,
   isString: {
-    errorMessage: USERS_MESSAGES.INVALID_USERNAME_FORMAT
+    errorMessage: USER_MESSAGES.INVALID_USERNAME_FORMAT
   },
   matches: {
     options: /^[a-zA-Z0-9_]{3,20}$/,
-    errorMessage: USERS_MESSAGES.INVALID_USERNAME_FORMAT
+    errorMessage: USER_MESSAGES.INVALID_USERNAME_FORMAT
   },
   isLength: {
     options: {
       min: 3,
       max: 20
     },
-    errorMessage: USERS_MESSAGES.USERNAME_LENGTH
+    errorMessage: USER_MESSAGES.USERNAME_LENGTH
   },
   custom: {
     options: async (value) => {
       const existedUser = await userService.checkExistedUsername(value)
       if (existedUser) {
         throw new ErrorWithStatus({
-          message: USERS_MESSAGES.USERNAME_ALREADY_EXISTS,
+          message: USER_MESSAGES.USERNAME_ALREADY_EXISTS,
           status: HTTP_STATUS.CONFLICT
         })
       }
@@ -146,16 +146,16 @@ export const loginValidator = validate(
     {
       email: {
         notEmpty: {
-          errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+          errorMessage: USER_MESSAGES.EMAIL_IS_REQUIRED
         },
         trim: true,
         isEmail: {
-          errorMessage: USERS_MESSAGES.INVALID_EMAIL_FORMAT
+          errorMessage: USER_MESSAGES.INVALID_EMAIL_FORMAT
         }
       },
       password: {
         notEmpty: {
-          errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+          errorMessage: USER_MESSAGES.PASSWORD_IS_REQUIRED
         }
       }
     },
@@ -169,23 +169,23 @@ export const registerValidator = validate(
       name: nameSchema,
       username: {
         notEmpty: {
-          errorMessage: USERS_MESSAGES.USERNAME_IS_REQUIRED
+          errorMessage: USER_MESSAGES.USERNAME_IS_REQUIRED
         },
         ...usernameSchema
       },
       email: {
         notEmpty: {
-          errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+          errorMessage: USER_MESSAGES.EMAIL_IS_REQUIRED
         },
         trim: true,
         isEmail: true,
-        errorMessage: USERS_MESSAGES.INVALID_EMAIL_FORMAT,
+        errorMessage: USER_MESSAGES.INVALID_EMAIL_FORMAT,
         custom: {
           options: async (value) => {
             const existedEmail = await userService.checkExistedEmail(value)
             if (existedEmail) {
               throw new ErrorWithStatus({
-                message: USERS_MESSAGES.EMAIL_ALREADY_EXISTS,
+                message: USER_MESSAGES.EMAIL_ALREADY_EXISTS,
                 status: HTTP_STATUS.CONFLICT
               })
             }
@@ -206,10 +206,10 @@ export const accessTokenValidator = validate(
     {
       Authorization: {
         notEmpty: {
-          errorMessage: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED
+          errorMessage: USER_MESSAGES.ACCESS_TOKEN_IS_REQUIRED
         },
         isString: {
-          errorMessage: USERS_MESSAGES.ACCESS_TOKEN_INVALID
+          errorMessage: USER_MESSAGES.ACCESS_TOKEN_INVALID
         },
         custom: {
           options: async (value: string, { req }) => {
@@ -217,7 +217,7 @@ export const accessTokenValidator = validate(
               const accessToken = value.split(' ')[1]
               if (accessToken === '') {
                 throw new ErrorWithStatus({
-                  message: USERS_MESSAGES.ACCESS_TOKEN_INVALID,
+                  message: USER_MESSAGES.ACCESS_TOKEN_INVALID,
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }
@@ -225,7 +225,7 @@ export const accessTokenValidator = validate(
               req.decoded_authorization = decoded_access_token
             } catch (error) {
               throw new ErrorWithStatus({
-                message: USERS_MESSAGES.ACCESS_TOKEN_INVALID,
+                message: USER_MESSAGES.ACCESS_TOKEN_INVALID,
                 status: HTTP_STATUS.UNAUTHORIZED
               })
             }
@@ -243,10 +243,10 @@ export const refreshTokenValidator = validate(
     {
       refresh_token: {
         notEmpty: {
-          errorMessage: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED
+          errorMessage: USER_MESSAGES.REFRESH_TOKEN_IS_REQUIRED
         },
         isString: {
-          errorMessage: USERS_MESSAGES.REFRESH_TOKEN_INVALID
+          errorMessage: USER_MESSAGES.REFRESH_TOKEN_INVALID
         },
         custom: {
           options: async (value: string, { req }) => {
@@ -257,7 +257,7 @@ export const refreshTokenValidator = validate(
               req.decoded_refresh_token = decoded_refresh_token
             } catch (error) {
               throw new ErrorWithStatus({
-                message: USERS_MESSAGES.REFRESH_TOKEN_INVALID,
+                message: USER_MESSAGES.REFRESH_TOKEN_INVALID,
                 status: HTTP_STATUS.UNAUTHORIZED
               })
             }
@@ -275,10 +275,10 @@ export const verifyEmailTokenValidator = validate(
     {
       verify_email_token: {
         notEmpty: {
-          errorMessage: USERS_MESSAGES.VERIFY_EMAIL_TOKEN_IS_REQUIRED
+          errorMessage: USER_MESSAGES.VERIFY_EMAIL_TOKEN_IS_REQUIRED
         },
         isString: {
-          errorMessage: USERS_MESSAGES.VERIFY_EMAIL_TOKEN_INVALID
+          errorMessage: USER_MESSAGES.VERIFY_EMAIL_TOKEN_INVALID
         },
         custom: {
           options: async (value: string, { req }) => {
@@ -288,7 +288,7 @@ export const verifyEmailTokenValidator = validate(
             } catch (error) {
               if (error instanceof JsonWebTokenError) {
                 throw new ErrorWithStatus({
-                  message: USERS_MESSAGES.VERIFY_EMAIL_TOKEN_INVALID,
+                  message: USER_MESSAGES.VERIFY_EMAIL_TOKEN_INVALID,
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }
@@ -307,17 +307,17 @@ export const forgotPasswordEmailValidator = validate(
     {
       email: {
         notEmpty: {
-          errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+          errorMessage: USER_MESSAGES.EMAIL_IS_REQUIRED
         },
         trim: true,
         isEmail: true,
-        errorMessage: USERS_MESSAGES.INVALID_EMAIL_FORMAT,
+        errorMessage: USER_MESSAGES.INVALID_EMAIL_FORMAT,
         custom: {
           options: async (value, { req }) => {
             const user = await userService.checkExistedEmail(value)
             if (!user) {
               throw new ErrorWithStatus({
-                message: USERS_MESSAGES.USER_NOT_FOUND,
+                message: USER_MESSAGES.USER_NOT_FOUND,
                 status: HTTP_STATUS.NOT_FOUND
               })
             } else {
@@ -353,7 +353,7 @@ export const resetPasswordValidator = validate(
 export const verifedUserValidator = (req: Request, res: Response, next: NextFunction) => {
   const { verify } = req.decoded_authorization as TokenPayload
   if (verify !== UserVerifyStatus.Verified) {
-    next(new ErrorWithStatus({ message: USERS_MESSAGES.USER_NOT_VERIFIED, status: HTTP_STATUS.FORBIDDEN }))
+    next(new ErrorWithStatus({ message: USER_MESSAGES.USER_NOT_VERIFIED, status: HTTP_STATUS.FORBIDDEN }))
   }
   next()
 }
@@ -373,26 +373,26 @@ export const updateMeValidator = validate(
       bio: {
         optional: true,
         isString: {
-          errorMessage: USERS_MESSAGES.INVALID_BIO_FORMAT
+          errorMessage: USER_MESSAGES.INVALID_BIO_FORMAT
         },
         isLength: {
           options: {
             min: 1,
             max: 255
           },
-          errorMessage: USERS_MESSAGES.BIO_TOO_LONG
+          errorMessage: USER_MESSAGES.BIO_TOO_LONG
         }
       },
       location: {
         optional: true,
         isString: {
-          errorMessage: USERS_MESSAGES.INVALID_BIO_FORMAT
+          errorMessage: USER_MESSAGES.INVALID_BIO_FORMAT
         },
         isLength: {
           options: {
             max: 200
           },
-          errorMessage: USERS_MESSAGES.LOCATION_TOO_LONG
+          errorMessage: USER_MESSAGES.LOCATION_TOO_LONG
         }
       },
       username: { ...usernameSchema, optional: true },
@@ -401,7 +401,7 @@ export const updateMeValidator = validate(
       website: {
         optional: true,
         isURL: {
-          errorMessage: USERS_MESSAGES.INVALID_WEBSITE_URL_FORMAT
+          errorMessage: USER_MESSAGES.INVALID_WEBSITE_URL_FORMAT
         },
         trim: true,
         isLength: {
@@ -409,7 +409,7 @@ export const updateMeValidator = validate(
             min: 3,
             max: 400
           },
-          errorMessage: USERS_MESSAGES.WEBSITE_URL_LENGTH
+          errorMessage: USER_MESSAGES.WEBSITE_URL_LENGTH
         }
       }
     },
@@ -422,10 +422,10 @@ export const followValidator = validate(
     {
       following_user_id: {
         notEmpty: {
-          errorMessage: USERS_MESSAGES.FOLLOWING_USER_ID_IS_REQUIRED
+          errorMessage: USER_MESSAGES.FOLLOWING_USER_ID_IS_REQUIRED
         },
         isString: {
-          errorMessage: USERS_MESSAGES.INVALID_FOLLOWING_USER_ID_FORMAT
+          errorMessage: USER_MESSAGES.INVALID_FOLLOWING_USER_ID_FORMAT
         },
         custom: {
           options: async (value, { req }) => {
@@ -436,13 +436,13 @@ export const followValidator = validate(
             ])
             if (!existedUser) {
               throw new ErrorWithStatus({
-                message: USERS_MESSAGES.USER_NOT_FOUND,
+                message: USER_MESSAGES.USER_NOT_FOUND,
                 status: HTTP_STATUS.NOT_FOUND
               })
             }
             if (existedfollow) {
               throw new ErrorWithStatus({
-                message: USERS_MESSAGES.USER_ALREADY_FOLLOWED,
+                message: USER_MESSAGES.USER_ALREADY_FOLLOWED,
                 status: HTTP_STATUS.CONFLICT
               })
             }
@@ -460,10 +460,10 @@ export const unfollowValidator = validate(
     {
       following_user_id: {
         notEmpty: {
-          errorMessage: USERS_MESSAGES.FOLLOWING_USER_ID_IS_REQUIRED
+          errorMessage: USER_MESSAGES.FOLLOWING_USER_ID_IS_REQUIRED
         },
         isString: {
-          errorMessage: USERS_MESSAGES.INVALID_FOLLOWING_USER_ID_FORMAT
+          errorMessage: USER_MESSAGES.INVALID_FOLLOWING_USER_ID_FORMAT
         },
         custom: {
           options: async (value, { req }) => {
@@ -474,13 +474,13 @@ export const unfollowValidator = validate(
             ])
             if (!existedUser) {
               throw new ErrorWithStatus({
-                message: USERS_MESSAGES.USER_NOT_FOUND,
+                message: USER_MESSAGES.USER_NOT_FOUND,
                 status: HTTP_STATUS.NOT_FOUND
               })
             }
             if (!existedfollow) {
               throw new ErrorWithStatus({
-                message: USERS_MESSAGES.USER_ALREADY_UNFOLLOWED,
+                message: USER_MESSAGES.USER_ALREADY_UNFOLLOWED,
                 status: HTTP_STATUS.CONFLICT
               })
             }

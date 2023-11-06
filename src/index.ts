@@ -4,11 +4,13 @@ import mediaRouter from './routes/media.routes'
 import databaseService from './services/database/database.services'
 import 'dotenv/config'
 import { defaultErrorHandler } from './middlewares/error.middlewares'
-import { initFolder } from './utils/initFolder'
+import { initFolder } from './utils/file'
 import UPLOAD_FOLDER from './constants/uploadFolder'
+import { wrapAsync } from './utils/handler'
 
 // Create upload image folder
-initFolder(UPLOAD_FOLDER.IMAGES)
+wrapAsync(initFolder(UPLOAD_FOLDER.IMAGES))
+wrapAsync(initFolder(UPLOAD_FOLDER.TEMP))
 const app = express()
 const port = 3000
 databaseService.connect().then(async () => {
