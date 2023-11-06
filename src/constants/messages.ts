@@ -79,5 +79,10 @@ export const MEDIA_MESSAGES = {
   IMAGE_IS_REQUIRED: 'Image is required',
   IMAGE_IS_INVALID: 'Image is invalid',
   ONLY_IMAGES_ARE_ALLOWED: 'Only images are allowed',
-  UPLOAD_IMAGE_SUCCESS: 'Upload image success!'
+  UPLOAD_IMAGE_SUCCESS: 'Upload image success!',
+  UPLOAD_IMAGES_SUCCESS: 'Upload images success!',
+  VIDEO_IS_REQUIRED: 'Video is required',
+  VIDEO_IS_INVALID: 'Video is invalid',
+  ONLY_VIDEOS_ARE_ALLOWED: 'Only videos are allowed',
+  UPLOAD_VIDEO_SUCCESS: 'Upload video success!'
 }

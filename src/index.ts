@@ -28,6 +28,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use('/user', userRouter)
 app.use('/media', mediaRouter)
 
+app.use('/static/image', express.static(UPLOAD_FOLDER.IMAGES))
 app.use(defaultErrorHandler)
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
