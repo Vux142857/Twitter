@@ -11,9 +11,11 @@ import agrv from 'minimist'
 const environment = agrv(process.argv.slice(2)).envi
 console.log(environment)
 
-// Create upload image folder
-initFolder(UPLOAD_FOLDER.IMAGES)
-initFolder(UPLOAD_FOLDER.TEMP)
+// Create upload folders
+Object.keys(UPLOAD_FOLDER).forEach((key) => {
+  initFolder(UPLOAD_FOLDER[key])
+})
+
 const app = express()
 const port = process.env.PORT || 3000
 databaseService.connect().then(async () => {
@@ -29,6 +31,7 @@ app.use('/user', userRouter)
 app.use('/media', mediaRouter)
 
 app.use('/static/image', express.static(UPLOAD_FOLDER.IMAGES))
+app.use('/static/video', express.static(UPLOAD_FOLDER.VIDEOS))
 app.use(defaultErrorHandler)
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

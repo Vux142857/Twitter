@@ -1,5 +1,8 @@
 import path from 'path'
-const UPLOAD_FOLDER = {
+interface UploadFolder {
+  [key: string]: string
+}
+const UPLOAD_FOLDER: UploadFolder = {
   IMAGES: path.resolve('uploads/images'),
   VIDEOS: path.resolve('uploads/videos'),
   TEMP: path.resolve('uploads/temp')
