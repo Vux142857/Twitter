@@ -1,6 +1,7 @@
 import { Request } from 'express'
 import formidable, { File } from 'formidable'
 import sharp from 'sharp'
+import { isProduction } from '~/constants/config'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { MEDIA_MESSAGES } from '~/constants/messages'
 import UPLOAD_FOLDER from '~/constants/uploadFolder'
@@ -55,8 +56,12 @@ class MediaService {
       .jpeg()
       .toFile(UPLOAD_FOLDER.IMAGES + `/${file.newFilename}.jpg`)
     const removeTemp = await deleteFile(file.filepath)
+    console.log(isProduction)
     if (newFile && removeTemp) {
-      return { message: MEDIA_MESSAGES.UPLOAD_IMAGE_SUCCESS }
+      return {
+        message: MEDIA_MESSAGES.UPLOAD_IMAGE_SUCCESS,
+        data: isProduction ? `${process.env.HOST}/media/${file.newFilename}.jpg` : `http://localhost:${process.env.PORT}/media/${file.newFilename}.jpg`
+      }
     }
     throw new ErrorWithStatus({
       message: MEDIA_MESSAGES.INTERNAL_SERVER_ERROR,

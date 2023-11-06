@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
 const mediaRouter = Router()
 import { uploadImageSingleController } from '~/controllers/media.controllers'
 import { accessTokenValidator } from '~/middlewares/user.middlewares'
