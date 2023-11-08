@@ -5,6 +5,7 @@ interface UploadFolder {
 const UPLOAD_FOLDER: UploadFolder = {
   IMAGES: path.resolve('uploads/images'),
   VIDEOS: path.resolve('uploads/videos'),
+  AUDIOS: path.resolve('uploads/audios'),
   TEMP: path.resolve('uploads/temp')
 }
 

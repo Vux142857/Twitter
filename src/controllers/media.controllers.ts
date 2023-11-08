@@ -28,3 +28,12 @@ export const uploadVideoController = async (req: Request, res: Response) => {
     data: result
   })
 }
+
+export const ytbToMp3Controller = async (req: Request, res: Response) => {
+  const { id } = req.params
+  const result = await mediaService.ytbToMp3(id)
+  res.status(200).json({
+    message: 'test',
+    data: result
+  })
+}

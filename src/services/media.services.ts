@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request } from 'express'
-import formidable, { File, Files } from 'formidable'
+import formidable, { File } from 'formidable'
+import 'dotenv/config'
 import sharp from 'sharp'
 import { isProduction } from '~/constants/config'
 import { MediaType } from '~/constants/enum'
@@ -9,8 +11,21 @@ import UPLOAD_FOLDER from '~/constants/uploadFolder'
 import { Media } from '~/models/Another'
 import { ErrorWithStatus } from '~/models/Error'
 import { deleteFile, renameFile } from '~/utils/file'
+import YoutubeMp3Downloader from '../../lib/YoutubeMp3Downloader'
+import ffmpegStatic from 'ffmpeg-static'
 
 class MediaService {
+  private YD: YoutubeMp3Downloader
+  constructor() {
+    this.YD = new YoutubeMp3Downloader({
+      ffmpegPath: ffmpegStatic as string,
+      outputPath: UPLOAD_FOLDER.AUDIOS,
+      youtubeVideoQuality: 'highestaudio',
+      queueParallelism: 2,
+      progressTimeout: 2000,
+      allowWebm: false
+    })
+  }
   async uploadImageSingle(req: Request) {
     const options = {
       maxFiles: 1,
@@ -151,6 +166,20 @@ class MediaService {
         )
       })
     })
+  }
+
+  async ytbToMp3(id: string) {
+    try {
+      await this.YD.download(id, `${id}.mp3`)
+      await this.YD.on('finished', function (err, data) {
+        console.log(JSON.stringify(data))
+      })
+      console.log(123)
+    } catch (error) {
+      this.YD.on('error', function (error) {
+        console.log(error)
+      })
+    }
   }
 }
 
