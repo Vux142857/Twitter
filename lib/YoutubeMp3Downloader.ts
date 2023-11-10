@@ -63,7 +63,7 @@ class YoutubeMp3Downloader extends EventEmitter {
   }
 
   download(videoId: string, fileName: string) {
-    const self: this = this
+    const self = this
     const task = {
       videoId: videoId,
       fileName: fileName
@@ -81,7 +81,7 @@ class YoutubeMp3Downloader extends EventEmitter {
 
   async performDownload(task: any, callback: any) {
     let info: any
-    const self: this = this
+    const self = this
     const videoUrl = this.youtubeBaseUrl + task.videoId
     const resultObj = {
       file: task.fileName || null,
