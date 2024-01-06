@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express'
 import userService from '~/services/user.services'
 import { ParamsDictionary } from 'express-serve-static-core'
@@ -13,7 +14,7 @@ import {
 } from '~/models/requests/User.requests'
 import { USER_MESSAGES } from '~/constants/messages'
 import HTTP_STATUS from '~/constants/httpStatus'
-import followService from '~/services/follower.services'
+// import followService from '~/services/follower.services'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const result = await userService.login(req.body)
@@ -161,5 +162,16 @@ export const unfollowController = async (req: Request<unfollowParams>, res: Resp
   await userService.unfollowUser(user_id, following_user_id)
   res.status(HTTP_STATUS.OK).json({
     message: USER_MESSAGES.UNFOLLOW_USER_SUCCESS
+  })
+}
+
+export const refreshTokenController = async (req: Request, res: Response) => {
+  console.log(req.decoded_refresh_token)
+  const { user_id, exp } = req.decoded_refresh_token as TokenPayload
+  const token = req.body.refresh_token
+  const result = await userService.updateToken(user_id, exp, token)
+  res.status(HTTP_STATUS.OK).json({
+    message: USER_MESSAGES.UPDATE_TOKEN_SUCCESS,
+    result
   })
 }

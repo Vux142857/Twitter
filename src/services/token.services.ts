@@ -6,7 +6,8 @@ import { ObjectId } from 'mongodb'
 import 'dotenv/config'
 
 class TokenService {
-  private signAccessToken(user_id: string, verify_status?: UserVerifyStatus): Promise<string> {
+  // SIGN TOKEN
+  async signAccessToken(user_id: string, verify_status?: UserVerifyStatus): Promise<string> {
     return signToken({
       payload: {
         user_id,
@@ -20,7 +21,7 @@ class TokenService {
     })
   }
 
-  private signRefreshToken(user_id: string, exp?: number): Promise<string> {
+  async signRefreshToken(user_id: string, exp?: number): Promise<string> {
     if (exp) {
       return signToken({
         payload: {
@@ -82,6 +83,7 @@ class TokenService {
     ])
   }
 
+  // STORE TOKEN
   async storeRefreshToken(user_id: string, refreshToken: string) {
     const { iat, exp } = await this.decodeRefreshToken(refreshToken)
     return await databaseService.refreshTokens.insertOne(
@@ -89,6 +91,16 @@ class TokenService {
     )
   }
 
+  async storeVerifyEmailToken(user_id: string, verify_email_token: string) {
+    return await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      {
+        $set: { verify_email_token }
+      }
+    )
+  }
+
+  // DECODE TOKEN
   async decodeRefreshToken(refresh_token: string) {
     return await verifyToken({ token: refresh_token, secretKey: process.env.JWT_SECRET_REFRESH_TOKEN as string })
   }
@@ -111,22 +123,12 @@ class TokenService {
     })
   }
 
-  async storeVerifyEmailToken(user_id: string, verify_email_token: string) {
-    return await databaseService.users.updateOne(
-      { _id: new ObjectId(user_id) },
-      {
-        $set: { verify_email_token }
-      }
-    )
+  // DELETE TOKEN
+  async deleteRefreshToken(token: string) {
+    return await databaseService.refreshTokens.deleteOne({ token })
   }
 
-  async updateRefreshToken(user_id: string, newRefreshToken: string) {
-    return await databaseService.refreshTokens.updateOne(
-      { user_id: new ObjectId(user_id) },
-      { $set: { token: newRefreshToken } }
-    )
-  }
-
+  // CHECK TOKEN
   async checkExistedRefreshToken(refreshToken: string) {
     return await databaseService.refreshTokens.findOne({ token: refreshToken })
   }

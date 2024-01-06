@@ -35,7 +35,7 @@ const passwordSchema: ParamSchema = {
 
 const confirmPasswordSchema: ParamSchema = {
   notEmpty: {
-    errorMessage: USER_MESSAGES.CONFIRM_EMAIL_IS_REQUIRED
+    errorMessage: USER_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
   },
   custom: {
     options: (value, { req }) => {

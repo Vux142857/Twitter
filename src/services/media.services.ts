@@ -171,13 +171,10 @@ class MediaService {
   async ytbToMp3(id: string) {
     try {
       await this.YD.download(id, `${id}.mp3`)
-      await this.YD.on('finished', function (err, data) {
-        console.log(JSON.stringify(data))
-      })
-      console.log(123)
     } catch (error) {
-      this.YD.on('error', function (error) {
-        console.log(error)
+      throw new ErrorWithStatus({
+        message: MEDIA_MESSAGES.INTERNAL_SERVER_ERROR,
+        status: HTTP_STATUS.INTERNAL_SERVER_ERROR
       })
     }
   }

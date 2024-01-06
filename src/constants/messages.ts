@@ -64,6 +64,7 @@ export const USER_MESSAGES = {
   FORGOT_PASSWORD_TOKEN_IS_REQUIRED: 'Forgot password token is required',
   FORGOT_PASSWORD_TOKEN_INVALID: 'Forgot password token invalid',
   USER_NOT_VERIFIED: 'User have not been verified',
+  UPDATE_TOKEN_SUCCESS: 'Update token successfully',
   // Follow
   FOLLOW_USER_SUCCESS: 'Follow user successfully',
   FOLLOWING_USER_ID_IS_REQUIRED: 'Following user id is required',
@@ -76,13 +77,20 @@ export const USER_MESSAGES = {
 
 export const MEDIA_MESSAGES = {
   INTERNAL_SERVER_ERROR: 'Internal Server Error',
+  // Image
   IMAGE_IS_REQUIRED: 'Image is required',
   IMAGE_IS_INVALID: 'Image is invalid',
   ONLY_IMAGES_ARE_ALLOWED: 'Only images are allowed',
   UPLOAD_IMAGE_SUCCESS: 'Upload image success!',
   UPLOAD_IMAGES_SUCCESS: 'Upload images success!',
+  IMAGE_NOT_FOUND: 'Image not found',
+  // Video
   VIDEO_IS_REQUIRED: 'Video is required',
   VIDEO_IS_INVALID: 'Video is invalid',
   ONLY_VIDEOS_ARE_ALLOWED: 'Only videos are allowed',
-  UPLOAD_VIDEO_SUCCESS: 'Upload video success!'
+  UPLOAD_VIDEO_SUCCESS: 'Upload video success!',
+  RANGE_VIDEO_IS_REQUIRED: 'Range video is required',
+  VIDEO_NOT_FOUND: 'Video not found',
+  ID_IS_REQUIRED: 'Id is required',
+  INVALID_ID_FORMAT: 'Id must be a string'
 }

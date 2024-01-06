@@ -13,6 +13,7 @@ class UserService {
     const result = await databaseService.users.insertOne(
       new User({
         ...payload,
+        verify: UserVerifyStatus.Unverified,
         date_of_birth: new Date(payload.date_of_birth),
         password: await encryptPassword(payload.password)
       })
@@ -201,6 +202,17 @@ class UserService {
 
   async getFollowing(user_id: string) {
     return await followService.getFollowings(user_id)
+  }
+
+  async updateToken(user_id: string, exp: number, token: string) {
+    console.log(exp)
+    const [accessToken, refreshToken] = await Promise.all([
+      tokenService.signAccessToken(user_id),
+      tokenService.signRefreshToken(user_id, exp),
+      tokenService.deleteRefreshToken(token)
+    ])
+    await tokenService.storeRefreshToken(user_id, refreshToken)
+    return { accessToken, refreshToken }
   }
 }
 

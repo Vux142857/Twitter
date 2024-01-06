@@ -1,5 +1,4 @@
 import { JwtPayload } from 'jsonwebtoken'
-import { UserVerifyStatus } from '~/constants/enum'
 import { ParamsDictionary } from 'express-serve-static-core'
 export interface RegisterReqBody {
   name: string
@@ -7,7 +6,6 @@ export interface RegisterReqBody {
   password: string
   confirm_password: string
   date_of_birth: Date
-  verify: UserVerifyStatus.Verified
 }
 
 export interface LoginReqBody {

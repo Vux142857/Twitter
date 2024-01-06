@@ -7,7 +7,8 @@ import { defaultErrorHandler } from './middlewares/error.middlewares'
 import { initFolder } from './utils/file'
 import UPLOAD_FOLDER from './constants/uploadFolder'
 import agrv from 'minimist'
-
+import cors from 'cors'
+import staticRouter from './routes/static.routes'
 const environment = agrv(process.argv.slice(2)).envi
 console.log(environment)
 
@@ -25,13 +26,12 @@ databaseService.connect().then(async () => {
     databaseService.indexesFollow()
   ])
 })
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use('/user', userRouter)
 app.use('/media', mediaRouter)
-
-app.use('/static/image', express.static(UPLOAD_FOLDER.IMAGES))
-app.use('/static/video', express.static(UPLOAD_FOLDER.VIDEOS))
+app.use('/static', staticRouter)
 app.use(defaultErrorHandler)
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
