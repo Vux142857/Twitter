@@ -47,7 +47,6 @@ export const serveImageController = async (req: Request, res: Response) => {
 export const streamStaticVideoController = async (req: Request, res: Response) => {
   const name = req.params.name
   const range = req.headers.range
-  console.log(req.headers)
   if (!range) {
     return res.status(HTTP_STATUS.BAD_REQUEST).send({
       message: MEDIA_MESSAGES.RANGE_VIDEO_IS_REQUIRED
