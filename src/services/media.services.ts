@@ -13,9 +13,12 @@ import { ErrorWithStatus } from '~/models/Error'
 import { deleteFile, renameFile } from '~/utils/file'
 import YoutubeMp3Downloader from '../../lib/YoutubeMp3Downloader'
 import ffmpegStatic from 'ffmpeg-static'
+import { encodeHLSWithMultipleVideoStreams } from './encodeHLS.services'
+import { nanoid } from 'nanoid'
 
 class MediaService {
   private YD: YoutubeMp3Downloader
+
   constructor() {
     this.YD = new YoutubeMp3Downloader({
       ffmpegPath: ffmpegStatic as string,
@@ -26,6 +29,7 @@ class MediaService {
       allowWebm: false
     })
   }
+
   async uploadImageSingle(req: Request) {
     const options = {
       maxFiles: 1,
@@ -65,6 +69,7 @@ class MediaService {
       })
     })
   }
+
   async uploadImageMultiple(req: Request) {
     const options = {
       maxFiles: 4,
@@ -105,6 +110,7 @@ class MediaService {
       })
     })
   }
+
   async compressImage(file: File) {
     const newFile = await sharp(file.filepath)
       .withMetadata()
@@ -127,7 +133,7 @@ class MediaService {
     const options = {
       maxFiles: 1,
       uploadDir: UPLOAD_FOLDER.VIDEOS,
-      maxFileSize: 50 * 1024 * 1024,
+      maxFileSize: 10 * 1024 * 1024,
       filter: function ({ mimetype }: any) {
         const valid = mimetype && mimetype.includes('video')
         if (valid === false) {
@@ -168,6 +174,55 @@ class MediaService {
     })
   }
 
+  async uploadVideoHLS(req: Request) {
+    const videoID = nanoid()
+    const options = {
+      maxFiles: 1,
+      uploadDir: UPLOAD_FOLDER.VIDEOS + `/${videoID}`,
+      maxFileSize: 10 * 1024 * 1024,
+      filter: function ({ mimetype }: any) {
+        const valid = mimetype && mimetype.includes('video')
+        if (valid === false) {
+          form.emit(
+            'error' as any,
+            new ErrorWithStatus({
+              message: MEDIA_MESSAGES.ONLY_VIDEOS_ARE_ALLOWED,
+              status: HTTP_STATUS.BAD_REQUEST
+            }) as any
+          )
+        }
+        return valid
+      }
+    }
+    const form = formidable(options)
+    return new Promise<Media>((resolve, reject) => {
+      form.parse(req, async (err, fields, files) => {
+        if (err as ErrorWithStatus) {
+          reject(err)
+        }
+        if (!files || Object.keys(files).length === 0 || !files.file) {
+          reject(new ErrorWithStatus({ message: MEDIA_MESSAGES.VIDEO_IS_REQUIRED, status: HTTP_STATUS.BAD_REQUEST }))
+        } else {
+          files.file[0].newFilename = files.file[0].newFilename + '.mp4'
+          renameFile(files.file[0].filepath, files.file[0].filepath + '.mp4')
+          const filePath = files.file[0].filepath + '.mp4'
+          await encodeHLSWithMultipleVideoStreams(filePath)
+          const url = isProduction
+            ? `${process.env.HOST}/static/video/${files.file[0].newFilename}`
+            : `http://localhost:${process.env.PORT}/static/video/${files.file[0].newFilename}`
+          resolve({ url, type: MediaType.Video })
+        }
+        reject(
+          new ErrorWithStatus({
+            message: MEDIA_MESSAGES.INTERNAL_SERVER_ERROR,
+            status: HTTP_STATUS.INTERNAL_SERVER_ERROR
+          })
+        )
+      })
+    })
+  }
+
+  // WIP
   async ytbToMp3(id: string) {
     try {
       await this.YD.download(id, `${id}.mp3`)
