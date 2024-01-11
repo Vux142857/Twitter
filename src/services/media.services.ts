@@ -128,6 +128,7 @@ class MediaService {
           const filePath = files.file[0].filepath
           console.log(filePath)
           await encodeHLSWithMultipleVideoStreams(filePath)
+          await deleteFile(filePath)
           const url = isProduction
             ? `${process.env.HOST}/static/video/${files.file[0].newFilename}`
             : `http://localhost:${process.env.PORT}/static/video/${files.file[0].newFilename}`
