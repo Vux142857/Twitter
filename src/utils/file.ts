@@ -28,15 +28,6 @@ export const deleteFile = async (filePath: string) => new Promise<boolean>((reso
   })
 })
 
-export const renameFile = async (filePath: string, newName: string) => {
-  try {
-    const files = await fs.renameSync(filePath, newName)
-  } catch (err) {
-    console.log(err)
-    throw new ErrorWithStatus({ message: MEDIA_MESSAGES.INTERNAL_SERVER_ERROR, status: HTTP_STATUS.INTERNAL_SERVER_ERROR })
-  }
-}
-
 export const clearAllFile = async (dirPath: string) => {
   try {
     const files = await fs.readdirSync(dirPath)

@@ -76,12 +76,3 @@ export const streamStaticVideoController = async (req: Request, res: Response) =
   const videoStream = fs.createReadStream(videoPath, { start, end })
   videoStream.pipe(res)
 }
-
-export const ytbToMp3Controller = async (req: Request, res: Response) => {
-  const { id } = req.params
-  const result = await mediaService.ytbToMp3(id)
-  console.log(result)
-  res.status(200).json({
-    message: 'test'
-  })
-}

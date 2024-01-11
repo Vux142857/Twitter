@@ -6,7 +6,6 @@ import {
   uploadSingleImageController,
   uploadMultipleImageController,
   uploadVideoController,
-  ytbToMp3Controller,
   uploadVideoHLSController
 } from '~/controllers/media.controllers'
 import { accessTokenValidator } from '~/middlewares/user.middlewares'
@@ -44,14 +43,6 @@ mediaRouter.post('/upload-video', accessTokenValidator, wrapAsync(uploadVideoCon
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {data: {result: Media}, message}  // Media: {url: string, type: MediaType.Video}
 mediaRouter.post('/upload-video-hls', accessTokenValidator, wrapAsync(uploadVideoHLSController))
-
-// WIP: 20% - 30%
-// Desciption: Youtube to mp3
-// Route: /api/media/ytb-to-mp3/:id
-// Method: POST
-// Header: {Authorization: Bearer <accessToken> }
-// Response OK: {data: {result: Media}, message}  // Media: {url: string, type: MediaType.Audio}
-mediaRouter.post('/ytb-to-mp3/:id', accessTokenValidator, wrapAsync(ytbToMp3Controller))
 
 // *********************** FOR TESTING ONLY ***********************
 mediaRouter.post(

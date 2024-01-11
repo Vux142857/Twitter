@@ -10,45 +10,16 @@ import { MEDIA_MESSAGES } from '~/constants/messages'
 import UPLOAD_FOLDER from '~/constants/uploadFolder'
 import { Media } from '~/models/Another'
 import { ErrorWithStatus } from '~/models/Error'
-import { deleteFile, renameFile } from '~/utils/file'
-import YoutubeMp3Downloader from '../../lib/YoutubeMp3Downloader'
-import ffmpegStatic from 'ffmpeg-static'
-import { encodeHLSWithMultipleVideoStreams } from './encodeHLS.services'
+import { deleteFile } from '~/utils/file'
+import { encodeHLSWithMultipleVideoStreams } from '../../lib/encodeHLS.services'
 import { nanoid } from 'nanoid'
+import path from 'path'
+import fs from 'fs'
 
 class MediaService {
-  private YD: YoutubeMp3Downloader
-
-  constructor() {
-    this.YD = new YoutubeMp3Downloader({
-      ffmpegPath: ffmpegStatic as string,
-      outputPath: UPLOAD_FOLDER.AUDIOS,
-      youtubeVideoQuality: 'highestaudio',
-      queueParallelism: 2,
-      progressTimeout: 2000,
-      allowWebm: false
-    })
-  }
-
   async uploadImageSingle(req: Request) {
-    const options = {
-      maxFiles: 1,
-      uploadDir: UPLOAD_FOLDER.TEMP,
-      maxFileSize: 3 * 1024 * 1024,
-      filter: function ({ mimetype }: any) {
-        const valid = mimetype && mimetype.includes('image')
-        if (valid === false) {
-          form.emit(
-            'error' as any,
-            new ErrorWithStatus({
-              message: MEDIA_MESSAGES.ONLY_IMAGES_ARE_ALLOWED,
-              status: HTTP_STATUS.BAD_REQUEST
-            }) as any
-          )
-        }
-        return valid
-      }
-    }
+    const isMultiple = false
+    const options = optionsUploadImage(isMultiple, req)
     const form = formidable(options)
     return new Promise<File>((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
@@ -71,25 +42,8 @@ class MediaService {
   }
 
   async uploadImageMultiple(req: Request) {
-    const options = {
-      maxFiles: 4,
-      uploadDir: UPLOAD_FOLDER.TEMP,
-      maxFileSize: 3 * 1024 * 1024,
-      maxTotalFileSize: 12 * 1024 * 1024,
-      filter: function ({ mimetype }: any) {
-        const valid = mimetype && mimetype.includes('image')
-        if (valid === false) {
-          form.emit(
-            'error' as any,
-            new ErrorWithStatus({
-              message: MEDIA_MESSAGES.ONLY_IMAGES_ARE_ALLOWED,
-              status: HTTP_STATUS.BAD_REQUEST
-            }) as any
-          )
-        }
-        return valid
-      }
-    }
+    const isMultiple = true
+    const options = optionsUploadImage(isMultiple, req)
     const form = formidable(options)
     return new Promise<File[]>((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
@@ -130,24 +84,8 @@ class MediaService {
   }
 
   async uploadVideo(req: Request) {
-    const options = {
-      maxFiles: 1,
-      uploadDir: UPLOAD_FOLDER.VIDEOS,
-      maxFileSize: 10 * 1024 * 1024,
-      filter: function ({ mimetype }: any) {
-        const valid = mimetype && mimetype.includes('video')
-        if (valid === false) {
-          form.emit(
-            'error' as any,
-            new ErrorWithStatus({
-              message: MEDIA_MESSAGES.ONLY_VIDEOS_ARE_ALLOWED,
-              status: HTTP_STATUS.BAD_REQUEST
-            }) as any
-          )
-        }
-        return valid
-      }
-    }
+    const isHLS = false
+    const { options } = optionsUploadVideo(isHLS)
     const form = formidable(options)
     return new Promise<Media>((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
@@ -157,8 +95,7 @@ class MediaService {
         if (!files || Object.keys(files).length === 0 || !files.file) {
           reject(new ErrorWithStatus({ message: MEDIA_MESSAGES.VIDEO_IS_REQUIRED, status: HTTP_STATUS.BAD_REQUEST }))
         } else {
-          files.file[0].newFilename = files.file[0].newFilename + '.mp4'
-          renameFile(files.file[0].filepath, files.file[0].filepath + '.mp4')
+          console.log(files.file[0])
           const url = isProduction
             ? `${process.env.HOST}/static/video/${files.file[0].newFilename}`
             : `http://localhost:${process.env.PORT}/static/video/${files.file[0].newFilename}`
@@ -175,25 +112,9 @@ class MediaService {
   }
 
   async uploadVideoHLS(req: Request) {
-    const videoID = nanoid()
-    const options = {
-      maxFiles: 1,
-      uploadDir: UPLOAD_FOLDER.VIDEOS + `/${videoID}`,
-      maxFileSize: 10 * 1024 * 1024,
-      filter: function ({ mimetype }: any) {
-        const valid = mimetype && mimetype.includes('video')
-        if (valid === false) {
-          form.emit(
-            'error' as any,
-            new ErrorWithStatus({
-              message: MEDIA_MESSAGES.ONLY_VIDEOS_ARE_ALLOWED,
-              status: HTTP_STATUS.BAD_REQUEST
-            }) as any
-          )
-        }
-        return valid
-      }
-    }
+    const isHLS = true
+    const { folderPath, options } = optionsUploadVideo(isHLS)
+    fs.mkdirSync(folderPath)
     const form = formidable(options)
     return new Promise<Media>((resolve, reject) => {
       form.parse(req, async (err, fields, files) => {
@@ -203,9 +124,9 @@ class MediaService {
         if (!files || Object.keys(files).length === 0 || !files.file) {
           reject(new ErrorWithStatus({ message: MEDIA_MESSAGES.VIDEO_IS_REQUIRED, status: HTTP_STATUS.BAD_REQUEST }))
         } else {
-          files.file[0].newFilename = files.file[0].newFilename + '.mp4'
-          renameFile(files.file[0].filepath, files.file[0].filepath + '.mp4')
-          const filePath = files.file[0].filepath + '.mp4'
+          console.log(files.file[0])
+          const filePath = files.file[0].filepath
+          console.log(filePath)
           await encodeHLSWithMultipleVideoStreams(filePath)
           const url = isProduction
             ? `${process.env.HOST}/static/video/${files.file[0].newFilename}`
@@ -221,19 +142,61 @@ class MediaService {
       })
     })
   }
-
-  // WIP
-  async ytbToMp3(id: string) {
-    try {
-      await this.YD.download(id, `${id}.mp3`)
-    } catch (error) {
-      throw new ErrorWithStatus({
-        message: MEDIA_MESSAGES.INTERNAL_SERVER_ERROR,
-        status: HTTP_STATUS.INTERNAL_SERVER_ERROR
-      })
-    }
-  }
 }
 
 const mediaService = new MediaService()
 export default mediaService
+
+// Utils
+function optionsUploadImage(isMultiple: boolean, form: any) {
+  const maxFiles = isMultiple ? 4 : 1
+  const maxFileSize = 3 * 1024 * 1024
+  const maxTotalFileSize = isMultiple ? 12 * 1024 * 1024 : 3 * 1024 * 1024
+  const options = {
+    maxFiles,
+    uploadDir: UPLOAD_FOLDER.TEMP,
+    maxFileSize,
+    maxTotalFileSize,
+    filter: function ({ mimetype }: any) {
+      const valid = mimetype && mimetype.includes('image')
+      if (valid === false) {
+        form.emit(
+          'error' as any,
+          new ErrorWithStatus({
+            message: MEDIA_MESSAGES.ONLY_IMAGES_ARE_ALLOWED,
+            status: HTTP_STATUS.BAD_REQUEST
+          }) as any
+        )
+      }
+      return valid
+    }
+  }
+  return options
+}
+
+function optionsUploadVideo(isHLS: boolean, form?: any) {
+  const videoID = nanoid()
+  const folderPath = isHLS ? path.resolve(UPLOAD_FOLDER.VIDEOS, videoID) : UPLOAD_FOLDER.VIDEOS
+  const options = {
+    maxFiles: 1,
+    uploadDir: folderPath,
+    maxFileSize: 10 * 1024 * 1024,
+    filter: function ({ mimetype }: any) {
+      const valid = mimetype && mimetype.includes('video')
+      if (valid === false) {
+        form.emit(
+          'error' as any,
+          new ErrorWithStatus({
+            message: MEDIA_MESSAGES.ONLY_VIDEOS_ARE_ALLOWED,
+            status: HTTP_STATUS.BAD_REQUEST
+          }) as any
+        )
+      }
+      return valid
+    },
+    filename: function () {
+      return videoID + '.mp4'
+    }
+  }
+  return { folderPath, options }
+}
