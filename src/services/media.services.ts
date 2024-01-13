@@ -113,7 +113,7 @@ class MediaService {
 
   async uploadVideoHLS(req: Request) {
     const isHLS = true
-    const { folderPath, options } = optionsUploadVideo(isHLS)
+    const { folderPath, options, videoID } = optionsUploadVideo(isHLS)
     fs.mkdirSync(folderPath)
     const form = formidable(options)
     return new Promise<Media>((resolve, reject) => {
@@ -126,13 +126,19 @@ class MediaService {
         } else {
           console.log(files.file[0])
           const filePath = files.file[0].filepath
-          console.log(filePath)
-          await encodeHLSWithMultipleVideoStreams(filePath)
-          await deleteFile(filePath)
           const url = isProduction
-            ? `${process.env.HOST}/static/video/${files.file[0].newFilename}`
-            : `http://localhost:${process.env.PORT}/static/video/${files.file[0].newFilename}`
+            ? `${process.env.HOST}/static/video-hls/${videoID}/master.m3u8`
+            : `http://localhost:${process.env.PORT}/static/video-hls/${videoID}/master.m3u8`
           resolve({ url, type: MediaType.Video })
+          try {
+            await encodeHLSWithMultipleVideoStreams(filePath)
+            await deleteFile(filePath)
+          } catch (error) {
+            new ErrorWithStatus({
+              message: MEDIA_MESSAGES.INTERNAL_SERVER_ERROR,
+              status: HTTP_STATUS.INTERNAL_SERVER_ERROR
+            })
+          }
         }
         reject(
           new ErrorWithStatus({
@@ -199,5 +205,38 @@ function optionsUploadVideo(isHLS: boolean, form?: any) {
       return videoID + '.mp4'
     }
   }
-  return { folderPath, options }
+  return { folderPath, options, videoID }
 }
+
+// Options: Update multiple video HLS
+// class Queue {
+//   private items: any[]
+//   private endcoding: boolean
+//   constructor() {
+//     this.items = []
+//     this.endcoding = false
+//   }
+//   enqueue(item: any) {
+//     this.items.push(item)
+//     this.processEncoding()
+//   }
+
+//   async processEncoding() {
+//     if (this.endcoding) return
+//     if (this.items.length === 0) return
+//     try {
+//       this.endcoding = true
+//       const filePath = this.items[0]
+//       await encodeHLSWithMultipleVideoStreams(filePath)
+//       await deleteFile(filePath)
+//       this.items.shift()
+//     } catch (error) {
+//       new ErrorWithStatus({
+//         message: MEDIA_MESSAGES.INTERNAL_SERVER_ERROR,
+//         status: HTTP_STATUS.INTERNAL_SERVER_ERROR
+//       })
+//     }
+//     this.endcoding = false
+//     this.processEncoding()
+//   }
+// }

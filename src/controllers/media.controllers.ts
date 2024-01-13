@@ -53,14 +53,14 @@ export const serveImageController = async (req: Request, res: Response) => {
 }
 
 export const streamStaticVideoController = async (req: Request, res: Response) => {
-  const name = req.params.name
+  const id = req.params.id
   const range = req.headers.range
   if (!range) {
     return res.status(HTTP_STATUS.BAD_REQUEST).send({
       message: MEDIA_MESSAGES.RANGE_VIDEO_IS_REQUIRED
     })
   }
-  const videoPath = path.resolve(UPLOAD_FOLDER.VIDEOS, name)
+  const videoPath = path.resolve(UPLOAD_FOLDER.VIDEOS, id)
   const videoSize = fs.statSync(videoPath).size
   const CHUNK_SIZE = 10 ** 6 // decimal = 1MB
   const start = Number(range.replace(/\D/g, ''))
@@ -75,4 +75,26 @@ export const streamStaticVideoController = async (req: Request, res: Response) =
   res.writeHead(HTTP_STATUS.PARTIAL_CONTENT, headers)
   const videoStream = fs.createReadStream(videoPath, { start, end })
   videoStream.pipe(res)
+}
+
+export const streamStaticVideoHLSController = async (req: Request, res: Response) => {
+  const id = req.params.id
+  return res.sendFile(path.resolve(UPLOAD_FOLDER.VIDEOS, id, 'master.m3u8'), (error) => {
+    if (error) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({
+        message: MEDIA_MESSAGES.VIDEO_NOT_FOUND
+      })
+    }
+  })
+}
+
+export const serveSegmentController = async (req: Request, res: Response) => {
+  const { id, v, segment } = req.params
+  return res.sendFile(path.resolve(UPLOAD_FOLDER.VIDEOS, id, v, segment), (error) => {
+    if (error) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({
+        message: MEDIA_MESSAGES.VIDEO_NOT_FOUND
+      })
+    }
+  })
 }
