@@ -205,7 +205,6 @@ class UserService {
   }
 
   async updateToken(user_id: string, exp: number, token: string) {
-    console.log(exp)
     const [accessToken, refreshToken] = await Promise.all([
       tokenService.signAccessToken(user_id),
       tokenService.signRefreshToken(user_id, exp),

@@ -92,5 +92,10 @@ export const MEDIA_MESSAGES = {
   RANGE_VIDEO_IS_REQUIRED: 'Range video is required',
   VIDEO_NOT_FOUND: 'Video not found',
   ID_IS_REQUIRED: 'Id is required',
-  INVALID_ID_FORMAT: 'Id must be a string'
+  INVALID_ID_FORMAT: 'Id must be a string',
+  HLS_VIDEO_IS_PENDING: 'HLS video is pending',
+  HLS_VIDEO_IS_DONE: 'HLS video is done',
+  HLS_VIDEO_IS_FAILURE: 'HLS video is failure',
+  HLS_VIDEO_IS_CANCELLED: 'HLS video is cancelled',
+  VIDEO_IS_ABAONDONED: 'Video is abandoned'
 }

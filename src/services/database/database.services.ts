@@ -3,6 +3,7 @@ import 'dotenv/config'
 import User from '~/models/schemas/User.schema'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import Follow from '~/models/schemas/Follow.schema'
+import Media from '~/models/schemas/Media.schema'
 
 const uri = process.env.DATABASE_URI as string
 class DatabaseService {
@@ -39,6 +40,10 @@ class DatabaseService {
     return this.db.collection(process.env.COLLECTION_FOLLOW as string)
   }
 
+  get media(): Collection<Media> {
+    return this.db.collection(process.env.COLLECTION_MEDIA as string)
+  }
+
   async indexesUsers() {
     const checkExisted = await this.users.indexExists(['email_1', 'username_1', 'username_1_verify_1'])
     if (!checkExisted) {
@@ -68,6 +73,8 @@ class DatabaseService {
       this.follows.createIndex({ user_id: 1, following_user_id: 1 }, { unique: true })
     }
   }
+
+  async indexesVideoStatus() {}
 }
 const databaseService = new DatabaseService()
 export default databaseService

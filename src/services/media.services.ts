@@ -4,17 +4,18 @@ import formidable, { File } from 'formidable'
 import 'dotenv/config'
 import sharp from 'sharp'
 import { isProduction } from '~/constants/config'
-import { MediaType } from '~/constants/enum'
+import { MediaType, StatusType } from '~/constants/enum'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { MEDIA_MESSAGES } from '~/constants/messages'
 import UPLOAD_FOLDER from '~/constants/uploadFolder'
-import { Media } from '~/models/Another'
+import Media from '~/models/schemas/Media.schema'
 import { ErrorWithStatus } from '~/models/Error'
 import { deleteFile } from '~/utils/file'
 import { encodeHLSWithMultipleVideoStreams } from '../../lib/encodeHLS.services'
 import { nanoid } from 'nanoid'
 import path from 'path'
 import fs from 'fs'
+import databaseService from './database/database.services'
 
 class MediaService {
   async uploadImageSingle(req: Request) {
@@ -65,7 +66,7 @@ class MediaService {
     })
   }
 
-  async compressImage(file: File) {
+  async compressAndStorageImage(file: File) {
     const newFile = await sharp(file.filepath)
       .withMetadata()
       .jpeg()
@@ -75,7 +76,9 @@ class MediaService {
       const url = isProduction
         ? `${process.env.HOST}/static/image/${file.newFilename}.jpg`
         : `http://localhost:${process.env.PORT}/static/image/${file.newFilename}.jpg`
-      return { url, type: MediaType.Image }
+      const imageObj = { url, type: MediaType.Image, status: StatusType.Done }
+      await this.storageMedia(imageObj)
+      return imageObj
     }
     throw new ErrorWithStatus({
       message: MEDIA_MESSAGES.INTERNAL_SERVER_ERROR,
@@ -95,11 +98,12 @@ class MediaService {
         if (!files || Object.keys(files).length === 0 || !files.file) {
           reject(new ErrorWithStatus({ message: MEDIA_MESSAGES.VIDEO_IS_REQUIRED, status: HTTP_STATUS.BAD_REQUEST }))
         } else {
-          console.log(files.file[0])
           const url = isProduction
             ? `${process.env.HOST}/static/video/${files.file[0].newFilename}`
             : `http://localhost:${process.env.PORT}/static/video/${files.file[0].newFilename}`
-          resolve({ url, type: MediaType.Video })
+          const videoObj = { url, type: MediaType.Video, status: StatusType.Done }
+          this.storageMedia(videoObj)
+          resolve(videoObj)
         }
         reject(
           new ErrorWithStatus({
@@ -124,17 +128,18 @@ class MediaService {
         if (!files || Object.keys(files).length === 0 || !files.file) {
           reject(new ErrorWithStatus({ message: MEDIA_MESSAGES.VIDEO_IS_REQUIRED, status: HTTP_STATUS.BAD_REQUEST }))
         } else {
-          console.log(files.file[0])
           const filePath = files.file[0].filepath
           const url = isProduction
             ? `${process.env.HOST}/static/video-hls/${videoID}/master.m3u8`
             : `http://localhost:${process.env.PORT}/static/video-hls/${videoID}/master.m3u8`
-          resolve({ url, type: MediaType.Video })
+          const videoObj = { url, type: MediaType.Video, status: StatusType.Pending }
+          resolve(videoObj)
           try {
             await encodeHLSWithMultipleVideoStreams(filePath)
-            await deleteFile(filePath)
+            videoObj.status = StatusType.Done
+            await Promise.all([deleteFile(filePath), this.storageMedia(videoObj)])
           } catch (error) {
-            new ErrorWithStatus({
+            throw new ErrorWithStatus({
               message: MEDIA_MESSAGES.INTERNAL_SERVER_ERROR,
               status: HTTP_STATUS.INTERNAL_SERVER_ERROR
             })
@@ -148,6 +153,20 @@ class MediaService {
         )
       })
     })
+  }
+
+  async storageMedia(media: Media) {
+    return await databaseService.media.insertOne(media)
+  }
+
+  async updateStatusMedia(url: string, status: StatusType) {
+    return await databaseService.media.updateOne(
+      { url },
+      {
+        $set: { status },
+        $currentDate: { updated_at: true }
+      }
+    )
   }
 }
 

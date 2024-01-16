@@ -16,3 +16,11 @@ export enum MediaType {
   Video,
   Audio
 }
+
+export enum StatusType {
+  Pending,
+  Done,
+  Failure,
+  Cancelled,
+  Abandoned
+}

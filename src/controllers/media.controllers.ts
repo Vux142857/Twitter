@@ -3,13 +3,13 @@ import path from 'path'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { MEDIA_MESSAGES } from '~/constants/messages'
 import UPLOAD_FOLDER from '~/constants/uploadFolder'
-import { Media } from '~/models/Another'
 import mediaService from '~/services/media.services'
 import fs from 'fs'
+import Media from '~/models/schemas/Media.schema'
 
 export const uploadSingleImageController = async (req: Request, res: Response) => {
   const file = await mediaService.uploadImageSingle(req)
-  const result: Media = await mediaService.compressImage(file)
+  const result: Media = await mediaService.compressAndStorageImage(file)
   res.status(200).json({
     message: MEDIA_MESSAGES.UPLOAD_IMAGE_SUCCESS,
     data: result
@@ -18,7 +18,7 @@ export const uploadSingleImageController = async (req: Request, res: Response) =
 
 export const uploadMultipleImageController = async (req: Request, res: Response) => {
   const files = await mediaService.uploadImageMultiple(req)
-  const result: Media[] = await Promise.all(files.map(async (file) => await mediaService.compressImage(file)))
+  const result: Media[] = await Promise.all(files.map(async (file) => await mediaService.compressAndStorageImage(file)))
   res.status(200).json({
     message: MEDIA_MESSAGES.UPLOAD_IMAGES_SUCCESS,
     data: result
