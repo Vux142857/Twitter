@@ -99,3 +99,20 @@ export const MEDIA_MESSAGES = {
   HLS_VIDEO_IS_CANCELLED: 'HLS video is cancelled',
   VIDEO_IS_ABAONDONED: 'Video is abandoned'
 }
+
+export const TWEET_MESSAGES = {
+  TWEET_SUCCESS: 'Tweet successfully',
+  TWEET_INVALID: 'Tweet invalid',
+  TWEET_TYPE_INVALID: 'Tweet type invalid',
+  TWEET_PARENT_MUST_BE_NULL: 'Tweet parent must be null',
+  TWEET_AUDIENCE_INVALID: 'Tweet audience invalid',
+  TWEET_CONTENT_INVALID: 'Tweet content invalid',
+  RETWEET_SUCCESS: 'Retweet successfully',
+  RETWEET_CONTENT_INVALID: 'Retweet content must be empty',
+  RETWEET_WITHOUT_PARENT: 'Retweet without parent',
+  RETWEET_FAILED: 'Retweet failed',
+  PARENT_TWEET_NOT_FOUND: 'Parent tweet not found',
+  HASHTAG_INVALID: 'Hashtag must be string',
+  MENTION_INVALID: 'Mention must be string',
+  MEDIA_INVALID: 'Media invalid'
+}

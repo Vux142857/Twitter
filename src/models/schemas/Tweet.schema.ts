@@ -10,13 +10,13 @@ interface TweetConstructor {
   content: string
   media?: Media[]
   mention?: string[]
-  parent_id?: null | ObjectId
+  parent_id?: ObjectId | null
   hashtag?: Hashtag[]
-  user_views: Double
-  guest_views: Double
+  user_views?: Double
+  guest_views?: Double
   type: TweetType
-  createdAt: Date
-  updatedAt: Date
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 class Tweet {
@@ -43,8 +43,8 @@ class Tweet {
     this.mention = tweet.mention || []
     this.parent_id = tweet.parent_id || null
     this.hashtag = tweet.hashtag || []
-    this.user_views = tweet.user_views
-    this.guest_views = tweet.guest_views
+    this.user_views = tweet.user_views || new Double(0.0)
+    this.guest_views = tweet.guest_views || new Double(0.0)
     this.type = tweet.type
     this.createdAt = tweet.createdAt || date
     this.updatedAt = tweet.updatedAt || date

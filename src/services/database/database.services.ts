@@ -4,6 +4,7 @@ import User from '~/models/schemas/User.schema'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import Follow from '~/models/schemas/Follow.schema'
 import Media from '~/models/schemas/Media.schema'
+import Tweet from '~/models/schemas/Tweet.schema'
 
 const uri = process.env.DATABASE_URI as string
 class DatabaseService {
@@ -42,6 +43,10 @@ class DatabaseService {
 
   get media(): Collection<Media> {
     return this.db.collection(process.env.COLLECTION_MEDIA as string)
+  }
+
+  get tweets(): Collection<Tweet> {
+    return this.db.collection(process.env.COLLECTION_TWEETS as string)
   }
 
   async indexesUsers() {

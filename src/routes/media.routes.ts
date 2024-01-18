@@ -12,6 +12,8 @@ import { accessTokenValidator } from '~/middlewares/user.middlewares'
 import { clearAllFile } from '~/utils/file'
 import { wrapAsync } from '~/utils/handler'
 
+// *********************** POST ***********************
+
 // WIP: 90% - 100%
 // Desciption: Upload single image
 // Route: /api/media/upload-image

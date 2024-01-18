@@ -9,6 +9,7 @@ import UPLOAD_FOLDER from './constants/uploadFolder'
 import agrv from 'minimist'
 import cors from 'cors'
 import staticRouter from './routes/static.routes'
+import tweetRouter from './routes/tweet.routes'
 const environment = agrv(process.argv.slice(2)).envi
 console.log(environment)
 
@@ -30,6 +31,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use('/user', userRouter)
+app.use('/tweet', tweetRouter)
 app.use('/media', mediaRouter)
 app.use('/static', staticRouter)
 app.use(defaultErrorHandler)

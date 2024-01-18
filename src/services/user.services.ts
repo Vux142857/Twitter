@@ -32,16 +32,14 @@ class UserService {
   }
 
   async login(payload: LoginReqBody) {
-    if (payload.email && payload.password) {
-      const user = await this.checkExistedEmail(payload.email)
-      if (user && (await comparePassword(payload.password, user.password))) {
-        const user_id = user._id.toString()
-        const [accessToken, refreshToken] = await tokenService.signAccessAndRefreshToken(user_id, user.verify)
-        await tokenService.storeRefreshToken(user_id, refreshToken)
-        return {
-          accessToken,
-          refreshToken
-        }
+    const user = await this.checkExistedEmail(payload.email)
+    if (user && (await comparePassword(payload.password, user.password))) {
+      const user_id = user._id.toString()
+      const [accessToken, refreshToken] = await tokenService.signAccessAndRefreshToken(user_id, user.verify)
+      await tokenService.storeRefreshToken(user_id, refreshToken)
+      return {
+        accessToken,
+        refreshToken
       }
     }
     return
