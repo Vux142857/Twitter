@@ -24,3 +24,15 @@ export enum StatusType {
   Cancelled,
   Abandoned
 }
+
+export enum TweetAudience {
+  TweetCircle,
+  Tweet
+}
+
+export enum TweetType {
+  Tweet,
+  QuoteTweet,
+  Retweet,
+  Comment
+}
