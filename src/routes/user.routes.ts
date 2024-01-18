@@ -35,6 +35,50 @@ import databaseService from '~/services/database/database.services'
 import { wrapAsync } from '~/utils/handler'
 const userRouter = Router()
 
+// *********************** GET ***********************
+
+// WIP: 90% - 100%
+// Desciption: Get user
+// Route: /api/users/:username
+// Method: GET
+// Response OK: {user: {name, date_of_birth, bio, location, username, avatar, cover_photo, website}, message}
+userRouter.get('/:username', wrapAsync(getUserController))
+
+// WIP: 90% - 100%
+// Desciption: Get me
+// Route: /api/users/me
+// Method: GET
+// Header: {Authorization: Bearer <accessToken> }
+// Response OK: {result: {user}, message}
+userRouter.get('/me', accessTokenValidator, wrapAsync(getMeController))
+
+// WIP: 90% - 100%
+// Desciption: Update me
+// Route: /api/users/me
+// Method: PATCH
+// Header: {Authorization: Bearer <accessToken> }
+// Body: {name, date_of_birth, bio, location, username, avatar, cover_photo, website}
+// Response OK: {message}
+userRouter.patch(
+  '/me',
+  accessTokenValidator,
+  verifedUserValidator,
+  updateMeValidator,
+  filterMiddleware<UpdateProfileBody>([
+    'name',
+    'date_of_birth',
+    'bio',
+    'location',
+    'username',
+    'avatar',
+    'cover_photo',
+    'website'
+  ]),
+  wrapAsync(updateMeController)
+)
+
+// *********************** POST ***********************
+
 // WIP: 90% - 100%
 // Desciption: Login
 // Route: /api/users/login
@@ -100,54 +144,22 @@ userRouter.post('/verify-forgot-password', forgotPasswordTokenValidator, wrapAsy
 userRouter.post('/reset-password', resetPasswordValidator, wrapAsync(resetPasswordController))
 
 // WIP: 90% - 100%
-// Desciption: Get me
-// Route: /api/users/me
-// Method: GET
-// Header: {Authorization: Bearer <accessToken> }
-// Response OK: {result: {user}, message}
-userRouter.get('/me', accessTokenValidator, wrapAsync(getMeController))
-
-// WIP: 90% - 100%
-// Desciption: Update me
-// Route: /api/users/me
-// Method: PATCH
-// Header: {Authorization: Bearer <accessToken> }
-// Body: {name, date_of_birth, bio, location, username, avatar, cover_photo, website}
-// Response OK: {message}
-
-// WIP: 90% - 100%
-userRouter.patch(
-  '/me',
-  accessTokenValidator,
-  verifedUserValidator,
-  updateMeValidator,
-  filterMiddleware<UpdateProfileBody>([
-    'name',
-    'date_of_birth',
-    'bio',
-    'location',
-    'username',
-    'avatar',
-    'cover_photo',
-    'website'
-  ]),
-  wrapAsync(updateMeController)
-)
-
-// WIP: 90% - 100%
-// Desciption: Get user
-// Route: /api/users/:username
-// Method: GET
-// Response OK: {user: {name, date_of_birth, bio, location, username, avatar, cover_photo, website}, message}
-userRouter.get('/:username', wrapAsync(getUserController))
-
-// WIP: 90% - 100%
 // Desciption: Follow verified user
 // Route: /api/users/follow
 // Method: POST
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {message}
 userRouter.post('/follow', accessTokenValidator, followValidator, verifedUserValidator, wrapAsync(followController))
+
+// WIP: 80% - 90%
+// Desciption: Verify RT then create new AT
+// Route: /api/users/refresh-token
+// Method: POST
+// Body: {refreshToken}
+// Response OK: {result: {accessToken, refreshToken}, message}
+userRouter.post('/refresh-token', refreshTokenValidator, wrapAsync(refreshTokenController))
+
+// *********************** DELETE ***********************
 
 // WIP: 90% - 100%
 // Desciption: Unfollow verified user
@@ -162,14 +174,6 @@ userRouter.delete(
   verifedUserValidator,
   wrapAsync(unfollowController)
 )
-
-// WIP: 80% - 90%
-// Desciption: Verify RT then create new AT
-// Route: /api/users/refresh-token
-// Method: POST
-// Body: {refreshToken}
-// Response OK: {result: {accessToken, refreshToken}, message}
-userRouter.post('/refresh-token', refreshTokenValidator, wrapAsync(refreshTokenController))
 
 // *********************** FOR TESTING ONLY ***********************
 userRouter.post(

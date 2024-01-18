@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 
-interface RefreshTokenType {
+interface RefreshTokenConstructor {
   _id?: ObjectId
   token: string
   user_id: ObjectId
@@ -16,14 +16,13 @@ class RefreshToken {
   iat: Date
   exp: Date
   created_at?: Date
-  constructor({ _id, token, user_id, iat, exp, created_at }: RefreshTokenType) {
-    const date = new Date()
-    this._id = _id || new ObjectId()
-    this.token = token || ''
-    this.user_id = user_id || ''
-    this.iat = new Date(iat * 1000)
-    this.exp = new Date(exp * 1000)
-    this.created_at = created_at || date
+  constructor(refresh_token: RefreshTokenConstructor) {
+    this._id = refresh_token._id || new ObjectId()
+    this.token = refresh_token.token || ''
+    this.user_id = refresh_token.user_id || ''
+    this.iat = new Date(refresh_token.iat * 1000)
+    this.exp = new Date(refresh_token.exp * 1000)
+    this.created_at = refresh_token.created_at || new Date()
   }
 }
 

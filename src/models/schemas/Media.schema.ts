@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb'
 import { MediaType, StatusType } from '~/constants/enum'
 
-export interface MediaSchemaType {
+export interface MediaConstructor {
   _id?: ObjectId
   user_id?: ObjectId
   type: MediaType
@@ -17,7 +17,7 @@ class Media {
   url: string
   status: StatusType
   created_at?: Date
-  constructor(media: Media) {
+  constructor(media: MediaConstructor) {
     this.user_id = media.user_id || new ObjectId()
     this.type = media.type
     this.url = media.url

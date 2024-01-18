@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb'
 import { UserVerifyStatus } from '~/constants/enum'
 
-interface UserType {
+interface UserConstructor {
   _id?: ObjectId
   name: string
   email: string
@@ -38,7 +38,7 @@ class User {
   created_at: Date
   updated_at: Date
   verify: UserVerifyStatus
-  constructor(user: UserType) {
+  constructor(user: UserConstructor) {
     const date = new Date()
     this._id = user._id || new ObjectId()
     this.name = user.name || ''

@@ -1,4 +1,4 @@
-interface HashtagType {
+interface HashtagConstructor {
   _id?: string
   name: string
   created_at?: Date
@@ -10,7 +10,7 @@ class Hashtag {
   name: string
   created_at: Date
   updated_at: Date
-  constructor(hashtag: HashtagType) {
+  constructor(hashtag: HashtagConstructor) {
     const date = new Date()
     this._id = hashtag._id || ''
     this.name = hashtag.name

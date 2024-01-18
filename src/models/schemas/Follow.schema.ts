@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 
-interface FollowType {
+interface FollowConstructor {
   _id?: ObjectId
   user_id: ObjectId
   following_user_id: ObjectId
@@ -12,7 +12,7 @@ class Follow {
   user_id: ObjectId
   following_user_id: ObjectId
   created_at: Date
-  constructor(follow: FollowType) {
+  constructor(follow: FollowConstructor) {
     this.user_id = follow.user_id
     this.following_user_id = follow.following_user_id
     this.created_at = follow.created_at || new Date()
