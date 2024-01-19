@@ -18,7 +18,7 @@ import HTTP_STATUS from '~/constants/httpStatus'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const result = await userService.login(req.body)
-  const status = result ? 200 : 401
+  const status = result ? HTTP_STATUS.OK : HTTP_STATUS.UNAUTHORIZED
   const message = result ? USER_MESSAGES.LOGIN_SUCCESS : USER_MESSAGES.LOGIN_FAILURE
   res.status(status).json({
     result,
@@ -28,7 +28,7 @@ export const loginController = async (req: Request<ParamsDictionary, any, LoginR
 
 export const registerController = async (req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) => {
   const result = await userService.register(req.body)
-  res.status(200).json({
+  res.status(HTTP_STATUS.OK).json({
     result,
     message: USER_MESSAGES.REGISTER_SUCCESS
   })
@@ -37,7 +37,7 @@ export const registerController = async (req: Request<ParamsDictionary, any, Reg
 export const logoutController = async (req: Request<ParamsDictionary, any, LogoutReqBody>, res: Response) => {
   const { refresh_token } = req.body
   const result = await userService.logout(refresh_token)
-  res.status(200).json(result)
+  res.status(HTTP_STATUS.OK).json(result)
 }
 
 export const verifyEmailController = async (req: Request<ParamsDictionary, any, VerifyEmailReqBody>, res: Response) => {

@@ -5,6 +5,8 @@ import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import Follow from '~/models/schemas/Follow.schema'
 import Media from '~/models/schemas/Media.schema'
 import Tweet from '~/models/schemas/Tweet.schema'
+import Hashtag from '~/models/schemas/Hashtag.schema'
+import Bookmark from '~/models/schemas/Bookmark.schema'
 
 const uri = process.env.DATABASE_URI as string
 class DatabaseService {
@@ -49,6 +51,13 @@ class DatabaseService {
     return this.db.collection(process.env.COLLECTION_TWEETS as string)
   }
 
+  get hashtags(): Collection<Hashtag> {
+    return this.db.collection(process.env.COLLECTION_HASHTAGS as string)
+  }
+  get bookmarks(): Collection<Bookmark> {
+    return this.db.collection(process.env.COLLECTION_BOOKMARKS as string)
+  }
+
   async indexesUsers() {
     const checkExisted = await this.users.indexExists(['email_1', 'username_1', 'username_1_verify_1'])
     if (!checkExisted) {
@@ -79,7 +88,19 @@ class DatabaseService {
     }
   }
 
-  async indexesVideoStatus() {}
+  async indexesHashtag() {
+    const checkExisted = await this.hashtags.indexExists(['name_1'])
+    if (!checkExisted) {
+      this.hashtags.createIndex({ name: 1 }, { unique: true })
+    }
+  }
+
+  async indexesBookmark() {
+    const checkExisted = await this.bookmarks.indexExists(['user_id_1', 'tweet_id_1'])
+    if (!checkExisted) {
+      this.bookmarks.createIndex({ user_id: 1, tweet_id: 1 }, { unique: true })
+    }
+  }
 }
 const databaseService = new DatabaseService()
 export default databaseService

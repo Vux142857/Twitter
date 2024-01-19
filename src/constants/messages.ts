@@ -116,3 +116,18 @@ export const TWEET_MESSAGES = {
   MENTION_INVALID: 'Mention must be string',
   MEDIA_INVALID: 'Media invalid'
 }
+
+export const BOOKMARK_MESSAGES = {
+  BOOKMARK_SUCCESS: 'Bookmark successfully',
+  BOOKMARK_FAILURE: 'Bookmark failed',
+  BOOKMARK_ALREADY_EXISTS: 'Bookmark already exists',
+  BOOKMARK_NOT_FOUND: 'Bookmark not found',
+  UNBOOKMARK_SUCCESS: 'Unbookmark successfully',
+  UNBOOKMARK_FAILURE: 'Unbookmark failed',
+  UNBOOKMARK_ALREADY_EXISTS: 'Unbookmark already exists',
+  UNBOOKMARK_NOT_FOUND: 'Unbookmark not found',
+  USER_ID_TYPE_INVALID: 'Bookmark type invalid',
+  USER_ID_IS_REQUIRED: 'User id is required',
+  TWEET_ID_TYPE_INVALID: 'Bookmark type invalid',
+  TWEET_ID_IS_REQUIRED: 'Tweet id is required'
+}

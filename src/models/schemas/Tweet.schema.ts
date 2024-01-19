@@ -1,7 +1,6 @@
 import { TweetAudience, TweetType } from '~/constants/enum'
 import Media from './Media.schema'
 import { Double, ObjectId } from 'mongodb'
-import Hashtag from './Hashtag.schema'
 
 interface TweetConstructor {
   _id?: ObjectId
@@ -11,7 +10,7 @@ interface TweetConstructor {
   media?: Media[]
   mention?: string[]
   parent_id?: ObjectId | null
-  hashtag?: Hashtag[]
+  hashtag?: string[]
   user_views?: Double
   guest_views?: Double
   type: TweetType
@@ -27,7 +26,7 @@ class Tweet {
   media: Media[]
   mention: string[]
   parent_id: ObjectId | null
-  hashtag: Hashtag[]
+  hashtag: string[]
   user_views: Double
   guest_views: Double
   type: TweetType

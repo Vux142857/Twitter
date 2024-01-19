@@ -10,7 +10,7 @@ import Media from '~/models/schemas/Media.schema'
 export const uploadSingleImageController = async (req: Request, res: Response) => {
   const file = await mediaService.uploadImageSingle(req)
   const result: Media = await mediaService.compressAndStorageImage(file)
-  res.status(200).json({
+  res.status(HTTP_STATUS.OK).json({
     message: MEDIA_MESSAGES.UPLOAD_IMAGE_SUCCESS,
     data: result
   })
@@ -19,7 +19,7 @@ export const uploadSingleImageController = async (req: Request, res: Response) =
 export const uploadMultipleImageController = async (req: Request, res: Response) => {
   const files = await mediaService.uploadImageMultiple(req)
   const result: Media[] = await Promise.all(files.map(async (file) => await mediaService.compressAndStorageImage(file)))
-  res.status(200).json({
+  res.status(HTTP_STATUS.OK).json({
     message: MEDIA_MESSAGES.UPLOAD_IMAGES_SUCCESS,
     data: result
   })
@@ -27,7 +27,7 @@ export const uploadMultipleImageController = async (req: Request, res: Response)
 
 export const uploadVideoController = async (req: Request, res: Response) => {
   const result = await mediaService.uploadVideo(req)
-  res.status(200).json({
+  res.status(HTTP_STATUS.OK).json({
     message: MEDIA_MESSAGES.UPLOAD_VIDEO_SUCCESS,
     data: result
   })
@@ -35,7 +35,7 @@ export const uploadVideoController = async (req: Request, res: Response) => {
 
 export const uploadVideoHLSController = async (req: Request, res: Response) => {
   const result = await mediaService.uploadVideoHLS(req)
-  res.status(200).json({
+  res.status(HTTP_STATUS.OK).json({
     message: MEDIA_MESSAGES.UPLOAD_VIDEO_SUCCESS,
     data: result
   })

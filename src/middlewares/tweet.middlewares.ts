@@ -108,9 +108,6 @@ export const createTweetValidator = validate(
           options: async (value: string, { req }) => {
             try {
               const { type } = req.body
-              console.log(type == TweetType.Tweet)
-              console.log(typeof TweetType.Tweet)
-              console.log(!ObjectId.isValid(value))
               if (type != TweetType.Tweet && !ObjectId.isValid(value)) {
                 console.log(123)
                 throw new ErrorWithStatus({

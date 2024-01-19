@@ -10,6 +10,8 @@ import agrv from 'minimist'
 import cors from 'cors'
 import staticRouter from './routes/static.routes'
 import tweetRouter from './routes/tweet.routes'
+import hashtagRouter from './routes/hashtag.routes'
+import bookmarkRouter from './routes/bookmark.routes'
 const environment = agrv(process.argv.slice(2)).envi
 console.log(environment)
 
@@ -24,7 +26,9 @@ databaseService.connect().then(async () => {
   await Promise.all([
     databaseService.indexesUsers(),
     databaseService.indexesRefreshTokens(),
-    databaseService.indexesFollow()
+    databaseService.indexesFollow(),
+    databaseService.indexesHashtag(),
+    databaseService.indexesBookmark()
   ])
 })
 app.use(cors())
@@ -34,6 +38,8 @@ app.use('/user', userRouter)
 app.use('/tweet', tweetRouter)
 app.use('/media', mediaRouter)
 app.use('/static', staticRouter)
+app.use('/hashtag', hashtagRouter)
+app.use('/bookmark', bookmarkRouter)
 app.use(defaultErrorHandler)
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
