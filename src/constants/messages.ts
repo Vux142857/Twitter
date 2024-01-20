@@ -131,3 +131,18 @@ export const BOOKMARK_MESSAGES = {
   TWEET_ID_TYPE_INVALID: 'Bookmark type invalid',
   TWEET_ID_IS_REQUIRED: 'Tweet id is required'
 }
+
+export const LIKE_MESSAGES = {
+  LIKE_SUCCESS: 'Like successfully',
+  LIKE_FAILURE: 'Like failed',
+  LIKE_ALREADY_EXISTS: 'Like already exists',
+  LIKE_NOT_FOUND: 'Like not found',
+  UNLIKE_SUCCESS: 'Unlike successfully',
+  UNLIKE_FAILURE: 'Unlike failed',
+  UNLIKE_ALREADY_EXISTS: 'Unlike already exists',
+  UNLIKE_NOT_FOUND: 'Unlike not found',
+  USER_ID_TYPE_INVALID: 'Like type invalid',
+  USER_ID_IS_REQUIRED: 'User id is required',
+  TWEET_ID_TYPE_INVALID: 'Like type invalid',
+  TWEET_ID_IS_REQUIRED: 'Tweet id is required'
+}

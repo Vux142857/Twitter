@@ -5,10 +5,7 @@ import { accessTokenValidator } from '~/middlewares/user.middlewares'
 import databaseService from '~/services/database/database.services'
 import { wrapAsync } from '~/utils/handler'
 
-const bookmarkRouter = Router()
-bookmarkRouter.get('/', (req, res) => {
-  res.send('bookmark')
-})
+const likeRouter = Router()
 
 // *********************** POST ***********************
 
@@ -19,12 +16,7 @@ bookmarkRouter.get('/', (req, res) => {
 // Header: {Authorization: Bearer <accessToken> }
 // Body: {user_id, tweet_id}
 // Response OK: {data: {result: {bookmark: Bookmark}}, message}
-bookmarkRouter.post(
-  '/create-bookmark',
-  accessTokenValidator,
-  createBookmarkValidator,
-  wrapAsync(createBookmarkController)
-)
+likeRouter.post('/create-like', accessTokenValidator, createBookmarkValidator, wrapAsync(createBookmarkController))
 
 // WIP: 90% - 100%
 // Desciption: Unbookmark
@@ -32,17 +24,17 @@ bookmarkRouter.post(
 // Method: POST
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {data: {result: {bookmark: Bookmark}}, message}
-bookmarkRouter.delete('/unbookmark/:tweet_id', accessTokenValidator, wrapAsync(unbookmarkController))
+likeRouter.delete('/unlike/:tweet_id', accessTokenValidator, wrapAsync(unbookmarkController))
 
 // *********************** FOR TESTING ONLY ***********************
-bookmarkRouter.post(
+likeRouter.post(
   '/clear-database',
   wrapAsync((req: Request, res: Response) => {
-    databaseService.bookmarks.deleteMany({})
+    databaseService.likes.deleteMany({})
     res.status(200).json({
       result: 'done!'
     })
   })
 )
 
-export default bookmarkRouter
+export default likeRouter
