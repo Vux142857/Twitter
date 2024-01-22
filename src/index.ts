@@ -45,5 +45,5 @@ app.use('/bookmark', bookmarkRouter)
 app.use('/like', likeRouter)
 app.use(defaultErrorHandler)
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`App listening on port ${port}`)
 })

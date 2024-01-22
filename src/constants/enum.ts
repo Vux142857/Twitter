@@ -27,7 +27,7 @@ export enum StatusType {
 
 export enum TweetAudience {
   TweetCircle,
-  Tweet
+  Everyone
 }
 
 export enum TweetType {

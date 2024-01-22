@@ -103,10 +103,13 @@ export const MEDIA_MESSAGES = {
 export const TWEET_MESSAGES = {
   TWEET_SUCCESS: 'Tweet successfully',
   TWEET_INVALID: 'Tweet invalid',
+  TWEET_NOT_FOUND: 'Tweet not found',
   TWEET_TYPE_INVALID: 'Tweet type invalid',
   TWEET_PARENT_MUST_BE_NULL: 'Tweet parent must be null',
   TWEET_AUDIENCE_INVALID: 'Tweet audience invalid',
   TWEET_CONTENT_INVALID: 'Tweet content invalid',
+  TWEET_ID_INVALID: 'Tweet id invalid',
+  TWEET_ID_IS_REQUIRED: 'Tweet id is required',
   RETWEET_SUCCESS: 'Retweet successfully',
   RETWEET_CONTENT_INVALID: 'Retweet content must be empty',
   RETWEET_WITHOUT_PARENT: 'Retweet without parent',
@@ -125,11 +128,7 @@ export const BOOKMARK_MESSAGES = {
   UNBOOKMARK_SUCCESS: 'Unbookmark successfully',
   UNBOOKMARK_FAILURE: 'Unbookmark failed',
   UNBOOKMARK_ALREADY_EXISTS: 'Unbookmark already exists',
-  UNBOOKMARK_NOT_FOUND: 'Unbookmark not found',
-  USER_ID_TYPE_INVALID: 'Bookmark type invalid',
-  USER_ID_IS_REQUIRED: 'User id is required',
-  TWEET_ID_TYPE_INVALID: 'Bookmark type invalid',
-  TWEET_ID_IS_REQUIRED: 'Tweet id is required'
+  UNBOOKMARK_NOT_FOUND: 'Unbookmark not found'
 }
 
 export const LIKE_MESSAGES = {
@@ -140,9 +139,5 @@ export const LIKE_MESSAGES = {
   UNLIKE_SUCCESS: 'Unlike successfully',
   UNLIKE_FAILURE: 'Unlike failed',
   UNLIKE_ALREADY_EXISTS: 'Unlike already exists',
-  UNLIKE_NOT_FOUND: 'Unlike not found',
-  USER_ID_TYPE_INVALID: 'Like type invalid',
-  USER_ID_IS_REQUIRED: 'User id is required',
-  TWEET_ID_TYPE_INVALID: 'Like type invalid',
-  TWEET_ID_IS_REQUIRED: 'Tweet id is required'
+  UNLIKE_NOT_FOUND: 'Unlike not found'
 }

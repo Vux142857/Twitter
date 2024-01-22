@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { createBookmarkController, unbookmarkController } from '~/controllers/bookmark.controller'
-import { createBookmarkValidator } from '~/middlewares/bookmark.middlewares'
+import { tweetIdValidator } from '~/middlewares/tweet.middlewares'
 import { accessTokenValidator } from '~/middlewares/user.middlewares'
 import databaseService from '~/services/database/database.services'
 import { wrapAsync } from '~/utils/handler'
@@ -19,12 +19,7 @@ bookmarkRouter.get('/', (req, res) => {
 // Header: {Authorization: Bearer <accessToken> }
 // Body: {user_id, tweet_id}
 // Response OK: {data: {result: {bookmark: Bookmark}}, message}
-bookmarkRouter.post(
-  '/create-bookmark',
-  accessTokenValidator,
-  createBookmarkValidator,
-  wrapAsync(createBookmarkController)
-)
+bookmarkRouter.post('/create-bookmark', accessTokenValidator, tweetIdValidator, wrapAsync(createBookmarkController))
 
 // WIP: 90% - 100%
 // Desciption: Unbookmark

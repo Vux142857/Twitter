@@ -13,6 +13,7 @@ class DatabaseService {
   private client: MongoClient
   private db: Db
   private uri: string
+
   constructor() {
     this.uri = process.env.DATABASE_URI as string
     this.client = new MongoClient(this.uri, {

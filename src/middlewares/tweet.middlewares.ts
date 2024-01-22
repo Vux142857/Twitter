@@ -145,3 +145,33 @@ export const createTweetValidator = validate(
     ['body']
   )
 )
+
+export const tweetIdValidator = validate(
+  checkSchema(
+    {
+      tweet_id: {
+        notEmpty: {
+          errorMessage: TWEET_MESSAGES.TWEET_ID_IS_REQUIRED
+        },
+        custom: {
+          options: async (value: string) => {
+            if (!ObjectId.isValid(value)) {
+              throw new ErrorWithStatus({
+                message: TWEET_MESSAGES.TWEET_ID_IS_REQUIRED,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            if (!(await tweetService.getTweetById(new ObjectId(value)))) {
+              throw new ErrorWithStatus({
+                message: TWEET_MESSAGES.TWEET_NOT_FOUND,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body', 'params']
+  )
+)
