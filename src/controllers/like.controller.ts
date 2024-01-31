@@ -8,7 +8,7 @@ import likeService from '~/services/like.services'
 export const createLikeController = async (req: Request, res: Response) => {
   const like = {
     user_id: new ObjectId(req.decoded_authorization?.user_id),
-    tweet_id: new ObjectId(req.body.tweet_id)
+    tweet_id: new ObjectId(req.params.tweet_id)
   }
   const result = await likeService.createLike(like)
   const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
@@ -19,7 +19,7 @@ export const createLikeController = async (req: Request, res: Response) => {
   })
 }
 
-export const unbookmarkController = async (req: Request, res: Response) => {
+export const unlikeController = async (req: Request, res: Response) => {
   const like = {
     user_id: new ObjectId(req.decoded_authorization?.user_id),
     tweet_id: new ObjectId(req.params.tweet_id)

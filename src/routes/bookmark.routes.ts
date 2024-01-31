@@ -19,7 +19,12 @@ bookmarkRouter.get('/', (req, res) => {
 // Header: {Authorization: Bearer <accessToken> }
 // Body: {user_id, tweet_id}
 // Response OK: {data: {result: {bookmark: Bookmark}}, message}
-bookmarkRouter.post('/create-bookmark', accessTokenValidator, tweetIdValidator, wrapAsync(createBookmarkController))
+bookmarkRouter.post(
+  '/create-bookmark/:tweet_id',
+  accessTokenValidator,
+  tweetIdValidator,
+  wrapAsync(createBookmarkController)
+)
 
 // WIP: 90% - 100%
 // Desciption: Unbookmark
@@ -27,7 +32,7 @@ bookmarkRouter.post('/create-bookmark', accessTokenValidator, tweetIdValidator, 
 // Method: POST
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {data: {result: {bookmark: Bookmark}}, message}
-bookmarkRouter.delete('/unbookmark/:tweet_id', accessTokenValidator, wrapAsync(unbookmarkController))
+bookmarkRouter.delete('/unbookmark/:tweet_id', accessTokenValidator, tweetIdValidator, wrapAsync(unbookmarkController))
 
 // *********************** FOR TESTING ONLY ***********************
 bookmarkRouter.post(

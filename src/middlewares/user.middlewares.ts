@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ParamSchema, checkSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
 import userService from '~/services/user.services'
@@ -492,3 +493,18 @@ export const unfollowValidator = validate(
     ['params']
   )
 )
+
+// req.header: user gửi j nhận cái đấy, k phân biệt chữ hoa vs chữ thường
+// req.headers: của express, phân biệt chữ hoa vs chữ thường (map authorization vs Authorization)
+export const isUserLoggedInValidator =
+  (middleware: (req: Request, res: Response, next: NextFunction) => void) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (req.headers.authorization) {
+        next(middleware)
+      }
+      next()
+    } catch (error) {
+      console.log(error)
+    }
+  }

@@ -8,7 +8,7 @@ import HTTP_STATUS from '~/constants/httpStatus'
 export const createBookmarkController = async (req: Request, res: Response) => {
   const bookmark = {
     user_id: new ObjectId(req.decoded_authorization?.user_id),
-    tweet_id: new ObjectId(req.body.tweet_id)
+    tweet_id: new ObjectId(req.params.tweet_id)
   }
   const result = await bookmarkService.createBookmark(bookmark)
   const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST

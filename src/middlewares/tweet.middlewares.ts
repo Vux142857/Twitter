@@ -172,6 +172,8 @@ export const tweetIdValidator = validate(
         }
       }
     },
-    ['body', 'params']
+    ['params']
   )
 )
+
+// export const tweetIdAndUserIdValidator = validate()

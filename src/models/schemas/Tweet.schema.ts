@@ -14,6 +14,7 @@ interface TweetConstructor {
   user_views?: Double
   guest_views?: Double
   type: TweetType
+  tweet_circle?: ObjectId[]
   createdAt?: Date
   updatedAt?: Date
 }
@@ -29,6 +30,7 @@ class Tweet {
   hashtag: string[]
   user_views: Double
   guest_views: Double
+  tweet_circle: ObjectId[]
   type: TweetType
   createdAt: Date
   updatedAt: Date
@@ -44,6 +46,7 @@ class Tweet {
     this.hashtag = tweet.hashtag || []
     this.user_views = tweet.user_views || new Double(0.0)
     this.guest_views = tweet.guest_views || new Double(0.0)
+    this.tweet_circle = tweet.tweet_circle || []
     this.type = tweet.type
     this.createdAt = tweet.createdAt || date
     this.updatedAt = tweet.updatedAt || date

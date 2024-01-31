@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express'
-import { createBookmarkController, unbookmarkController } from '~/controllers/bookmark.controller'
+import { createLikeController, unlikeController } from '~/controllers/like.controller'
 import { tweetIdValidator } from '~/middlewares/tweet.middlewares'
 import { accessTokenValidator } from '~/middlewares/user.middlewares'
 import databaseService from '~/services/database/database.services'
@@ -16,7 +16,7 @@ const likeRouter = Router()
 // Header: {Authorization: Bearer <accessToken> }
 // Body: {user_id, tweet_id}
 // Response OK: {data: {result: {bookmark: Bookmark}}, message}
-likeRouter.post('/create-like', accessTokenValidator, tweetIdValidator, wrapAsync(createBookmarkController))
+likeRouter.post('/create-like/:tweet_id', accessTokenValidator, tweetIdValidator, wrapAsync(createLikeController))
 
 // WIP: 90% - 100%
 // Desciption: Unbookmark
@@ -24,7 +24,7 @@ likeRouter.post('/create-like', accessTokenValidator, tweetIdValidator, wrapAsyn
 // Method: POST
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {data: {result: {bookmark: Bookmark}}, message}
-likeRouter.delete('/unlike/:tweet_id', accessTokenValidator, wrapAsync(unbookmarkController))
+likeRouter.delete('/unlike/:tweet_id', accessTokenValidator, tweetIdValidator, wrapAsync(unlikeController))
 
 // *********************** FOR TESTING ONLY ***********************
 likeRouter.post(

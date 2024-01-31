@@ -19,8 +19,8 @@ class LikeService {
     )
   }
 
-  async unlike(bookmark: LikeReqBody) {
-    return await databaseService.likes.findOneAndDelete({ user_id: bookmark.user_id, tweet_id: bookmark.tweet_id })
+  async unlike(like: LikeReqBody) {
+    return await databaseService.likes.findOneAndDelete({ user_id: like.user_id, tweet_id: like.tweet_id })
   }
 }
 
