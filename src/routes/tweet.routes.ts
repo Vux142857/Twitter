@@ -13,7 +13,7 @@ const tweetRouter = Router()
 // Method: GET
 // Response OK: {data: {result: {tweet: Tweet}}, message}
 tweetRouter.get(
-  '/:id',
+  '/:tweet_id',
   tweetIdValidator,
   isUserLoggedInValidator(accessTokenValidator),
   wrapAsync((req: Request, res: Response) => {
