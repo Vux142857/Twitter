@@ -225,8 +225,9 @@ export const accessTokenValidator = validate(
               const decoded_access_token = await tokenService.decodeAccessToken(accessToken)
               req.decoded_authorization = decoded_access_token
             } catch (error) {
+              console.log(error)
               throw new ErrorWithStatus({
-                message: USER_MESSAGES.ACCESS_TOKEN_INVALID,
+                message: USER_MESSAGES.ACCESS_TOKEN_EXPIRED,
                 status: HTTP_STATUS.UNAUTHORIZED
               })
             }
@@ -258,7 +259,7 @@ export const refreshTokenValidator = validate(
               req.decoded_refresh_token = decoded_refresh_token
             } catch (error) {
               throw new ErrorWithStatus({
-                message: USER_MESSAGES.REFRESH_TOKEN_INVALID,
+                message: USER_MESSAGES.REFRESH_TOKEN_EXPIRED,
                 status: HTTP_STATUS.UNAUTHORIZED
               })
             }
@@ -496,15 +497,16 @@ export const unfollowValidator = validate(
 
 // req.header: user gửi j nhận cái đấy, k phân biệt chữ hoa vs chữ thường
 // req.headers: của express, phân biệt chữ hoa vs chữ thường (map authorization vs Authorization)
-export const isUserLoggedInValidator =
-  (middleware: (req: Request, res: Response, next: NextFunction) => void) =>
-  (req: Request, res: Response, next: NextFunction) => {
+export const isUserLoggedInValidator = (middleware: (req: Request, res: Response, next: NextFunction) => void) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     try {
+      console.log(req.headers.authorization)
       if (req.headers.authorization) {
-        next(middleware)
+        return middleware(req, res, next)
       }
       next()
     } catch (error) {
       console.log(error)
     }
   }
+}
