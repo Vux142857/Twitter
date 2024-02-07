@@ -38,19 +38,19 @@ const userRouter = Router()
 // *********************** GET ***********************
 
 // WIP: 90% - 100%
-// Desciption: Get user
-// Route: /api/users/:username
-// Method: GET
-// Response OK: {user: {name, date_of_birth, bio, location, username, avatar, cover_photo, website}, message}
-userRouter.get('/:username', wrapAsync(getUserController))
-
-// WIP: 90% - 100%
 // Desciption: Get me
 // Route: /api/users/me
 // Method: GET
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {result: {user}, message}
 userRouter.get('/me', accessTokenValidator, wrapAsync(getMeController))
+
+// WIP: 90% - 100%
+// Desciption: Get user
+// Route: /api/users/:username
+// Method: GET
+// Response OK: {user: {name, date_of_birth, bio, location, username, avatar, cover_photo, website}, message}
+userRouter.get('/:username', wrapAsync(getUserController))
 
 // WIP: 90% - 100%
 // Desciption: Update me

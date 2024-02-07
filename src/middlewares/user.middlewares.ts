@@ -225,7 +225,6 @@ export const accessTokenValidator = validate(
               const decoded_access_token = await tokenService.decodeAccessToken(accessToken)
               req.decoded_authorization = decoded_access_token
             } catch (error) {
-              console.log(error)
               throw new ErrorWithStatus({
                 message: USER_MESSAGES.ACCESS_TOKEN_EXPIRED,
                 status: HTTP_STATUS.UNAUTHORIZED
@@ -397,7 +396,24 @@ export const updateMeValidator = validate(
           errorMessage: USER_MESSAGES.LOCATION_TOO_LONG
         }
       },
-      username: { ...usernameSchema, optional: true },
+      username: {
+        optional: true,
+        trim: true,
+        isString: {
+          errorMessage: USER_MESSAGES.INVALID_USERNAME_FORMAT
+        },
+        matches: {
+          options: /^[a-zA-Z0-9_]{3,20}$/,
+          errorMessage: USER_MESSAGES.INVALID_USERNAME_FORMAT
+        },
+        isLength: {
+          options: {
+            min: 3,
+            max: 20
+          },
+          errorMessage: USER_MESSAGES.USERNAME_LENGTH
+        }
+      },
       avatar: imageSchema,
       cover_photo: imageSchema,
       website: {
@@ -500,7 +516,6 @@ export const unfollowValidator = validate(
 export const isUserLoggedInValidator = (middleware: (req: Request, res: Response, next: NextFunction) => void) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req.headers.authorization)
       if (req.headers.authorization) {
         return middleware(req, res, next)
       }

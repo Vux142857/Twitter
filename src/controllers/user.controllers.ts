@@ -166,7 +166,6 @@ export const unfollowController = async (req: Request<unfollowParams>, res: Resp
 }
 
 export const refreshTokenController = async (req: Request, res: Response) => {
-  console.log(req.decoded_refresh_token)
   const { user_id, exp } = req.decoded_refresh_token as TokenPayload
   const token = req.body.refresh_token
   const result = await userService.updateToken(user_id, exp, token)
