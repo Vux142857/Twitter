@@ -102,6 +102,11 @@ const imageSchema: ParamSchema = {
   optional: true,
   trim: true,
   isURL: {
+    options: {
+      protocols: ['http', 'https'], // protocols to allow
+      require_tld: false, // if TLD (Top Level Domain .com, .net, etc.) is required
+      require_protocol: true // if protocol is required
+    },
     errorMessage: USER_MESSAGES.INVALID_AVATAR_FORMAT
   },
   isLength: {
