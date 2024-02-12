@@ -4,12 +4,17 @@ import { Server } from 'socket.io'
 import app from './server'
 import 'dotenv/config'
 import sessionStore from './lib/sessionStore'
-import { ErrorWithStatus } from './models/Error'
-import HTTP_STATUS from './constants/httpStatus'
-import messageStore from './lib/messageStore'
+import messageStore, { Message } from './lib/messageStore'
 const port = process.env.PORT || 3000
 const server = createServer(app)
 const io = new Server(server, { cors: { origin: '*' } })
+
+interface UserInChat {
+  userID: string
+  username: string
+  connected: boolean
+  messages: Message[]
+}
 
 io.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID
@@ -25,20 +30,56 @@ io.use((socket, next) => {
   const username = socket.handshake.auth.username
   const userID = socket.handshake.auth.id
   if (!username) {
-    throw new ErrorWithStatus({ message: 'invalid username', status: HTTP_STATUS.NOT_FOUND })
+    return next(new Error('Invalid username'))
   }
   socket.sessionID = cryto.randomUUID() as string
   socket.userID = userID
   socket.username = username
   next()
 })
+
 io.on('connection', (socket) => {
   socket.emit('message', 'Hello from server')
-  console.log('user connected ' + socket.handshake.auth.id)
+  // persist session
+  sessionStore.saveSession(socket.sessionID as string, {
+    userID: socket.userID,
+    username: socket.username,
+    connected: true
+  })
+
+  // emit session details
+  socket.emit('session', {
+    sessionID: socket.sessionID,
+    userID: socket.userID
+  })
+
+  // join the "userID" room
+  socket.join(socket.userID as string)
+  // fetch existing users
+  const users: UserInChat[] = []
+  const messagesPerUser = new Map()
+  messageStore.findMessagesForUser(socket.userID as string).forEach((message) => {
+    const { from, to } = message
+    const otherUser = socket.userID === from ? to : from
+    if (messagesPerUser.has(otherUser)) {
+      messagesPerUser.get(otherUser).push(message)
+    } else {
+      messagesPerUser.set(otherUser, [message])
+    }
+  })
+  sessionStore.findAllSessions().forEach((session) => {
+    users.push({
+      userID: session.userID,
+      username: session.username,
+      connected: session.connected,
+      messages: messagesPerUser.get(session.userID) || []
+    })
+  })
+  socket.emit('users', users)
   socket.on('private message', ({ content, to }) => {
     const message = {
       content,
-      from: socket.userID,
+      from: socket.userID as string,
       to
     }
     socket
@@ -47,8 +88,20 @@ io.on('connection', (socket) => {
       .emit('private message', message)
     messageStore.saveMessage(message)
   })
-  socket.on('disconnect', () => {
-    console.log('user disconnected ' + socket.handshake.auth.id)
+
+  socket.on('disconnect', async () => {
+    const matchingSockets = await io.in(socket.userID as string).fetchSockets()
+    const isDisconnected = matchingSockets.length === 0
+    if (isDisconnected) {
+      // notify other users
+      socket.broadcast.emit('user disconnected', socket.userID)
+      // update the connection status of the session
+      sessionStore.saveSession(socket.sessionID as string, {
+        userID: socket.userID,
+        username: socket.username,
+        connected: false
+      })
+    }
   })
 })
 server.listen(port, () => {

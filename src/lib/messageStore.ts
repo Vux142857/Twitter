@@ -5,13 +5,19 @@
   findMessagesForUser(userID: string) { }
 }
 
+export interface Message {
+  content: string
+  from: string
+  to: string
+}
+
 class InMemoryMessageStore extends MessageStore {
-  private messages: any[] // Add this line
+  private messages: Message[] // Add this line
   constructor() {
     super()
     this.messages = []
   }
-  saveMessage(message: any) {
+  saveMessage(message: Message) {
     this.messages.push(message)
   }
   findMessagesForUser(userID: string) {
