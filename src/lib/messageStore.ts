@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* abstract */ class MessageStore {
-  saveMessage(message: any) { }
-  findMessagesForUser(userID: string) { }
+  saveMessage(message: any) {}
+  findMessagesForUser(userID: string) {}
 }
 
 export interface Message {
   content: string
   from: string
   to: string
+  fromSelf?: boolean
 }
 
 class InMemoryMessageStore extends MessageStore {

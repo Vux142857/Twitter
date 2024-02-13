@@ -14,6 +14,7 @@ interface UserInChat {
   username: string
   connected: boolean
   messages: Message[]
+  self?: boolean
 }
 
 io.use((socket, next) => {
