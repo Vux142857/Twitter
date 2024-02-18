@@ -12,7 +12,7 @@ const io = new Server(server, { cors: { origin: '*' } })
 interface UserInChat {
   userID: string
   username: string
-  connected: boolean
+  connected?: boolean
   messages: Message[]
   self?: boolean
 }
@@ -21,6 +21,7 @@ io.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID
   if (sessionID) {
     const session = sessionStore.findSession(sessionID)
+    console.log(session)
     if (session) {
       socket.sessionID = sessionID
       socket.userID = session.userID
@@ -30,6 +31,7 @@ io.use((socket, next) => {
   }
   const username = socket.handshake.auth.username
   const userID = socket.handshake.auth.id
+  console.log(username, userID)
   if (!username) {
     return next(new Error('Invalid username'))
   }
@@ -68,6 +70,7 @@ io.on('connection', (socket) => {
       messagesPerUser.set(otherUser, [message])
     }
   })
+  // if store session by database: then find by ObjectID -> fetch
   sessionStore.findAllSessions().forEach((session) => {
     users.push({
       userID: session.userID,
@@ -77,6 +80,7 @@ io.on('connection', (socket) => {
     })
   })
   socket.emit('users', users)
+
   socket.on('private message', ({ content, to }) => {
     const message = {
       content,
@@ -87,11 +91,12 @@ io.on('connection', (socket) => {
       .to(to)
       .to(socket.userID as string)
       .emit('private message', message)
-    messageStore.saveMessage(message)
+    // messageStore.saveMessage(message)
   })
 
   socket.on('disconnect', async () => {
     const matchingSockets = await io.in(socket.userID as string).fetchSockets()
+    console.log(matchingSockets)
     const isDisconnected = matchingSockets.length === 0
     if (isDisconnected) {
       // notify other users
