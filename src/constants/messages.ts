@@ -1,5 +1,6 @@
 export const USER_MESSAGES = {
   VALIDATION_ERROR: 'Validation error',
+  USER_UNAUTHORIZED: 'User unauthorized',
   // Username
   USERNAME_LENGTH: 'Username must be between 3 and 20 characters',
   USERNAME_ALREADY_EXISTS: 'Username already exists',
