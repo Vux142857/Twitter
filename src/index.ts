@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createServer } from 'http'
 import cryto from 'crypto'
 import { Server } from 'socket.io'
@@ -17,97 +18,102 @@ interface UserInChat {
   self?: boolean
 }
 
-io.use((socket, next) => {
-  const sessionID = socket.handshake.auth.sessionID
-  if (sessionID) {
-    const session = sessionStore.findSession(sessionID)
-    console.log(session)
-    if (session) {
-      socket.sessionID = sessionID
-      socket.userID = session.userID
-      socket.username = session.username
-      return next()
-    }
+// io.use((socket, next) => {
+//   const sessionID = socket.handshake.auth.sessionID
+//   if (sessionID) {
+//     const session = sessionStore.findSession(sessionID)
+//     console.log(session)
+//     if (session) {
+//       socket.sessionID = sessionID
+//       socket.userID = session.userID
+//       socket.username = session.username
+//       return next()
+//     }
+//   }
+//   const username = socket.handshake.auth.username
+//   const userID = socket.handshake.auth.id
+//   console.log(username, userID)
+//   if (!username) {
+//     return next(new Error('Invalid username'))
+//   }
+//   socket.sessionID = cryto.randomUUID() as string
+//   socket.userID = userID
+//   socket.username = username
+//   next()
+// })
+const users: {
+  [userID: string]: {
+    userID: string
+    username: string
+    socketID: string
+    connected: boolean
   }
-  const username = socket.handshake.auth.username
-  const userID = socket.handshake.auth.id
-  console.log(username, userID)
-  if (!username) {
-    return next(new Error('Invalid username'))
-  }
-  socket.sessionID = cryto.randomUUID() as string
-  socket.userID = userID
-  socket.username = username
-  next()
-})
-
+} = {}
 io.on('connection', (socket) => {
-  socket.emit('message', 'Hello from server')
-  // persist session
-  sessionStore.saveSession(socket.sessionID as string, {
-    userID: socket.userID,
-    username: socket.username,
+  const userID = socket.handshake.auth.id
+  const username = socket.handshake.auth.username
+  users[userID] = {
+    userID,
+    username: username,
+    socketID: socket.id,
     connected: true
-  })
+  }
+  console.log(users)
+
+  // // persist session
+  // sessionStore.saveSession(socket.sessionID as string, {
+  //   userID: socket.userID,
+  //   username: socket.username,
+  //   connected: true
+  // })
 
   // emit session details
-  socket.emit('session', {
-    sessionID: socket.sessionID,
-    userID: socket.userID
-  })
+  // socket.emit('session', {
+  //   sessionID: socket.sessionID,
+  //   userID: socket.userID
+  // })
 
   // join the "userID" room
-  socket.join(socket.userID as string)
-  // fetch existing users
-  const users: UserInChat[] = []
-  const messagesPerUser = new Map()
-  messageStore.findMessagesForUser(socket.userID as string).forEach((message) => {
-    const { from, to } = message
-    const otherUser = socket.userID === from ? to : from
-    if (messagesPerUser.has(otherUser)) {
-      messagesPerUser.get(otherUser).push(message)
-    } else {
-      messagesPerUser.set(otherUser, [message])
-    }
-  })
-  // if store session by database: then find by ObjectID -> fetch
-  sessionStore.findAllSessions().forEach((session) => {
-    users.push({
-      userID: session.userID,
-      username: session.username,
-      connected: session.connected,
-      messages: messagesPerUser.get(session.userID) || []
-    })
-  })
+  // socket.join(socket.userID as string)
+  // // fetch existing users
+  // const users: UserInChat[] = []
+  // const messagesPerUser = new Map()
+  // messageStore.findMessagesForUser(socket.userID as string).forEach((message) => {
+  //   const { from, to } = message
+  //   const otherUser = socket.userID === from ? to : from
+  //   if (messagesPerUser.has(otherUser)) {
+  //     messagesPerUser.get(otherUser).push(message)
+  //   } else {
+  //     messagesPerUser.set(otherUser, [message])
+  //   }
+  // })
+  // // if store session by database: then find by ObjectID -> fetch
+  // sessionStore.findAllSessions().forEach((session) => {
+  //   users.push({
+  //     userID: session.userID,
+  //     username: session.username,
+  //     connected: session.connected,
+  //     messages: messagesPerUser.get(session.userID) || []
+  //   })
+  // })
   socket.emit('users', users)
 
-  socket.on('private message', ({ content, to }) => {
-    const message = {
+  socket.on('private message', ({ content, from, to }) => {
+    const message: Message = {
+      from,
       content,
-      from: socket.userID as string,
       to
     }
-    socket
-      .to(to)
-      .to(socket.userID as string)
-      .emit('private message', message)
+    console.log('private message', message)
+    if (users[to]) {
+      socket.to(users[to].socketID).emit('receive message', message)
+    }
     // messageStore.saveMessage(message)
   })
 
   socket.on('disconnect', async () => {
-    const matchingSockets = await io.in(socket.userID as string).fetchSockets()
-    console.log(matchingSockets)
-    const isDisconnected = matchingSockets.length === 0
-    if (isDisconnected) {
-      // notify other users
-      socket.broadcast.emit('user disconnected', socket.userID)
-      // update the connection status of the session
-      sessionStore.saveSession(socket.sessionID as string, {
-        userID: socket.userID,
-        username: socket.username,
-        connected: false
-      })
-    }
+    console.log('User disconnected: ' + users[userID])
+    delete users[userID]
   })
 })
 server.listen(port, () => {
