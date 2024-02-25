@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
@@ -12,5 +13,13 @@ export const createTweetController = async (req: Request, res: Response) => {
   res.status(HTTP_STATUS.OK).json({
     result,
     message: TWEET_MESSAGES.TWEET_SUCCESS
+  })
+}
+
+export const getTweetByIdController = async (req: Request, res: Response) => {
+  const tweet = req.tweet
+  res.status(HTTP_STATUS.OK).json({
+    result: tweet,
+    message: TWEET_MESSAGES.GET_TWEET_SUCCESS
   })
 }

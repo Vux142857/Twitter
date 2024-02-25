@@ -8,6 +8,7 @@ import Media from '~/models/schemas/Media.schema'
 import tweetService from '~/services/tweet.services'
 import { enumToNumArray } from '~/utils/common'
 import { validate } from '~/utils/validation'
+import { NextFunction, Request, Response } from 'express'
 
 const TweetTypesArray = enumToNumArray(TweetType)
 const TweetAudienceArray = enumToNumArray(TweetAudience)
@@ -154,19 +155,21 @@ export const tweetIdValidator = validate(
           errorMessage: TWEET_MESSAGES.TWEET_ID_IS_REQUIRED
         },
         custom: {
-          options: async (value: string) => {
+          options: async (value: string, { req }) => {
             if (!ObjectId.isValid(value)) {
               throw new ErrorWithStatus({
                 message: TWEET_MESSAGES.TWEET_ID_IS_REQUIRED,
                 status: HTTP_STATUS.BAD_REQUEST
               })
             }
-            if (!(await tweetService.getTweetById(new ObjectId(value)))) {
+            const tweet = await tweetService.getTweetById(new ObjectId(value))
+            if (!tweet) {
               throw new ErrorWithStatus({
                 message: TWEET_MESSAGES.TWEET_NOT_FOUND,
                 status: HTTP_STATUS.BAD_REQUEST
               })
             }
+            req.tweet = tweet
             return true
           }
         }
@@ -176,4 +179,18 @@ export const tweetIdValidator = validate(
   )
 )
 
-// export const tweetIdAndUserIdValidator = validate()
+export const audienceValidator = (request: Request, response: Response, next: NextFunction) => {
+  const tweet = request.tweet
+  console.log('Tweet' + tweet)
+  const guest = request.decoded_authorization?.user_id
+  if (tweet && tweet.audience === TweetAudience.TweetCircle) {
+    if ((guest && tweet.tweet_circle?.includes(new ObjectId(guest))) || tweet.user_id.equals(new ObjectId(guest))) {
+      return next()
+    }
+    throw new ErrorWithStatus({
+      message: TWEET_MESSAGES.TWEET_NOT_FOUND,
+      status: HTTP_STATUS.NOT_FOUND
+    })
+  }
+  next()
+}

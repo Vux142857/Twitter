@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express'
-import { createTweetController } from '~/controllers/tweet.controllers'
-import { createTweetValidator, tweetIdValidator } from '~/middlewares/tweet.middlewares'
+import { createTweetController, getTweetByIdController } from '~/controllers/tweet.controllers'
+import { audienceValidator, createTweetValidator, tweetIdValidator } from '~/middlewares/tweet.middlewares'
 import { accessTokenValidator, isUserLoggedInValidator, verifedUserValidator } from '~/middlewares/user.middlewares'
 import databaseService from '~/services/database/database.services'
 import { wrapAsync } from '~/utils/handler'
@@ -16,14 +16,9 @@ tweetRouter.get(
   '/:tweet_id',
   tweetIdValidator,
   isUserLoggedInValidator(accessTokenValidator),
-  wrapAsync((req: Request, res: Response) => {
-    try {
-      console.log(123)
-      res.status(200).json({ message: 'get tweet by id' })
-    } catch (error) {
-      console.log(error)
-    }
-  })
+  verifedUserValidator,
+  audienceValidator,
+  wrapAsync(getTweetByIdController)
 )
 
 // *********************** POST ***********************

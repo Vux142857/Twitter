@@ -105,6 +105,7 @@ export const MEDIA_MESSAGES = {
 
 export const TWEET_MESSAGES = {
   TWEET_SUCCESS: 'Tweet successfully',
+  GET_TWEET_SUCCESS: 'Get tweet successfully',
   TWEET_INVALID: 'Tweet invalid',
   TWEET_NOT_FOUND: 'Tweet not found',
   TWEET_TYPE_INVALID: 'Tweet type invalid',
