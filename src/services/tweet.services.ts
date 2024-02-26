@@ -17,10 +17,18 @@ export interface TweetReqBody {
 
 class TweetService {
   async createTweet(payload: TweetReqBody, user_id: ObjectId) {
-    const tweet = new Tweet({
-      ...payload,
-      user_id
-    })
+    const { type } = payload
+    const tweet =
+      type !== TweetType.Tweet && payload.parent_id
+        ? new Tweet({
+            ...payload,
+            parent_id: new ObjectId(payload.parent_id),
+            user_id
+          })
+        : new Tweet({
+            ...payload,
+            user_id
+          })
     if (payload.hashtag) {
       await Promise.all([databaseService.tweets.insertOne(tweet), hashtagService.checkAndCreatHashtag(payload.hashtag)])
     } else {

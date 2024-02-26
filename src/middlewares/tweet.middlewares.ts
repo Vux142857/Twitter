@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { checkSchema } from 'express-validator'
 import { ObjectId } from 'mongodb'
 import { TweetAudience, TweetType } from '~/constants/enum'
@@ -12,6 +13,7 @@ import { NextFunction, Request, Response } from 'express'
 
 const TweetTypesArray = enumToNumArray(TweetType)
 const TweetAudienceArray = enumToNumArray(TweetAudience)
+
 export const createTweetValidator = validate(
   checkSchema(
     {
@@ -38,23 +40,23 @@ export const createTweetValidator = validate(
           options: async (value: string, { req }) => {
             try {
               const { type } = req.body
-              if (type == TweetType.Retweet && value !== '') {
+              if (type === TweetType.Retweet && value !== '') {
                 throw new ErrorWithStatus({
                   message: TWEET_MESSAGES.RETWEET_CONTENT_INVALID,
                   status: HTTP_STATUS.BAD_REQUEST
                 })
-              }
-              if (type != TweetType.Retweet && value === '') {
+              } else if (type !== TweetType.Retweet && value === '') {
                 throw new ErrorWithStatus({
                   message: TWEET_MESSAGES.TWEET_CONTENT_INVALID,
                   status: HTTP_STATUS.BAD_REQUEST
                 })
               }
-            } catch (error) {
+            } catch (error: any) {
+              console.log(error)
               if (error) {
                 throw new ErrorWithStatus({
-                  message: TWEET_MESSAGES.TWEET_INVALID,
-                  status: HTTP_STATUS.BAD_REQUEST
+                  message: error.message,
+                  status: error.status
                 })
               }
             }
