@@ -38,7 +38,106 @@ class TweetService {
   }
 
   async getTweetById(id: ObjectId) {
-    return await databaseService.tweets.findOne({ _id: id })
+    const [tweet] = await databaseService.tweets
+      .aggregate(
+        [
+          {
+            $match: {
+              _id: id
+            }
+          },
+          {
+            $lookup: {
+              from: 'bookmarks',
+              localField: '_id',
+              foreignField: 'tweet_id',
+              as: 'bookmarks'
+            }
+          },
+          {
+            $lookup: {
+              from: 'likes',
+              localField: '_id',
+              foreignField: 'tweet_id',
+              as: 'likes'
+            }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user_id',
+              foreignField: '_id',
+              as: 'author'
+            }
+          },
+          {
+            $addFields: {
+              author: {
+                $map: {
+                  input: '$author',
+                  as: 'item',
+                  in: {
+                    _id: '$$item._id',
+                    name: '$$item.name',
+                    username: '$$item.username'
+                  }
+                }
+              }
+            }
+          },
+          {
+            $lookup: {
+              from: 'tweets',
+              localField: '_id',
+              foreignField: 'parent_id',
+              as: 'tweet_children'
+            }
+          },
+          {
+            $addFields: {
+              bookmarks: {
+                $size: '$bookmarks'
+              },
+              likes: {
+                $size: '$likes'
+              },
+              retweets: {
+                $size: {
+                  $filter: {
+                    input: '$tweet_children',
+                    as: 'item',
+                    cond: {
+                      $eq: ['$$item.type', 1]
+                    }
+                  }
+                }
+              },
+              comments: {
+                $size: {
+                  $filter: {
+                    input: '$tweet_children',
+                    as: 'item',
+                    cond: {
+                      $eq: ['$$item.type', 2]
+                    }
+                  }
+                }
+              },
+              author: {
+                $arrayElemAt: ['$author', 0]
+              }
+            }
+          },
+          {
+            $project: {
+              tweet_children: 0
+            }
+          }
+        ],
+        { maxTimeMS: 60000, allowDiskUse: true }
+      )
+      .toArray()
+    return tweet
   }
 }
 const tweetService = new TweetService()

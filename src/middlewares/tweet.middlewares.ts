@@ -52,7 +52,6 @@ export const createTweetValidator = validate(
                 })
               }
             } catch (error: any) {
-              console.log(error)
               if (error) {
                 throw new ErrorWithStatus({
                   message: error.message,
@@ -112,7 +111,6 @@ export const createTweetValidator = validate(
             try {
               const { type } = req.body
               if (type != TweetType.Tweet && !ObjectId.isValid(value)) {
-                console.log(123)
                 throw new ErrorWithStatus({
                   message: TWEET_MESSAGES.RETWEET_WITHOUT_PARENT,
                   status: HTTP_STATUS.BAD_REQUEST
@@ -183,7 +181,6 @@ export const tweetIdValidator = validate(
 
 export const audienceValidator = (request: Request, response: Response, next: NextFunction) => {
   const tweet = request.tweet
-  console.log('Tweet' + tweet)
   const guest = request.decoded_authorization?.user_id
   if (tweet && tweet.audience === TweetAudience.TweetCircle) {
     if ((guest && tweet.tweet_circle?.includes(new ObjectId(guest))) || tweet.user_id.equals(new ObjectId(guest))) {
