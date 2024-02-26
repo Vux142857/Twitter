@@ -193,3 +193,23 @@ export const audienceValidator = (request: Request, response: Response, next: Ne
   }
   next()
 }
+
+export const tweetChildrenQueryValidator = validate(
+  checkSchema(
+    {
+      type: {
+        isInt: true,
+        toInt: true
+      },
+      skip: {
+        isInt: true,
+        toInt: true
+      },
+      limit: {
+        isInt: true,
+        toInt: true
+      }
+    },
+    ['query']
+  )
+)

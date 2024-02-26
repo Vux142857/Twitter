@@ -107,7 +107,7 @@ class TweetService {
                     input: '$tweet_children',
                     as: 'item',
                     cond: {
-                      $eq: ['$$item.type', 1]
+                      $eq: ['$$item.type', TweetType.Retweet]
                     }
                   }
                 }
@@ -118,7 +118,7 @@ class TweetService {
                     input: '$tweet_children',
                     as: 'item',
                     cond: {
-                      $eq: ['$$item.type', 2]
+                      $eq: ['$$item.type', TweetType.Comment]
                     }
                   }
                 }
@@ -138,6 +138,102 @@ class TweetService {
       )
       .toArray()
     return tweet
+  }
+
+  async updateViewsTweet(id: ObjectId, user_id?: string) {
+    const inc = user_id ? { user_views: 1 } : { guest_views: 1 }
+    return await databaseService.tweets.findOneAndUpdate(
+      { _id: id },
+      {
+        $inc: inc,
+        $currentDate: { updatedAt: true }
+      },
+      {
+        returnDocument: 'after',
+        projection: {
+          user_views: 1,
+          guest_views: 1
+        }
+      }
+    )
+  }
+
+  async getTweetChildren(id: ObjectId, tweetType: number, skip: number, limit: number) {
+    const [tweetChildren, total] = await Promise.all([
+      databaseService.tweets
+        .aggregate([
+          {
+            $match: {
+              parent_id: id,
+              type: tweetType
+            }
+          },
+          {
+            $lookup: {
+              from: 'bookmarks',
+              localField: '_id',
+              foreignField: 'tweet_id',
+              as: 'bookmarks'
+            }
+          },
+          {
+            $lookup: {
+              from: 'likes',
+              localField: '_id',
+              foreignField: 'tweet_id',
+              as: 'likes'
+            }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user_id',
+              foreignField: '_id',
+              as: 'author'
+            }
+          },
+          {
+            $addFields: {
+              author: {
+                $map: {
+                  input: '$author',
+                  as: 'item',
+                  in: {
+                    _id: '$$item._id',
+                    name: '$$item.name',
+                    username: '$$item.username'
+                  }
+                }
+              }
+            }
+          },
+          {
+            $addFields: {
+              bookmarks: {
+                $size: '$bookmarks'
+              },
+              likes: {
+                $size: '$likes'
+              },
+              author: {
+                $arrayElemAt: ['$author', 0]
+              }
+            }
+          },
+          {
+            $skip: skip
+          },
+          {
+            $limit: limit
+          }
+        ])
+        .toArray(),
+      databaseService.tweets.countDocuments({
+        parent_id: id,
+        type: tweetType
+      })
+    ])
+    return { tweetChildren, total }
   }
 }
 const tweetService = new TweetService()

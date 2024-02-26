@@ -1,13 +1,22 @@
 import { Router, Request, Response } from 'express'
-import { createTweetController, getTweetByIdController } from '~/controllers/tweet.controllers'
-import { audienceValidator, createTweetValidator, tweetIdValidator } from '~/middlewares/tweet.middlewares'
+import {
+  createTweetController,
+  getTweetByIdController,
+  getTweetChildrenController
+} from '~/controllers/tweet.controllers'
+import {
+  audienceValidator,
+  createTweetValidator,
+  tweetChildrenQueryValidator,
+  tweetIdValidator
+} from '~/middlewares/tweet.middlewares'
 import { accessTokenValidator, isUserLoggedInValidator, verifedUserValidator } from '~/middlewares/user.middlewares'
 import databaseService from '~/services/database/database.services'
 import { wrapAsync } from '~/utils/handler'
 const tweetRouter = Router()
 
 // *********************** GET ***********************
-// WIP: 0% - 10%
+// WIP: 80% - 90%
 // Desciption: Get tweet by id
 // Route: /api/tweet/:id
 // Method: GET
@@ -19,6 +28,16 @@ tweetRouter.get(
   verifedUserValidator,
   audienceValidator,
   wrapAsync(getTweetByIdController)
+)
+
+tweetRouter.get(
+  '/:tweet_id/children',
+  tweetIdValidator,
+  isUserLoggedInValidator(accessTokenValidator),
+  verifedUserValidator,
+  audienceValidator,
+  tweetChildrenQueryValidator,
+  wrapAsync(getTweetChildrenController)
 )
 
 // *********************** POST ***********************
