@@ -22,14 +22,14 @@ class TweetService {
     const tweet =
       type !== TweetType.Tweet && payload.parent_id
         ? new Tweet({
-          ...payload,
-          parent_id: new ObjectId(payload.parent_id),
-          user_id
-        })
+            ...payload,
+            parent_id: new ObjectId(payload.parent_id),
+            user_id
+          })
         : new Tweet({
-          ...payload,
-          user_id
-        })
+            ...payload,
+            user_id
+          })
     if (payload.hashtag) {
       await Promise.all([databaseService.tweets.insertOne(tweet), hashtagService.checkAndCreatHashtag(payload.hashtag)])
     } else {
