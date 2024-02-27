@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, NextFunction, Response } from 'express'
 import { omit } from 'lodash'
 import HTTP_STATUS from '~/constants/httpStatus'

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import databaseService from './database/database.services'
 import Tweet from '~/models/schemas/Tweet.schema'
 import { ObjectId } from 'mongodb'
@@ -21,14 +22,14 @@ class TweetService {
     const tweet =
       type !== TweetType.Tweet && payload.parent_id
         ? new Tweet({
-            ...payload,
-            parent_id: new ObjectId(payload.parent_id),
-            user_id
-          })
+          ...payload,
+          parent_id: new ObjectId(payload.parent_id),
+          user_id
+        })
         : new Tweet({
-            ...payload,
-            user_id
-          })
+          ...payload,
+          user_id
+        })
     if (payload.hashtag) {
       await Promise.all([databaseService.tweets.insertOne(tweet), hashtagService.checkAndCreatHashtag(payload.hashtag)])
     } else {
@@ -140,8 +141,31 @@ class TweetService {
     return tweet
   }
 
-  async updateViewsTweet(id: ObjectId, user_id?: string) {
+  async updateViewsTweet(id: ObjectId, user_id?: string, tweetChildren?: Tweet[]) {
     const inc = user_id ? { user_views: 1 } : { guest_views: 1 }
+    if (tweetChildren) {
+      const ids = tweetChildren.map((tweet: any) => tweet._id)
+      const currentDate = new Date()
+      await databaseService.tweets.updateMany(
+        {
+          _id: {
+            $in: ids
+          }
+        },
+        {
+          $inc: inc,
+          $set: { updatedAt: currentDate }
+        }
+      )
+      tweetChildren.forEach((tweet: any) => {
+        if (user_id) {
+          tweet.user_views = tweet.user_views + 1.0
+        } else {
+          tweet.guest_views = tweet.guest_views + 1.0
+        }
+      })
+      return tweetChildren
+    }
     return await databaseService.tweets.findOneAndUpdate(
       { _id: id },
       {
@@ -158,10 +182,10 @@ class TweetService {
     )
   }
 
-  async getTweetChildren(id: ObjectId, tweetType: number, skip: number, limit: number) {
+  async getTweetChildren(id: ObjectId, user_id: string, tweetType: number, skip: number, limit: number) {
     const [tweetChildren, total] = await Promise.all([
       databaseService.tweets
-        .aggregate([
+        .aggregate<Tweet>([
           {
             $match: {
               parent_id: id,
@@ -233,7 +257,11 @@ class TweetService {
         type: tweetType
       })
     ])
-    return { tweetChildren, total }
+    const result = {
+      tweetChildren: await this.updateViewsTweet(id, user_id, tweetChildren),
+      total
+    }
+    return result
   }
 }
 const tweetService = new TweetService()

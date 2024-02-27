@@ -29,6 +29,7 @@ export const getTweetChildrenController = async (req: Request, res: Response) =>
   const { skip, limit, type } = req.query
   const { tweetChildren, total } = await tweetService.getTweetChildren(
     req.tweet?._id as ObjectId,
+    req.decoded_authorization?.user_id as string,
     parseInt(type as string),
     parseInt(skip as string),
     parseInt(limit as string)

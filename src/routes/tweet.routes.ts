@@ -23,20 +23,20 @@ const tweetRouter = Router()
 // Response OK: {data: {result: {tweet: Tweet}}, message}
 tweetRouter.get(
   '/:tweet_id',
-  tweetIdValidator,
   isUserLoggedInValidator(accessTokenValidator),
   verifedUserValidator,
   audienceValidator,
+  tweetIdValidator,
   wrapAsync(getTweetByIdController)
 )
 
 tweetRouter.get(
   '/:tweet_id/children',
-  tweetIdValidator,
   isUserLoggedInValidator(accessTokenValidator),
   verifedUserValidator,
   audienceValidator,
   tweetChildrenQueryValidator,
+  tweetIdValidator,
   wrapAsync(getTweetChildrenController)
 )
 
