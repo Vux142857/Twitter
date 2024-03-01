@@ -5,6 +5,7 @@ import { ObjectId } from 'mongodb'
 import { TweetAudience, TweetType } from '~/constants/enum'
 import Media from '~/models/schemas/Media.schema'
 import hashtagService from './hashtag.services'
+import Follow from '~/models/schemas/Follow.schema'
 
 export interface TweetReqBody {
   audience: TweetAudience
@@ -262,6 +263,138 @@ class TweetService {
       total
     }
     return result
+  }
+
+  async getTweetByFollowed(user_id: ObjectId, skip: number, limit: number) {
+    const followedUsers = await databaseService.follows
+      .aggregate<Follow>([
+        {
+          $match: {
+            user_id
+          }
+        },
+        {
+          $skip: skip
+        },
+        {
+          $limit: limit
+        }
+      ])
+      .toArray()
+    const tweetsByFollowed: Tweet[] = []
+    followedUsers.forEach(async (followedUser: Follow) => {
+      const tweet = await this.getLatestTweet(followedUser.following_user_id)
+      tweetsByFollowed.push(tweet)
+    })
+    return tweetsByFollowed
+  }
+
+  private async getLatestTweet(author_id: ObjectId) {
+    const [latestTweet] = await databaseService.tweets
+      .aggregate<Tweet>([
+        {
+          $match: {
+            user_id: author_id
+          }
+        },
+        {
+          $sort: {
+            created_at: -1
+          }
+        },
+        {
+          $limit: 1
+        },
+        {
+          $lookup: {
+            from: 'bookmarks',
+            localField: '_id',
+            foreignField: 'tweet_id',
+            as: 'bookmarks'
+          }
+        },
+        {
+          $lookup: {
+            from: 'likes',
+            localField: '_id',
+            foreignField: 'tweet_id',
+            as: 'likes'
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user_id',
+            foreignField: '_id',
+            as: 'author'
+          }
+        },
+        {
+          $addFields: {
+            author: {
+              $map: {
+                input: '$author',
+                as: 'item',
+                in: {
+                  _id: '$$item._id',
+                  name: '$$item.name',
+                  username: '$$item.username'
+                }
+              }
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: 'tweets',
+            localField: '_id',
+            foreignField: 'parent_id',
+            as: 'tweet_children'
+          }
+        },
+        {
+          $addFields: {
+            bookmarks: {
+              $size: '$bookmarks'
+            },
+            likes: {
+              $size: '$likes'
+            },
+            retweets: {
+              $size: {
+                $filter: {
+                  input: '$tweet_children',
+                  as: 'item',
+                  cond: {
+                    $eq: ['$$item.type', 1]
+                  }
+                }
+              }
+            },
+            comments: {
+              $size: {
+                $filter: {
+                  input: '$tweet_children',
+                  as: 'item',
+                  cond: {
+                    $eq: ['$$item.type', 2]
+                  }
+                }
+              }
+            },
+            author: {
+              $arrayElemAt: ['$author', 0]
+            }
+          }
+        },
+        {
+          $project: {
+            tweet_children: 0
+          }
+        }
+      ])
+      .toArray()
+    return latestTweet
   }
 }
 const tweetService = new TweetService()
