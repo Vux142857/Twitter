@@ -266,30 +266,33 @@ class TweetService {
   }
 
   async getTweetByFollowed(user_id: ObjectId, skip: number, limit: number) {
-    const followedUsers = await databaseService.follows
-      .aggregate<Follow>([
-        {
-          $match: {
-            user_id
+    const [followedUsers, total] = await Promise.all([
+      databaseService.follows
+        .aggregate<Follow>([
+          {
+            $match: {
+              user_id
+            }
+          },
+          {
+            $skip: skip
+          },
+          {
+            $limit: limit
           }
-        },
-        {
-          $skip: skip
-        },
-        {
-          $limit: limit
-        }
-      ])
-      .toArray()
+        ])
+        .toArray(),
+      databaseService.follows.countDocuments({ user_id })
+    ])
     const tweetsByFollowed: Tweet[] = []
     followedUsers.forEach(async (followedUser: Follow) => {
       const tweet = await this.getLatestTweet(user_id.toString(), followedUser.following_user_id)
       tweetsByFollowed.push(tweet)
     })
-    return tweetsByFollowed
+    return { tweetsByFollowed, totalFollowedUser: total }
   }
 
-  private async getLatestTweet(user_id: string, author_id: ObjectId) {
+  private async getLatestTweet(user_id: string, author_id: ObjectId): Promise<Tweet> {
     const [latestTweet] = await databaseService.tweets
       .aggregate<Tweet>(
         [
@@ -417,6 +420,30 @@ class TweetService {
       )
       .toArray()
     return latestTweet
+  }
+
+  async getTweetsByViews(user_id: string, skip: number, limit: number) {
+    const tweetsByViews = await databaseService.tweets
+      .aggregate<Tweet>([
+        {
+          $match: {
+            $or: [{ audience: 0 }, { $and: [{ audience: 1 }, { tweet_circle: { $elemMatch: { $eq: user_id } } }] }]
+          }
+        },
+        {
+          $sort: {
+            user_views: -1
+          }
+        },
+        {
+          $skip: skip
+        },
+        {
+          $limit: limit
+        }
+      ])
+      .toArray()
+    return tweetsByViews
   }
 }
 const tweetService = new TweetService()
