@@ -283,18 +283,37 @@ class TweetService {
       .toArray()
     const tweetsByFollowed: Tweet[] = []
     followedUsers.forEach(async (followedUser: Follow) => {
-      const tweet = await this.getLatestTweet(followedUser.following_user_id)
+      const tweet = await this.getLatestTweet(user_id.toString(), followedUser.following_user_id)
       tweetsByFollowed.push(tweet)
     })
     return tweetsByFollowed
   }
 
-  private async getLatestTweet(author_id: ObjectId) {
+  private async getLatestTweet(user_id: string, author_id: ObjectId) {
     const [latestTweet] = await databaseService.tweets
       .aggregate<Tweet>([
         {
           $match: {
-            user_id: author_id
+            user_id: author_id,
+            $or: [
+              {
+                audience: 1
+              },
+              {
+                $and: [
+                  {
+                    audience: 1
+                  },
+                  {
+                    tweet_circle: {
+                      $elemMatch: {
+                        $eq: user_id
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
           }
         },
         {
