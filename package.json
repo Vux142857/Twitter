@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@types/async": "^3.2.23",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.4",

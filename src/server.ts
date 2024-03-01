@@ -13,6 +13,7 @@ import tweetRouter from './routes/tweet.routes'
 import hashtagRouter from './routes/hashtag.routes'
 import bookmarkRouter from './routes/bookmark.routes'
 import likeRouter from './routes/like.routes'
+// import "./utils/faker"
 const environment = agrv(process.argv.slice(2)).envi
 console.log(environment)
 
