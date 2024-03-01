@@ -291,127 +291,130 @@ class TweetService {
 
   private async getLatestTweet(user_id: string, author_id: ObjectId) {
     const [latestTweet] = await databaseService.tweets
-      .aggregate<Tweet>([
-        {
-          $match: {
-            user_id: author_id,
-            $or: [
-              {
-                audience: 1
-              },
-              {
-                $and: [
-                  {
-                    audience: 1
-                  },
-                  {
-                    tweet_circle: {
-                      $elemMatch: {
-                        $eq: user_id
+      .aggregate<Tweet>(
+        [
+          {
+            $match: {
+              user_id: author_id,
+              $or: [
+                {
+                  audience: 1
+                },
+                {
+                  $and: [
+                    {
+                      audience: 1
+                    },
+                    {
+                      tweet_circle: {
+                        $elemMatch: {
+                          $eq: user_id
+                        }
                       }
                     }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            $sort: {
+              created_at: -1
+            }
+          },
+          {
+            $limit: 1
+          },
+          {
+            $lookup: {
+              from: 'bookmarks',
+              localField: '_id',
+              foreignField: 'tweet_id',
+              as: 'bookmarks'
+            }
+          },
+          {
+            $lookup: {
+              from: 'likes',
+              localField: '_id',
+              foreignField: 'tweet_id',
+              as: 'likes'
+            }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user_id',
+              foreignField: '_id',
+              as: 'author'
+            }
+          },
+          {
+            $addFields: {
+              author: {
+                $map: {
+                  input: '$author',
+                  as: 'item',
+                  in: {
+                    _id: '$$item._id',
+                    name: '$$item.name',
+                    username: '$$item.username'
                   }
-                ]
-              }
-            ]
-          }
-        },
-        {
-          $sort: {
-            created_at: -1
-          }
-        },
-        {
-          $limit: 1
-        },
-        {
-          $lookup: {
-            from: 'bookmarks',
-            localField: '_id',
-            foreignField: 'tweet_id',
-            as: 'bookmarks'
-          }
-        },
-        {
-          $lookup: {
-            from: 'likes',
-            localField: '_id',
-            foreignField: 'tweet_id',
-            as: 'likes'
-          }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'user_id',
-            foreignField: '_id',
-            as: 'author'
-          }
-        },
-        {
-          $addFields: {
-            author: {
-              $map: {
-                input: '$author',
-                as: 'item',
-                in: {
-                  _id: '$$item._id',
-                  name: '$$item.name',
-                  username: '$$item.username'
                 }
               }
             }
-          }
-        },
-        {
-          $lookup: {
-            from: 'tweets',
-            localField: '_id',
-            foreignField: 'parent_id',
-            as: 'tweet_children'
-          }
-        },
-        {
-          $addFields: {
-            bookmarks: {
-              $size: '$bookmarks'
-            },
-            likes: {
-              $size: '$likes'
-            },
-            retweets: {
-              $size: {
-                $filter: {
-                  input: '$tweet_children',
-                  as: 'item',
-                  cond: {
-                    $eq: ['$$item.type', 1]
+          },
+          {
+            $lookup: {
+              from: 'tweets',
+              localField: '_id',
+              foreignField: 'parent_id',
+              as: 'tweet_children'
+            }
+          },
+          {
+            $addFields: {
+              bookmarks: {
+                $size: '$bookmarks'
+              },
+              likes: {
+                $size: '$likes'
+              },
+              retweets: {
+                $size: {
+                  $filter: {
+                    input: '$tweet_children',
+                    as: 'item',
+                    cond: {
+                      $eq: ['$$item.type', 1]
+                    }
                   }
                 }
-              }
-            },
-            comments: {
-              $size: {
-                $filter: {
-                  input: '$tweet_children',
-                  as: 'item',
-                  cond: {
-                    $eq: ['$$item.type', 2]
+              },
+              comments: {
+                $size: {
+                  $filter: {
+                    input: '$tweet_children',
+                    as: 'item',
+                    cond: {
+                      $eq: ['$$item.type', 2]
+                    }
                   }
                 }
+              },
+              author: {
+                $arrayElemAt: ['$author', 0]
               }
-            },
-            author: {
-              $arrayElemAt: ['$author', 0]
+            }
+          },
+          {
+            $project: {
+              tweet_children: 0
             }
           }
-        },
-        {
-          $project: {
-            tweet_children: 0
-          }
-        }
-      ])
+        ],
+        { allowDiskUse: true }
+      )
       .toArray()
     return latestTweet
   }
