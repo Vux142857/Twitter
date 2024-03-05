@@ -198,16 +198,39 @@ export const tweetChildrenQueryValidator = validate(
   checkSchema(
     {
       type: {
-        isInt: true,
-        toInt: true
+        isIn: {
+          options: [TweetTypesArray],
+          errorMessage: TWEET_MESSAGES.TWEET_TYPE_INVALID
+        },
+        custom: {
+          options: async (value: string) => {
+            if (parseInt(value) === TweetType.Tweet) {
+              throw new ErrorWithStatus({
+                message: TWEET_MESSAGES.TWEET_TYPE_INVALID,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            return true
+          }
+        }
       },
       skip: {
-        isInt: true,
-        toInt: true
+        isNumeric: true,
+        errorMessage: TWEET_MESSAGES.PAGINATION_SKIP_VALUE_INVALID
       },
       limit: {
-        isInt: true,
-        toInt: true
+        isNumeric: true,
+        custom: {
+          options: async (value: string) => {
+            if (parseInt(value) < 0 || isNaN(parseInt(value)) || parseInt(value) > 10) {
+              throw new ErrorWithStatus({
+                message: TWEET_MESSAGES.PAGINATION_LIMIT_VALUE_INVALID,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            return true
+          }
+        }
       }
     },
     ['query']

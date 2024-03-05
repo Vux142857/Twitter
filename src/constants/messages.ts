@@ -122,7 +122,9 @@ export const TWEET_MESSAGES = {
   PARENT_TWEET_NOT_FOUND: 'Parent tweet not found',
   HASHTAG_INVALID: 'Hashtag must be string',
   MENTION_INVALID: 'Mention must be string',
-  MEDIA_INVALID: 'Media invalid'
+  MEDIA_INVALID: 'Media invalid',
+  PAGINATION_LIMIT_VALUE_INVALID: 'Pagination skip value invalid, must be in range [0, 10]',
+  PAGINATION_SKIP_VALUE_INVALID: 'Pagination limit value invalid'
 }
 
 export const BOOKMARK_MESSAGES = {
