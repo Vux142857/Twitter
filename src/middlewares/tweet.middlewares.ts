@@ -10,6 +10,7 @@ import tweetService from '~/services/tweet.services'
 import { enumToNumArray } from '~/utils/common'
 import { validate } from '~/utils/validation'
 import { NextFunction, Request, Response } from 'express'
+import hashtagService from '~/services/hashtag.services'
 
 const TweetTypesArray = enumToNumArray(TweetType)
 const TweetAudienceArray = enumToNumArray(TweetAudience)
@@ -194,24 +195,13 @@ export const audienceValidator = (request: Request, response: Response, next: Ne
   next()
 }
 
-export const tweetChildrenQueryValidator = validate(
+export const tweetQueryValidator = validate(
   checkSchema(
     {
       type: {
         isIn: {
           options: [TweetTypesArray],
           errorMessage: TWEET_MESSAGES.TWEET_TYPE_INVALID
-        },
-        custom: {
-          options: async (value: string) => {
-            if (parseInt(value) === TweetType.Tweet) {
-              throw new ErrorWithStatus({
-                message: TWEET_MESSAGES.TWEET_TYPE_INVALID,
-                status: HTTP_STATUS.BAD_REQUEST
-              })
-            }
-            return true
-          }
         }
       },
       skip: {
@@ -234,5 +224,33 @@ export const tweetChildrenQueryValidator = validate(
       }
     },
     ['query']
+  )
+)
+
+export const hashtagValidator = validate(
+  checkSchema(
+    {
+      name: {
+        isString: {
+          errorMessage: TWEET_MESSAGES.HASHTAG_INVALID
+        },
+        notEmpty: {
+          errorMessage: TWEET_MESSAGES.HASHTAG_IS_REQUIRED
+        },
+        custom: {
+          options: async (value: string) => {
+            const hashtag = await hashtagService.getHashtagByName(value)
+            if (!hashtag) {
+              throw new ErrorWithStatus({
+                message: TWEET_MESSAGES.HASHTAG_NOT_FOUND,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params']
   )
 )

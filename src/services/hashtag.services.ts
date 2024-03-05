@@ -17,6 +17,10 @@ class HashtagService {
     )
     return hashtagArray
   }
+
+  async getHashtagByName(name: string) {
+    return databaseService.hashtags.findOne({ name })
+  }
 }
 
 const hashtagService = new HashtagService()
