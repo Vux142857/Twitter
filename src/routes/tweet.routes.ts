@@ -71,9 +71,8 @@ tweetRouter.get(
 // Method: GET
 // Response OK: {data: {result: { tweetsByViews, skip, limit }, message}
 tweetRouter.get(
-  '/trending/views',
+  '/trending/viewest',
   isUserLoggedInValidator(accessTokenValidator),
-  verifedUserValidator,
   tweetQueryValidator,
   wrapAsync(getTweetsByViews)
 )
@@ -87,7 +86,6 @@ tweetRouter.get(
 tweetRouter.get(
   '/hashtag/:name',
   isUserLoggedInValidator(accessTokenValidator),
-  verifedUserValidator,
   hashtagValidator,
   tweetQueryValidator,
   wrapAsync(getTweetsByHashtag)
