@@ -67,8 +67,15 @@ export const getTweetsByViews = async (req: Request, res: Response) => {
     parseInt(skip as string),
     parseInt(limit as string)
   )
+  const isChildren = false
+  const updatedTweetsByViews = await tweetService.updateViewsTweet(
+    null,
+    req.decoded_authorization?.user_id as string,
+    isChildren,
+    tweetsByViews
+  )
   res.status(HTTP_STATUS.OK).json({
-    result: { tweetsByViews, skip, limit },
+    result: { tweetsByViews: updatedTweetsByViews, skip, limit },
     message: TWEET_MESSAGES.GET_TWEET_SUCCESS
   })
 }
@@ -82,8 +89,15 @@ export const getTweetsByHashtag = async (req: Request, res: Response) => {
     parseInt(skip as string),
     parseInt(limit as string)
   )
+  const isChildren = false
+  const updatedTweetsByHashtag = await tweetService.updateViewsTweet(
+    null,
+    req.decoded_authorization?.user_id as string,
+    isChildren,
+    tweetsByHashtag
+  )
   res.status(HTTP_STATUS.OK).json({
-    result: { tweetsByHashtag, totalTweetsByHashtag, skip, limit },
+    result: { tweetsByHashtag: updatedTweetsByHashtag, totalTweetsByHashtag, skip, limit },
     message: TWEET_MESSAGES.GET_TWEET_SUCCESS
   })
 }
