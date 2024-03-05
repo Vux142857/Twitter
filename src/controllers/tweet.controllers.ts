@@ -47,8 +47,15 @@ export const getTweetByFollowed = async (req: Request, res: Response) => {
     parseInt(skip as string),
     parseInt(limit as string)
   )
+  const isChildren = false
+  const updatedTweetsByFollowed = await tweetService.updateViewsTweet(
+    null,
+    req.decoded_authorization?.user_id as string,
+    isChildren,
+    tweetsByFollowed
+  )
   res.status(HTTP_STATUS.OK).json({
-    result: { tweetsByFollowed, totalFollowedUser, skip, limit },
+    result: { tweetsByFollowed: updatedTweetsByFollowed, totalFollowedUser, skip, limit },
     message: TWEET_MESSAGES.GET_TWEET_SUCCESS
   })
 }

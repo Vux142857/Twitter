@@ -40,10 +40,10 @@ class TweetService {
     return tweet
   }
 
-  async updateViewsTweet(id: ObjectId, user_id?: string, tweetChildren?: Tweet[]) {
+  async updateViewsTweet(id: ObjectId | null, user_id?: string, isChildren?: boolean, tweetsArr?: Tweet[]) {
     const inc = user_id ? { user_views: 1 } : { guest_views: 1 }
-    if (tweetChildren) {
-      const ids = tweetChildren.map((tweet: any) => tweet._id)
+    if (isChildren && tweetsArr && id) {
+      const ids = tweetsArr.map((tweet: any) => tweet._id)
       const currentDate = new Date()
       await databaseService.tweets.updateMany(
         {
@@ -56,17 +56,39 @@ class TweetService {
           $set: { updatedAt: currentDate }
         }
       )
-      tweetChildren.forEach((tweet: any) => {
+      tweetsArr.forEach((tweet: any) => {
         if (user_id) {
           tweet.user_views = tweet.user_views + 1.0
         } else {
           tweet.guest_views = tweet.guest_views + 1.0
         }
       })
-      return tweetChildren
+      return tweetsArr
+    } else if (!isChildren && tweetsArr) {
+      const ids = tweetsArr.map((tweet: any) => tweet._id)
+      const currentDate = new Date()
+      await databaseService.tweets.updateMany(
+        {
+          _id: {
+            $in: ids
+          }
+        },
+        {
+          $inc: inc,
+          $set: { updatedAt: currentDate }
+        }
+      )
+      tweetsArr.forEach((tweet: any) => {
+        if (user_id) {
+          tweet.user_views = tweet.user_views + 1.0
+        } else {
+          tweet.guest_views = tweet.guest_views + 1.0
+        }
+      })
+      return tweetsArr
     }
     return await databaseService.tweets.findOneAndUpdate(
-      { _id: id },
+      { _id: (id as ObjectId) || new ObjectId() },
       {
         $inc: inc,
         $currentDate: { updatedAt: true }
@@ -390,8 +412,9 @@ class TweetService {
         type: tweetType
       })
     ])
+    const isChildren = true
     const result = {
-      tweetChildren: await this.updateViewsTweet(id, user_id, tweetChildren),
+      tweetChildren: await this.updateViewsTweet(id, user_id, isChildren, tweetChildren),
       total
     }
     return result
