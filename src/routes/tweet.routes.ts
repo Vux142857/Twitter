@@ -71,7 +71,7 @@ tweetRouter.get(
 // Method: GET
 // Response OK: {data: {result: { tweetsByViews, skip, limit }, message}
 tweetRouter.get(
-  '/trending/viewest',
+  '/trending/views',
   isUserLoggedInValidator(accessTokenValidator),
   tweetQueryValidator,
   wrapAsync(getTweetsByViews)
