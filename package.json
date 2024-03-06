@@ -45,6 +45,7 @@
     "ytdl-core": "^4.11.5"
   },
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.525.0",
     "async": "^3.2.5",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
