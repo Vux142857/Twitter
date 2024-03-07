@@ -11,11 +11,11 @@ import UPLOAD_FOLDER from '~/constants/uploadFolder'
 import Media from '~/models/schemas/Media.schema'
 import { ErrorWithStatus } from '~/models/Error'
 import { deleteFile } from '~/utils/file'
-import { encodeHLSWithMultipleVideoStreams } from '../libs/encodeHLS.services'
-import { nanoid } from 'nanoid'
+import { encodeHLSWithMultipleVideoStreams } from '../libs/encodeHLS.services.js'
+import cryto from 'crypto'
 import path from 'path'
 import fs from 'fs'
-import databaseService from './database/database.services'
+import databaseService from './database/database.services.js'
 
 class MediaService {
   async uploadImageSingle(req: Request) {
@@ -201,7 +201,7 @@ function optionsUploadImage(isMultiple: boolean, form: any) {
 }
 
 function optionsUploadVideo(isHLS: boolean, form?: any) {
-  const videoID = nanoid()
+  const videoID = cryto.randomUUID()
   const folderPath = isHLS ? path.resolve(UPLOAD_FOLDER.VIDEOS, videoID) : UPLOAD_FOLDER.VIDEOS
   const options = {
     maxFiles: 1,

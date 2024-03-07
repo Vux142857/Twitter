@@ -5,6 +5,8 @@ import { ObjectId } from 'mongodb'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { TWEET_MESSAGES } from '~/constants/messages'
 import tweetService, { TweetReqBody } from '~/services/tweet.services'
+import { ParamsDictionary } from 'express-serve-static-core'
+import { TweetQuery } from '~/models/requests/Tweet.requests'
 
 export const createTweetController = async (req: Request, res: Response) => {
   const tweet = req.body as TweetReqBody
@@ -24,7 +26,7 @@ export const getTweetByIdController = async (req: Request, res: Response) => {
   })
 }
 
-export const getTweetChildrenController = async (req: Request, res: Response) => {
+export const getTweetChildrenController = async (req: Request<ParamsDictionary, any, any, TweetQuery>, res: Response) => {
   const { skip, limit, type } = req.query
   const { tweetChildren, total } = await tweetService.getTweetChildren(
     req.tweet?._id as ObjectId,
@@ -40,7 +42,7 @@ export const getTweetChildrenController = async (req: Request, res: Response) =>
   })
 }
 
-export const getTweetByFollowed = async (req: Request, res: Response) => {
+export const getTweetByFollowed = async (req: Request<ParamsDictionary, any, any, TweetQuery>, res: Response) => {
   const { skip, limit } = req.query
   const { tweetsByFollowed, totalFollowedUser } = await tweetService.getTweetsByFollowed(
     new ObjectId(req.decoded_authorization?.user_id as string),
@@ -60,7 +62,7 @@ export const getTweetByFollowed = async (req: Request, res: Response) => {
   })
 }
 
-export const getTweetsByViews = async (req: Request, res: Response) => {
+export const getTweetsByViews = async (req: Request<ParamsDictionary, any, any, TweetQuery>, res: Response) => {
   const { skip, limit } = req.query
   const tweetsByViews = await tweetService.getTweetsByViews(
     req.decoded_authorization?.user_id as string,
@@ -80,7 +82,7 @@ export const getTweetsByViews = async (req: Request, res: Response) => {
   })
 }
 
-export const getTweetsByHashtag = async (req: Request, res: Response) => {
+export const getTweetsByHashtag = async (req: Request<ParamsDictionary, any, any, TweetQuery>, res: Response) => {
   const { skip, limit } = req.query
   const name = req.params.name
   const { tweetsByHashtag, totalTweetsByHashtag } = await tweetService.getTweetsByHashtag(

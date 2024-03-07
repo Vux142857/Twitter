@@ -3,7 +3,7 @@ import path from 'path'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { MEDIA_MESSAGES } from '~/constants/messages'
 import UPLOAD_FOLDER from '~/constants/uploadFolder'
-import mediaService from '~/services/media.services'
+import mediaService from '~/services/media.services.js'
 import fs from 'fs'
 import Media from '~/models/schemas/Media.schema'
 

@@ -31,7 +31,8 @@ databaseService.connect().then(async () => {
     databaseService.indexesFollow(),
     databaseService.indexesHashtag(),
     databaseService.indexesBookmark(),
-    databaseService.indexesLike()
+    databaseService.indexesLike(),
+    databaseService.indexesContent()
   ])
 })
 app.use(

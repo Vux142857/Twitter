@@ -116,6 +116,13 @@ class DatabaseService {
       this.likes.createIndex({ user_id: 1, tweet_id: 1 }, { unique: true })
     }
   }
+
+  async indexesContent() {
+    const checkExisted = await this.tweets.indexExists(['content_1'])
+    if (!checkExisted) {
+      this.tweets.createIndex({ content: 1 })
+    }
+  }
 }
 const databaseService = new DatabaseService()
 export default databaseService
