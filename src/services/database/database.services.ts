@@ -19,7 +19,6 @@ class DatabaseService {
     this.client = new MongoClient(this.uri, {
       serverApi: {
         version: ServerApiVersion.v1,
-        strict: true,
         deprecationErrors: true
       }
     })
@@ -117,10 +116,10 @@ class DatabaseService {
     }
   }
 
-  async indexesContent() {
-    const checkExisted = await this.tweets.indexExists(['content_1'])
+  async indexesTweet() {
+    const checkExisted = await this.tweets.indexExists(['content_text', 'hashtag_text'])
     if (!checkExisted) {
-      this.tweets.createIndex({ content: 1 })
+      this.tweets.createIndex({ content: 'text', hashtag: 'text' })
     }
   }
 }

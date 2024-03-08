@@ -35,3 +35,8 @@ export enum TweetType {
   Retweet,
   Comment
 }
+
+export enum MediaTypeQuery {
+  Video = 'video',
+  Image = 'image'
+}

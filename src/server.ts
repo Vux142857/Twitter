@@ -32,7 +32,7 @@ databaseService.connect().then(async () => {
     databaseService.indexesHashtag(),
     databaseService.indexesBookmark(),
     databaseService.indexesLike(),
-    databaseService.indexesContent()
+    databaseService.indexesTweet()
   ])
 })
 app.use(

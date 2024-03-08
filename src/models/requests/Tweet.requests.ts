@@ -1,4 +1,4 @@
-import { TweetType } from '~/constants/enum'
+import { MediaTypeQuery, TweetType } from '~/constants/enum'
 
 export interface TweetQuery extends Pagination, SearchQuery {
   type: TweetType | string
@@ -9,6 +9,7 @@ interface Pagination {
   limit: number | string
 }
 
-interface SearchQuery {
-  search: string
+export interface SearchQuery {
+  content: string
+  mediaType: MediaTypeQuery
 }

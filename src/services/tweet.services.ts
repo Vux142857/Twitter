@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import databaseService from './database/database.services'
 import Tweet from '~/models/schemas/Tweet.schema'
-import { ObjectId } from 'mongodb'
+import { Document, ObjectId } from 'mongodb'
 import { TweetAudience, TweetType } from '~/constants/enum'
 import Media from '~/models/schemas/Media.schema'
 import hashtagService from './hashtag.services'
@@ -18,6 +18,99 @@ export interface TweetReqBody {
 }
 
 class TweetService {
+  private aggreTweetsBody: Document[]
+
+  constructor() {
+    this.aggreTweetsBody = [
+      {
+        $lookup: {
+          from: 'bookmarks',
+          localField: '_id',
+          foreignField: 'tweet_id',
+          as: 'bookmarks'
+        }
+      },
+      {
+        $lookup: {
+          from: 'likes',
+          localField: '_id',
+          foreignField: 'tweet_id',
+          as: 'likes'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'author'
+        }
+      },
+      {
+        $addFields: {
+          author: {
+            $map: {
+              input: '$author',
+              as: 'item',
+              in: {
+                _id: '$$item._id',
+                name: '$$item.name',
+                username: '$$item.username'
+              }
+            }
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'tweets',
+          localField: '_id',
+          foreignField: 'parent_id',
+          as: 'tweet_children'
+        }
+      },
+      {
+        $addFields: {
+          bookmarks: {
+            $size: '$bookmarks'
+          },
+          likes: {
+            $size: '$likes'
+          },
+          retweets: {
+            $size: {
+              $filter: {
+                input: '$tweet_children',
+                as: 'item',
+                cond: {
+                  $eq: ['$$item.type', 1]
+                }
+              }
+            }
+          },
+          comments: {
+            $size: {
+              $filter: {
+                input: '$tweet_children',
+                as: 'item',
+                cond: {
+                  $eq: ['$$item.type', 2]
+                }
+              }
+            }
+          },
+          author: {
+            $arrayElemAt: ['$author', 0]
+          }
+        }
+      },
+      {
+        $project: {
+          tweet_children: 0
+        }
+      }
+    ]
+  }
   // ****************************** POST | PUT
   async createTweet(payload: TweetReqBody, user_id: ObjectId) {
     const { type } = payload
@@ -140,93 +233,7 @@ class TweetService {
           {
             $limit: 1
           },
-          {
-            $lookup: {
-              from: 'bookmarks',
-              localField: '_id',
-              foreignField: 'tweet_id',
-              as: 'bookmarks'
-            }
-          },
-          {
-            $lookup: {
-              from: 'likes',
-              localField: '_id',
-              foreignField: 'tweet_id',
-              as: 'likes'
-            }
-          },
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'user_id',
-              foreignField: '_id',
-              as: 'author'
-            }
-          },
-          {
-            $addFields: {
-              author: {
-                $map: {
-                  input: '$author',
-                  as: 'item',
-                  in: {
-                    _id: '$$item._id',
-                    name: '$$item.name',
-                    username: '$$item.username'
-                  }
-                }
-              }
-            }
-          },
-          {
-            $lookup: {
-              from: 'tweets',
-              localField: '_id',
-              foreignField: 'parent_id',
-              as: 'tweet_children'
-            }
-          },
-          {
-            $addFields: {
-              bookmarks: {
-                $size: '$bookmarks'
-              },
-              likes: {
-                $size: '$likes'
-              },
-              retweets: {
-                $size: {
-                  $filter: {
-                    input: '$tweet_children',
-                    as: 'item',
-                    cond: {
-                      $eq: ['$$item.type', 1]
-                    }
-                  }
-                }
-              },
-              comments: {
-                $size: {
-                  $filter: {
-                    input: '$tweet_children',
-                    as: 'item',
-                    cond: {
-                      $eq: ['$$item.type', 2]
-                    }
-                  }
-                }
-              },
-              author: {
-                $arrayElemAt: ['$author', 0]
-              }
-            }
-          },
-          {
-            $project: {
-              tweet_children: 0
-            }
-          }
+          ...this.aggreTweetsBody
         ],
         { allowDiskUse: true }
       )
@@ -243,93 +250,7 @@ class TweetService {
               _id: id
             }
           },
-          {
-            $lookup: {
-              from: 'bookmarks',
-              localField: '_id',
-              foreignField: 'tweet_id',
-              as: 'bookmarks'
-            }
-          },
-          {
-            $lookup: {
-              from: 'likes',
-              localField: '_id',
-              foreignField: 'tweet_id',
-              as: 'likes'
-            }
-          },
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'user_id',
-              foreignField: '_id',
-              as: 'author'
-            }
-          },
-          {
-            $addFields: {
-              author: {
-                $map: {
-                  input: '$author',
-                  as: 'item',
-                  in: {
-                    _id: '$$item._id',
-                    name: '$$item.name',
-                    username: '$$item.username'
-                  }
-                }
-              }
-            }
-          },
-          {
-            $lookup: {
-              from: 'tweets',
-              localField: '_id',
-              foreignField: 'parent_id',
-              as: 'tweet_children'
-            }
-          },
-          {
-            $addFields: {
-              bookmarks: {
-                $size: '$bookmarks'
-              },
-              likes: {
-                $size: '$likes'
-              },
-              retweets: {
-                $size: {
-                  $filter: {
-                    input: '$tweet_children',
-                    as: 'item',
-                    cond: {
-                      $eq: ['$$item.type', TweetType.Retweet]
-                    }
-                  }
-                }
-              },
-              comments: {
-                $size: {
-                  $filter: {
-                    input: '$tweet_children',
-                    as: 'item',
-                    cond: {
-                      $eq: ['$$item.type', TweetType.Comment]
-                    }
-                  }
-                }
-              },
-              author: {
-                $arrayElemAt: ['$author', 0]
-              }
-            }
-          },
-          {
-            $project: {
-              tweet_children: 0
-            }
-          }
+          ...this.aggreTweetsBody
         ],
         { maxTimeMS: 60000, allowDiskUse: true }
       )
@@ -348,63 +269,12 @@ class TweetService {
             }
           },
           {
-            $lookup: {
-              from: 'bookmarks',
-              localField: '_id',
-              foreignField: 'tweet_id',
-              as: 'bookmarks'
-            }
-          },
-          {
-            $lookup: {
-              from: 'likes',
-              localField: '_id',
-              foreignField: 'tweet_id',
-              as: 'likes'
-            }
-          },
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'user_id',
-              foreignField: '_id',
-              as: 'author'
-            }
-          },
-          {
-            $addFields: {
-              author: {
-                $map: {
-                  input: '$author',
-                  as: 'item',
-                  in: {
-                    _id: '$$item._id',
-                    name: '$$item.name',
-                    username: '$$item.username'
-                  }
-                }
-              }
-            }
-          },
-          {
-            $addFields: {
-              bookmarks: {
-                $size: '$bookmarks'
-              },
-              likes: {
-                $size: '$likes'
-              },
-              author: {
-                $arrayElemAt: ['$author', 0]
-              }
-            }
-          },
-          {
             $skip: skip
           },
           {
             $limit: limit
-          }
+          },
+          ...this.aggreTweetsBody
         ])
         .toArray(),
       databaseService.tweets.countDocuments({
@@ -471,7 +341,8 @@ class TweetService {
         },
         {
           $limit: limit
-        }
+        },
+        ...this.aggreTweetsBody
       ])
       .toArray()
     return tweetsByViews
@@ -510,100 +381,15 @@ class TweetService {
           }
         },
         {
-          $lookup: {
-            from: 'bookmarks',
-            localField: '_id',
-            foreignField: 'tweet_id',
-            as: 'bookmarks'
-          }
+          $skip: skip
         },
         {
-          $lookup: {
-            from: 'likes',
-            localField: '_id',
-            foreignField: 'tweet_id',
-            as: 'likes'
-          }
+          $limit: limit
         },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'user_id',
-            foreignField: '_id',
-            as: 'author'
-          }
-        },
-        {
-          $addFields: {
-            author: {
-              $map: {
-                input: '$author',
-                as: 'item',
-                in: {
-                  _id: '$$item._id',
-                  name: '$$item.name',
-                  username: '$$item.username'
-                }
-              }
-            }
-          }
-        },
-        {
-          $lookup: {
-            from: 'tweets',
-            localField: '_id',
-            foreignField: 'parent_id',
-            as: 'tweet_children'
-          }
-        },
-        {
-          $addFields: {
-            bookmarks: {
-              $size: '$bookmarks'
-            },
-            likes: {
-              $size: '$likes'
-            },
-            retweets: {
-              $size: {
-                $filter: {
-                  input: '$tweet_children',
-                  as: 'item',
-                  cond: {
-                    $eq: ['$$item.type', 1]
-                  }
-                }
-              }
-            },
-            comments: {
-              $size: {
-                $filter: {
-                  input: '$tweet_children',
-                  as: 'item',
-                  cond: {
-                    $eq: ['$$item.type', 2]
-                  }
-                }
-              }
-            },
-            author: {
-              $arrayElemAt: ['$author', 0]
-            }
-          }
-        },
-        {
-          $project: {
-            tweet_children: 0
-          }
-        },
-        {
-          $skip: 1
-        },
-        {
-          $limit: 5
-        }
+        ...this.aggreTweetsBody
       ])
       .toArray()
+    console.log(tweetsByHashtag)
     const totalTweetsByHashtag = await databaseService.tweets.countDocuments({
       hashtag: {
         $elemMatch: {
@@ -613,6 +399,8 @@ class TweetService {
     })
     return { tweetsByHashtag, totalTweetsByHashtag }
   }
+
+  private async searchByFilter() {}
 }
 const tweetService = new TweetService()
 
