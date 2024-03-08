@@ -105,7 +105,7 @@ export const createTweetValidator = validate(
             min: 0,
             max: 4
           },
-          errorMessage: TWEET_MESSAGES.MEDIA_INVALID
+          errorMessage: TWEET_MESSAGES.MEDIA_LENGTH_INVALID
         },
         custom: {
           options: async (value: MediaTypeRequest[]) => {
