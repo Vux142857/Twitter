@@ -13,6 +13,7 @@ import tweetRouter from './routes/tweet.routes'
 import hashtagRouter from './routes/hashtag.routes'
 import bookmarkRouter from './routes/bookmark.routes'
 import likeRouter from './routes/like.routes'
+import searchRouter from './routes/search.routes'
 // import "./utils/faker"
 const environment = agrv(process.argv.slice(2)).envi
 console.log(environment)
@@ -53,6 +54,7 @@ app.use('/static', staticRouter)
 app.use('/hashtag', hashtagRouter)
 app.use('/bookmark', bookmarkRouter)
 app.use('/like', likeRouter)
+app.use('/search', searchRouter)
 app.use(defaultErrorHandler)
 
 export default app

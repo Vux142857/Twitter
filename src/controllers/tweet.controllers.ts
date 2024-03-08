@@ -26,7 +26,10 @@ export const getTweetByIdController = async (req: Request, res: Response) => {
   })
 }
 
-export const getTweetChildrenController = async (req: Request<ParamsDictionary, any, any, TweetQuery>, res: Response) => {
+export const getTweetChildrenController = async (
+  req: Request<ParamsDictionary, any, any, TweetQuery>,
+  res: Response
+) => {
   const { skip, limit, type } = req.query
   const { tweetChildren, total } = await tweetService.getTweetChildren(
     req.tweet?._id as ObjectId,

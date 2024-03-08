@@ -100,7 +100,13 @@ export const createTweetValidator = validate(
         }
       },
       media: {
-        isArray: true,
+        isArray: {
+          options: {
+            min: 0,
+            max: 4
+          },
+          errorMessage: TWEET_MESSAGES.MEDIA_INVALID
+        },
         custom: {
           options: async (value: MediaTypeRequest[]) => {
             if (

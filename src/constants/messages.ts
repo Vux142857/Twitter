@@ -125,10 +125,12 @@ export const TWEET_MESSAGES = {
   HASHTAG_NOT_FOUND: 'Hashtag not found',
   MENTION_INVALID: 'Mention must be string',
   MEDIA_INVALID: 'Media invalid',
+  MEDIA_LENGTH_INVALID: 'You only upload max 4 items in the tweet',
   PAGINATION_LIMIT_VALUE_INVALID: 'Pagination skip value invalid, must be in range [0, 10]',
   PAGINATION_SKIP_VALUE_INVALID: 'Pagination limit value invalid',
   GET_TWEETS_BY_FOLLOWED_SUCCESS: 'Get tweets by followed successfully',
-  GET_TWEETS_BY_VIEWS_SUCCESS: 'Get tweets by views successfully'
+  GET_TWEETS_BY_VIEWS_SUCCESS: 'Get tweets by views successfully',
+  SEARCH_TWEETS_SUCCESS: 'Search tweets successfully'
 }
 
 export const BOOKMARK_MESSAGES = {

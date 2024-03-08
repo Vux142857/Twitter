@@ -2,7 +2,7 @@
 import databaseService from './database/database.services'
 import Tweet from '~/models/schemas/Tweet.schema'
 import { Document, ObjectId } from 'mongodb'
-import { TweetAudience, TweetType } from '~/constants/enum'
+import { MediaType, SearchFilterQuery, TweetAudience, TweetType } from '~/constants/enum'
 import Media from '~/models/schemas/Media.schema'
 import hashtagService from './hashtag.services'
 import Follow from '~/models/schemas/Follow.schema'
@@ -401,7 +401,107 @@ class TweetService {
     return { tweetsByHashtag, totalTweetsByHashtag }
   }
 
-  private async searchByFilter() {}
+  async searchTweets(user_id: string, value: string, filter: string, skip: number, limit: number) {
+    let matchAggre: Document = {
+      $match: {
+        $text: {
+          $search: value
+        },
+        $or: [
+          {
+            audience: TweetAudience.Everyone
+          },
+          {
+            $and: [
+              {
+                audience: TweetAudience.TweetCircle
+              },
+              {
+                tweet_circle: {
+                  $elemMatch: {
+                    $eq: user_id
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+    if (filter == SearchFilterQuery.Video) {
+      matchAggre = {
+        $match: {
+          $text: {
+            $search: value
+          },
+          'media.type': {
+            $in: [MediaType.Video]
+          },
+          $or: [
+            {
+              audience: TweetAudience.Everyone
+            },
+            {
+              $and: [
+                {
+                  audience: TweetAudience.TweetCircle
+                },
+                {
+                  tweet_circle: {
+                    $elemMatch: {
+                      $eq: user_id
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    } else if (filter == SearchFilterQuery.Image) {
+      matchAggre = {
+        $match: {
+          $text: {
+            $search: value
+          },
+          'media.type': {
+            $in: [MediaType.Image]
+          },
+          $or: [
+            {
+              audience: TweetAudience.Everyone
+            },
+            {
+              $and: [
+                {
+                  audience: TweetAudience.TweetCircle
+                },
+                {
+                  tweet_circle: {
+                    $elemMatch: {
+                      $eq: user_id
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+    return await databaseService.tweets
+      .aggregate<Tweet>([
+        matchAggre,
+        {
+          $skip: skip
+        },
+        {
+          $limit: limit
+        },
+        ...this.aggreTweetsBody
+      ])
+      .toArray()
+  }
 }
 const tweetService = new TweetService()
 

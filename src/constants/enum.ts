@@ -36,7 +36,9 @@ export enum TweetType {
   Comment
 }
 
-export enum MediaTypeQuery {
+export enum SearchFilterQuery {
   Video = 'video',
-  Image = 'image'
+  Image = 'image',
+  User = 'user',
+  Tweet = ''
 }
