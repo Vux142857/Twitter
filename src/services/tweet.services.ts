@@ -350,53 +350,54 @@ class TweetService {
 
   async getTweetsByHashtag(user_id: string, hashtag: string, skip: number, limit: number) {
     console.log(user_id, hashtag, skip, limit)
-    const tweetsByHashtag = await databaseService.tweets
-      .aggregate<Tweet>([
-        {
-          $match: {
-            hashtag: {
-              $elemMatch: {
-                $eq: hashtag
-              }
-            },
-            $or: [
-              {
-                audience: TweetAudience.Everyone
+    const [tweetsByHashtag, totalTweetsByHashtag] = await Promise.all([
+      databaseService.tweets
+        .aggregate<Tweet>([
+          {
+            $match: {
+              hashtag: {
+                $elemMatch: {
+                  $eq: hashtag
+                }
               },
-              {
-                $and: [
-                  {
-                    audience: TweetAudience.TweetCircle
-                  },
-                  {
-                    tweet_circle: {
-                      $elemMatch: {
-                        $eq: user_id
+              $or: [
+                {
+                  audience: TweetAudience.Everyone
+                },
+                {
+                  $and: [
+                    {
+                      audience: TweetAudience.TweetCircle
+                    },
+                    {
+                      tweet_circle: {
+                        $elemMatch: {
+                          $eq: user_id
+                        }
                       }
                     }
-                  }
-                ]
-              }
-            ]
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            $skip: skip
+          },
+          {
+            $limit: limit
+          },
+          ...this.aggreTweetsBody
+        ])
+        .toArray(),
+      databaseService.tweets.countDocuments({
+        hashtag: {
+          $elemMatch: {
+            $eq: hashtag
           }
-        },
-        {
-          $skip: skip
-        },
-        {
-          $limit: limit
-        },
-        ...this.aggreTweetsBody
-      ])
-      .toArray()
-    console.log(tweetsByHashtag)
-    const totalTweetsByHashtag = await databaseService.tweets.countDocuments({
-      hashtag: {
-        $elemMatch: {
-          $eq: hashtag
         }
-      }
-    })
+      })
+    ])
     return { tweetsByHashtag, totalTweetsByHashtag }
   }
 
