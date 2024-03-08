@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { checkSchema } from 'express-validator'
 import { ObjectId } from 'mongodb'
-import { TweetAudience, TweetType } from '~/constants/enum'
+import { MediaType, StatusType, TweetAudience, TweetType } from '~/constants/enum'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { TWEET_MESSAGES } from '~/constants/messages'
 import { ErrorWithStatus } from '~/models/Error'
-import Media from '~/models/schemas/Media.schema'
 import tweetService from '~/services/tweet.services'
 import { enumToNumArray } from '~/utils/common'
 import { validate } from '~/utils/validation'
@@ -14,6 +13,14 @@ import hashtagService from '~/services/hashtag.services'
 
 const TweetTypesArray = enumToNumArray(TweetType)
 const TweetAudienceArray = enumToNumArray(TweetAudience)
+const MediaArray = enumToNumArray(MediaType)
+const MediaStatusArray = enumToNumArray(StatusType)
+
+interface MediaTypeRequest {
+  type: number
+  url: string
+  status: number
+}
 
 export const createTweetValidator = validate(
   checkSchema(
@@ -95,8 +102,13 @@ export const createTweetValidator = validate(
       media: {
         isArray: true,
         custom: {
-          options: async (value: Media[]) => {
-            if (value.some((item) => !(item instanceof Media))) {
+          options: async (value: MediaTypeRequest[]) => {
+            if (
+              value.some((item) => item.url == '') ||
+              value.some((item) => !MediaArray.includes(item.type)) ||
+              value.some((item) => !MediaStatusArray.includes(item.status))
+            ) {
+              console.log(value[0])
               throw new ErrorWithStatus({
                 message: TWEET_MESSAGES.MEDIA_INVALID,
                 status: HTTP_STATUS.BAD_REQUEST
