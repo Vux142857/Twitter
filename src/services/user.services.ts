@@ -211,6 +211,8 @@ class UserService {
     await tokenService.storeRefreshToken(user_id, refreshToken)
     return { accessToken, refreshToken }
   }
+
+  async searchUsers(value: string, skip: number, limit: number) {}
 }
 
 const userService = new UserService()

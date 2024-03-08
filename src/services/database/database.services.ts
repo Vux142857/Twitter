@@ -66,11 +66,12 @@ class DatabaseService {
   }
 
   async indexesUsers() {
-    const checkExisted = await this.users.indexExists(['email_1', 'username_1', 'username_1_verify_1'])
+    const checkExisted = await this.users.indexExists(['email_1', 'username_1', 'username_1_verify_1', 'username_text'])
     if (!checkExisted) {
       this.users.createIndex({ email: 1 }, { unique: true })
       this.users.createIndex({ username: 1, verify: 1 }, { unique: true })
       this.users.createIndex({ username: 1 }, { unique: true })
+      this.users.createIndex({ username: 'text' }, { default_language: 'none' })
     }
   }
 

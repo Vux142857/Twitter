@@ -72,7 +72,13 @@ export const createTweetValidator = validate(
         }
       },
       hashtag: {
-        isArray: true,
+        isArray: {
+          options: {
+            min: 0,
+            max: 10
+          },
+          errorMessage: TWEET_MESSAGES.HASHTAG_MAX_LENGTH
+        },
         custom: {
           options: async (value: string[]) => {
             if (value.some((item) => !(typeof item === 'string'))) {
@@ -86,7 +92,13 @@ export const createTweetValidator = validate(
         }
       },
       mention: {
-        isArray: true,
+        isArray: {
+          options: {
+            min: 0,
+            max: 10
+          },
+          errorMessage: TWEET_MESSAGES.MENTION_MAX_LENGTH
+        },
         custom: {
           options: async (value: string[]) => {
             if (value.some((item) => !(typeof item === 'string'))) {
@@ -105,7 +117,7 @@ export const createTweetValidator = validate(
             min: 0,
             max: 4
           },
-          errorMessage: TWEET_MESSAGES.MEDIA_LENGTH_INVALID
+          errorMessage: TWEET_MESSAGES.MEDIA_MAX_LENGTH
         },
         custom: {
           options: async (value: MediaTypeRequest[]) => {
@@ -159,6 +171,15 @@ export const createTweetValidator = validate(
             }
             return true
           }
+        }
+      },
+      tweet_circle: {
+        isArray: {
+          options: {
+            min: 0,
+            max: 20
+          },
+          errorMessage: TWEET_MESSAGES.TWEET_CIRCLE_MAX_LENGTH
         }
       }
     },

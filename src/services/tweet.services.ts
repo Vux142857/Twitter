@@ -15,6 +15,7 @@ export interface TweetReqBody {
   parent_id?: ObjectId | null
   hashtag?: string[]
   type: TweetType
+  tweet_circle?: string[] | ObjectId[]
 }
 
 class TweetService {
@@ -113,17 +114,25 @@ class TweetService {
   }
   // ****************************** POST | PUT
   async createTweet(payload: TweetReqBody, user_id: ObjectId) {
-    const { type } = payload
+    const { type, tweet_circle } = payload
+    const tweet_circle_ids: ObjectId[] = []
+    if (tweet_circle) {
+      tweet_circle.forEach((id: string | ObjectId) => {
+        tweet_circle_ids.push(id instanceof ObjectId ? id : new ObjectId(id))
+      })
+    }
     const tweet =
       type !== TweetType.Tweet && payload.parent_id
         ? new Tweet({
             ...payload,
             parent_id: new ObjectId(payload.parent_id),
-            user_id
+            user_id,
+            tweet_circle: tweet_circle_ids
           })
         : new Tweet({
             ...payload,
-            user_id
+            user_id,
+            tweet_circle: tweet_circle_ids
           })
     if (payload.hashtag) {
       await Promise.all([databaseService.tweets.insertOne(tweet), hashtagService.checkAndCreatHashtag(payload.hashtag)])
@@ -133,7 +142,7 @@ class TweetService {
     return tweet
   }
 
-  async updateViewsTweet(id: ObjectId | null, user_id?: string, isChildren?: boolean, tweetsArr?: Tweet[]) {
+  async updateViewsTweet(id: ObjectId | null, user_id?: ObjectId, isChildren?: boolean, tweetsArr?: Tweet[]) {
     const inc = user_id ? { user_views: 1 } : { guest_views: 1 }
     if (isChildren && tweetsArr && id) {
       const ids = tweetsArr.map((tweet: any) => tweet._id)
@@ -197,7 +206,7 @@ class TweetService {
   }
 
   // ****************************** GET
-  private async getLatestTweet(user_id: string, author_id: ObjectId): Promise<Tweet> {
+  private async getLatestTweet(user_id: ObjectId, author_id: ObjectId): Promise<Tweet> {
     const [latestTweet] = await databaseService.tweets
       .aggregate<Tweet>(
         [
@@ -258,7 +267,7 @@ class TweetService {
     return tweet
   }
 
-  async getTweetChildren(id: ObjectId, user_id: string, tweetType: number, skip: number, limit: number) {
+  async getTweetChildren(id: ObjectId, user_id: ObjectId, tweetType: number, skip: number, limit: number) {
     const [tweetChildren, total] = await Promise.all([
       databaseService.tweets
         .aggregate<Tweet>([
@@ -312,7 +321,7 @@ class TweetService {
     const tweetsByFollowed: Tweet[] = []
     const promises: Promise<Tweet>[] = []
     followedUsers.forEach((followedUser: Follow) => {
-      promises.push(this.getLatestTweet(user_id.toString(), followedUser.following_user_id))
+      promises.push(this.getLatestTweet(user_id, followedUser.following_user_id))
     })
     await Promise.all(promises).then((tweets) => {
       tweetsByFollowed.push(...tweets)
@@ -320,7 +329,7 @@ class TweetService {
     return { tweetsByFollowed, totalFollowedUser: total }
   }
 
-  async getTweetsByViews(user_id: string, skip: number, limit: number) {
+  async getTweetsByViews(user_id: ObjectId, skip: number, limit: number) {
     const tweetsByViews = await databaseService.tweets
       .aggregate<Tweet>([
         {
@@ -348,7 +357,7 @@ class TweetService {
     return tweetsByViews
   }
 
-  async getTweetsByHashtag(user_id: string, hashtag: string, skip: number, limit: number) {
+  async getTweetsByHashtag(user_id: ObjectId, hashtag: string, skip: number, limit: number) {
     console.log(user_id, hashtag, skip, limit)
     const [tweetsByHashtag, totalTweetsByHashtag] = await Promise.all([
       databaseService.tweets
@@ -401,7 +410,7 @@ class TweetService {
     return { tweetsByHashtag, totalTweetsByHashtag }
   }
 
-  async searchTweets(user_id: string, value: string, filter: string, skip: number, limit: number) {
+  async searchTweets(user_id: ObjectId, value: string, filter: string, skip: number, limit: number) {
     let matchAggre: Document = {
       $match: {
         $text: {
