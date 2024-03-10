@@ -174,7 +174,6 @@ class UserService {
       },
       {
         projection: {
-          _id: 0,
           password: 0,
           verify_email_token: 0,
           forgot_password_token: 0,
@@ -184,6 +183,36 @@ class UserService {
         }
       }
     )
+  }
+
+  async getAllUsers() {
+    return await databaseService.users
+      .aggregate<User>([
+        {
+          $match: {
+            $or: [
+              {
+                verify: UserVerifyStatus.Verified
+              },
+              {
+                verify: UserVerifyStatus.Unverified
+              }
+            ]
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            password: 0,
+            verify_email_token: 0,
+            forgot_password_token: 0,
+            created_at: 0,
+            updated_at: 0,
+            verify: 0
+          }
+        }
+      ])
+      .toArray()
   }
 
   async followUser(user_id: string, following_user_id: string) {
@@ -212,7 +241,7 @@ class UserService {
     return { accessToken, refreshToken }
   }
 
-  async searchUsers(value: string, skip: number, limit: number) {}
+  // async searchUsers(value: string, skip: number, limit: number) {}
 }
 
 const userService = new UserService()

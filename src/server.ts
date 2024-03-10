@@ -14,7 +14,12 @@ import hashtagRouter from './routes/hashtag.routes'
 import bookmarkRouter from './routes/bookmark.routes'
 import likeRouter from './routes/like.routes'
 import searchRouter from './routes/search.routes'
+import os from 'os'
+import redisService from './services/database/redis.services'
 // import "./utils/faker"
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+process.env.UV_THREADPOOL_SIZE = os.cpus().length
 const environment = agrv(process.argv.slice(2)).envi
 console.log(environment)
 
@@ -36,6 +41,12 @@ databaseService.connect().then(async () => {
     databaseService.indexesTweet()
   ])
 })
+redisService
+  .connect()
+  .then(async () => {
+    await redisService.createRedisSearchUser()
+  })
+  .catch((err) => console.log(err))
 app.use(
   cors({
     origin: 'http://localhost:3001',

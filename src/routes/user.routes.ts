@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express'
+import { UserVerifyStatus } from '~/constants/enum'
 import {
   createForgotPasswordController,
   followController,
@@ -32,11 +33,17 @@ import {
 } from '~/middlewares/user.middlewares'
 import { UpdateProfileBody } from '~/models/requests/User.requests'
 import databaseService from '~/services/database/database.services'
+import redisService from '~/services/database/redis.services'
 import { wrapAsync } from '~/utils/handler'
 const userRouter = Router()
 
 // *********************** GET ***********************
-
+userRouter.get('/username/:username', async (req, res) => {
+  const result = await redisService.getClient.ft.search('idx:users', `${req.params.username}`)
+  res.status(200).json({
+    result
+  })
+})
 // WIP: 90% - 100%
 // Desciption: Get me
 // Route: /api/users/me
