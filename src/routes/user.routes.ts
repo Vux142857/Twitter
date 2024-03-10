@@ -38,12 +38,6 @@ import { wrapAsync } from '~/utils/handler'
 const userRouter = Router()
 
 // *********************** GET ***********************
-userRouter.get('/username/:username', async (req, res) => {
-  const result = await redisService.getClient.ft.search('idx:users', `${req.params.username}`)
-  res.status(200).json({
-    result
-  })
-})
 // WIP: 90% - 100%
 // Desciption: Get me
 // Route: /api/users/me

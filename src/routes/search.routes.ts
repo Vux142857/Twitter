@@ -1,5 +1,6 @@
 import { Router } from 'express'
-import { searchTweets } from '~/controllers/search.controller'
+import { searchController } from '~/controllers/search.controller'
+import { searchQueryValidator } from '~/middlewares/search.middlewares'
 import { accessTokenValidator, isUserLoggedInValidator } from '~/middlewares/user.middlewares'
 import { wrapAsync } from '~/utils/handler'
 const searchRouter = Router()
@@ -10,6 +11,6 @@ const searchRouter = Router()
 // Route: /api/search
 // Method: GET
 // Response OK: {data: {result: {tweets: Tweet}}, message}
-searchRouter.get('/', isUserLoggedInValidator(accessTokenValidator), wrapAsync(searchTweets))
+searchRouter.get('/', searchQueryValidator, wrapAsync(searchController))
 
 export default searchRouter

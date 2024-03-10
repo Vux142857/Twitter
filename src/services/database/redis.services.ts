@@ -32,6 +32,11 @@ class RedisService {
       data.forEach((user) => {
         promiseList.push(this.client.json.set(`user:${crypto.randomUUID()}`, '$', user))
       })
+      // data.forEach((user: any) => {
+      //   Object.keys(user).forEach((key: any) => {
+      //     promiseList.push(this.client.hSet(`user:${user._id.toString()}` as string, key, String(user[key])))
+      //   })
+      // })
       await this.client.ft.create(
         'idx:users',
         {

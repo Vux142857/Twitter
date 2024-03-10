@@ -7,6 +7,7 @@ import { UserVerifyStatus } from '~/constants/enum'
 import { USER_MESSAGES } from '~/constants/messages'
 import { ObjectId } from 'mongodb'
 import followService from './follower.services'
+import redisService from './database/redis.services'
 
 class UserService {
   async register(payload: RegisterReqBody) {
@@ -202,7 +203,6 @@ class UserService {
         },
         {
           $project: {
-            _id: 0,
             password: 0,
             verify_email_token: 0,
             forgot_password_token: 0,
@@ -241,7 +241,14 @@ class UserService {
     return { accessToken, refreshToken }
   }
 
-  // async searchUsers(value: string, skip: number, limit: number) {}
+  async searchUsers(value: string, skip: number, limit: number) {
+    return await redisService.getClient.ft.search('idx:users', `%${value}%`, {
+      LIMIT: {
+        from: skip,
+        size: limit
+      }
+    })
+  }
 }
 
 const userService = new UserService()

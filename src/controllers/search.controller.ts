@@ -8,8 +8,9 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { SearchQuery } from '~/models/requests/Tweet.requests'
 import { SearchFilterQuery } from '~/constants/enum'
 import { ObjectId } from 'mongodb'
+import userService from '~/services/user.services'
 
-export const searchTweets = async (req: Request<ParamsDictionary, any, any, SearchQuery>, res: Response) => {
+export const searchController = async (req: Request<ParamsDictionary, any, any, SearchQuery>, res: Response) => {
   const { skip, limit, filter, value } = req.query
   let result = {}
   if (filter !== SearchFilterQuery.User) {
@@ -21,6 +22,9 @@ export const searchTweets = async (req: Request<ParamsDictionary, any, any, Sear
       parseInt(limit as string)
     )
     result = { tweets, skip, limit }
+  } else {
+    const users = await userService.searchUsers(value as string, parseInt(skip as string), parseInt(limit as string))
+    result = { users, skip, limit }
   }
   res.status(HTTP_STATUS.OK).json({
     result,
