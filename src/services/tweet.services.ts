@@ -411,96 +411,84 @@ class TweetService {
   }
 
   async searchTweets(user_id: ObjectId, value: string, filter: string, skip: number, limit: number) {
-    let matchAggre: Document = {
-      $match: {
-        $text: {
-          $search: value
-        },
-        $or: [
-          {
-            audience: TweetAudience.Everyone
-          },
-          {
-            $and: [
-              {
-                audience: TweetAudience.TweetCircle
-              },
-              {
-                tweet_circle: {
-                  $elemMatch: {
-                    $eq: user_id
-                  }
-                }
-              }
-            ]
-          }
-        ]
-      }
-    }
-    if (filter == SearchFilterQuery.Video) {
-      matchAggre = {
-        $match: {
-          $text: {
-            $search: value
-          },
-          'media.type': {
-            $in: [MediaType.Video]
-          },
-          $or: [
+    const filterPipeline: Document[] = [
+      {
+        autocomplete: {
+          path: 'content',
+          query: value
+        }
+      },
+      {
+        compound: {
+          should: [
             {
-              audience: TweetAudience.Everyone
+              equals: {
+                path: 'audience',
+                value: TweetAudience.Everyone
+              }
             },
             {
-              $and: [
-                {
-                  audience: TweetAudience.TweetCircle
-                },
-                {
-                  tweet_circle: {
-                    $elemMatch: {
-                      $eq: user_id
+              compound: {
+                must: [
+                  {
+                    equals: {
+                      path: 'audience',
+                      value: TweetAudience.TweetCircle
+                    }
+                  },
+                  {
+                    in: {
+                      path: 'tweet_circle',
+                      value: user_id
                     }
                   }
-                }
-              ]
+                ]
+              }
             }
           ]
         }
       }
-    } else if (filter == SearchFilterQuery.Image) {
-      matchAggre = {
-        $match: {
-          $text: {
-            $search: value
-          },
-          'media.type': {
-            $in: [MediaType.Image]
-          },
-          $or: [
-            {
-              audience: TweetAudience.Everyone
-            },
-            {
-              $and: [
-                {
-                  audience: TweetAudience.TweetCircle
-                },
-                {
-                  tweet_circle: {
-                    $elemMatch: {
-                      $eq: user_id
-                    }
-                  }
-                }
-              ]
+    ]
+    let filterMedia: Document | null = null
+    if (filter == SearchFilterQuery.Video) {
+      filterMedia = {
+        embeddedDocument: {
+          path: 'media',
+          operator: {
+            in: {
+              path: 'media.type',
+              value: MediaType.Video
             }
-          ]
+          }
+        }
+      }
+    } else if (filter == SearchFilterQuery.Image) {
+      filterMedia = {
+        embeddedDocument: {
+          path: 'media',
+          operator: {
+            in: {
+              path: 'media.type',
+              value: MediaType.Image
+            }
+          }
+        }
+      }
+    }
+    if (filterMedia) {
+      filterPipeline.push(filterMedia)
+    }
+    const searchAtlast: Document = {
+      $search: {
+        index: 'tweets',
+        compound: {
+          filter: filterPipeline
         }
       }
     }
     return await databaseService.tweets
       .aggregate<Tweet>([
-        matchAggre,
+        searchAtlast,
         {
           $skip: skip
         },
