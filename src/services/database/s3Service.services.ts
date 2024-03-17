@@ -1,5 +1,5 @@
 import { Upload } from '@aws-sdk/lib-storage'
-import { S3Client } from '@aws-sdk/client-s3'
+import { GetObjectCommand, HeadObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import 'dotenv/config'
 import 'fs'
 import path from 'path'
@@ -27,6 +27,30 @@ class s3Service {
       leavePartsOnError: false
     })
     return parallelUploads3.done()
+  }
+
+  async getObjectFileSize(Key: string) {
+    const command = new HeadObjectCommand({
+      Key,
+      Bucket: process.env.AWS_BUCKET_NAME
+    })
+    const { ContentLength } = await this.client.send(command)
+    return ContentLength
+  }
+
+  async *initiateObjectStream(filepath: string, start: number, end: number) {
+    const streamRange = `bytes=${start}-${end}`
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: filepath,
+      Range: streamRange
+    })
+    const { Body: chunks } = await this.client.send(command)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for await (const chunk of chunks as any) {
+      yield chunk
+    }
   }
 }
 

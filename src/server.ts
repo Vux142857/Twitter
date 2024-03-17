@@ -5,7 +5,7 @@ import databaseService from './services/database/database.services'
 import 'dotenv/config'
 import { defaultErrorHandler } from './middlewares/error.middlewares'
 import { initFolder } from './utils/file'
-import UPLOAD_FOLDER from './constants/uploadFolder'
+import { UPLOAD_FOLDER } from './constants/uploadFolder'
 import agrv from 'minimist'
 import cors from 'cors'
 import staticRouter from './routes/static.routes'
@@ -43,9 +43,9 @@ databaseService.connect().then(async () => {
 })
 redisService
   .connect()
-  .then(async () => {
-    await redisService.createRedisSearchUser()
-  })
+  // .then(async () => {
+  //   await redisService.createRedisSearchUser()
+  // })
   .catch((err) => console.log(err))
 app.use(
   cors({

@@ -1,7 +1,6 @@
 import { Router } from 'express'
 const staticRouter = Router()
 import {
-  serveImageController,
   serveSegmentController,
   streamStaticVideoController,
   streamStaticVideoHLSController
@@ -12,7 +11,7 @@ import {
 // Route: /api/static/image/:name
 // Method: GET
 // Response OK: {file}
-staticRouter.get('/image/:name', serveImageController)
+// staticRouter.get('/image/:name', serveImageController)
 
 // WIP: 50% - 60%
 // Desciption: Serve video

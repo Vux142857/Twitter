@@ -7,7 +7,7 @@ import { isProduction } from '~/constants/config'
 import { MediaType, StatusType } from '~/constants/enum'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { MEDIA_MESSAGES } from '~/constants/messages'
-import UPLOAD_FOLDER from '~/constants/uploadFolder'
+import { S3_FOLDER, UPLOAD_FOLDER } from '~/constants/uploadFolder'
 import Media from '~/models/schemas/Media.schema'
 import { ErrorWithStatus } from '~/models/Error'
 import { clearAllFile, deleteFile } from '~/utils/file'
@@ -74,7 +74,11 @@ class MediaService {
       .jpeg()
       .toFile(UPLOAD_FOLDER.IMAGES + `/${file.newFilename}.jpg`)
     const newFilePath = UPLOAD_FOLDER.IMAGES + `/${file.newFilename}.jpg`
-    const uploadToS3 = await s3Services.uploadFile(`images/${file.newFilename}.jpg`, newFilePath, 'image/jpeg')
+    const uploadToS3 = await s3Services.uploadFile(
+      `${S3_FOLDER.IMAGES + file.newFilename}.jpg`,
+      newFilePath,
+      'image/jpeg'
+    )
     const [removeTemp, reomveLocalFile] = await Promise.all([deleteFile(file.filepath), deleteFile(newFilePath)])
     if (removeTemp && reomveLocalFile && uploadToS3) {
       const url = uploadToS3.Location as string
@@ -102,11 +106,13 @@ class MediaService {
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const uploadToS3 = await s3Services.uploadFile(
-            `videos/${files.file[0].newFilename}`,
+            `${S3_FOLDER.VIDEOS + files.file[0].newFilename}`,
             files.file[0].filepath,
             'video/mp4'
           )
-          const url = uploadToS3.Location as string
+          const url = isProduction
+            ? `${process.env.HOST}/static/video/${files.file[0].newFilename}`
+            : `http://localhost:${process.env.PORT}/static/video/${files.file[0].newFilename}`
           const videoObj = { url, type: MediaType.Video, status: StatusType.Done }
           Promise.all([this.storageMedia(videoObj), deleteFile(files.file[0].filepath)])
           resolve(videoObj)
@@ -147,7 +153,7 @@ class MediaService {
             const files = getFiles(folderPath, [])
             await Promise.all(
               files.map((file) => {
-                const filename = 'video-hls/' + videoID + file.replace(folderPath, '')
+                const filename = S3_FOLDER.VIDEOS_HLS + videoID + file.replace(folderPath, '')
                 return s3Services.uploadFile(filename, file, mime.lookup(file) as string)
               })
             )

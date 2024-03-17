@@ -2,10 +2,11 @@ import { Request, Response } from 'express'
 import path from 'path'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { MEDIA_MESSAGES } from '~/constants/messages'
-import UPLOAD_FOLDER from '~/constants/uploadFolder'
+import { S3_FOLDER, UPLOAD_FOLDER } from '~/constants/uploadFolder'
 import mediaService from '~/services/media.services.js'
-import fs from 'fs'
 import Media from '~/models/schemas/Media.schema'
+import s3Services from '~/services/database/s3Service.services'
+import { pipeline } from 'stream/promises'
 
 export const uploadSingleImageController = async (req: Request, res: Response) => {
   const file = await mediaService.uploadImageSingle(req)
@@ -52,29 +53,57 @@ export const serveImageController = async (req: Request, res: Response) => {
   })
 }
 
+// export const streamStaticVideoController = async (req: Request, res: Response) => {
+//   const id = req.params.id
+//   const range = req.headers.range
+//   if (!range) {
+//     return res.status(HTTP_STATUS.BAD_REQUEST).send({
+//       message: MEDIA_MESSAGES.RANGE_VIDEO_IS_REQUIRED
+//     })
+//   }
+//   const videoPath = path.resolve(UPLOAD_FOLDER.VIDEOS, id)
+//   const videoSize = fs.statSync(videoPath).size
+//   const CHUNK_SIZE = 10 ** 6 // decimal = 1MB
+//   const start = Number(range.replace(/\D/g, ''))
+//   const end = Math.min(start + CHUNK_SIZE, videoSize - 1)
+//   const contentLength = end - start + 1
+//   const headers = {
+//     'Content-Range': `bytes ${start}-${end}/${videoSize}`,
+//     'Accept-Ranges': 'bytes',
+//     'Content-Length': contentLength,
+//     'Content-Type': 'video/mp4'
+//   }
+//   res.writeHead(HTTP_STATUS.PARTIAL_CONTENT, headers)
+//   const videoStream = fs.createReadStream(videoPath, { start, end })
+//   videoStream.pipe(res)
+// }
 export const streamStaticVideoController = async (req: Request, res: Response) => {
-  const id = req.params.id
-  const range = req.headers.range
-  if (!range) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).send({
-      message: MEDIA_MESSAGES.RANGE_VIDEO_IS_REQUIRED
-    })
+  try {
+    const controller = new AbortController()
+    const id = req.params.id
+    const range = req.headers.range
+    if (!range) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).send({
+        message: MEDIA_MESSAGES.RANGE_VIDEO_IS_REQUIRED
+      })
+    }
+    const filepath = S3_FOLDER.VIDEOS + id
+    const videoSize = (await s3Services.getObjectFileSize(filepath)) as number
+    const CHUNK_SIZE = 10 ** 6 // decimal = 1MB
+    const start = Number(range.replace(/\D/g, ''))
+    const end = Math.min(start + CHUNK_SIZE, videoSize - 1)
+    const contentLength = end - start + 1
+    const headers = {
+      'Content-Range': `bytes ${start}-${end}/${videoSize}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': contentLength,
+      'Content-Type': 'video/mp4'
+    }
+    res.writeHead(HTTP_STATUS.PARTIAL_CONTENT, headers)
+    await pipeline(s3Services.initiateObjectStream(filepath, start, end), res, { signal: controller.signal })
+  } catch (error) {
+    console.log(error)
   }
-  const videoPath = path.resolve(UPLOAD_FOLDER.VIDEOS, id)
-  const videoSize = fs.statSync(videoPath).size
-  const CHUNK_SIZE = 10 ** 6 // decimal = 1MB
-  const start = Number(range.replace(/\D/g, ''))
-  const end = Math.min(start + CHUNK_SIZE, videoSize - 1)
-  const contentLength = end - start + 1
-  const headers = {
-    'Content-Range': `bytes ${start}-${end}/${videoSize}`,
-    'Accept-Ranges': 'bytes',
-    'Content-Length': contentLength,
-    'Content-Type': 'video/mp4'
-  }
-  res.writeHead(HTTP_STATUS.PARTIAL_CONTENT, headers)
-  const videoStream = fs.createReadStream(videoPath, { start, end })
-  videoStream.pipe(res)
 }
 
 export const streamStaticVideoHLSController = async (req: Request, res: Response) => {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RedisClientType, RedisDefaultModules, SchemaFieldTypes, createClient } from 'redis'
+import { RedisClientType, SchemaFieldTypes, createClient } from 'redis'
 import userService from '../user.services'
 import 'dotenv/config'
 import crypto from 'crypto'
