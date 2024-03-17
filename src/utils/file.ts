@@ -30,11 +30,7 @@ export const deleteFile = async (filePath: string) => new Promise<boolean>((reso
 
 export const clearAllFile = async (dirPath: string) => {
   try {
-    const files = await fs.readdirSync(dirPath)
-    const deleteFilePromises = files.map(file =>
-      fs.unlinkSync(path.join(dirPath, file))
-    )
-    await Promise.all(deleteFilePromises)
+    return fs.rmSync(dirPath, { recursive: true, force: true });
   } catch (err) {
     console.log(err)
     throw new ErrorWithStatus({ message: MEDIA_MESSAGES.INTERNAL_SERVER_ERROR, status: HTTP_STATUS.INTERNAL_SERVER_ERROR })

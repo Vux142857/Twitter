@@ -10,13 +10,14 @@ import { MEDIA_MESSAGES } from '~/constants/messages'
 import UPLOAD_FOLDER from '~/constants/uploadFolder'
 import Media from '~/models/schemas/Media.schema'
 import { ErrorWithStatus } from '~/models/Error'
-import { deleteFile } from '~/utils/file'
+import { clearAllFile, deleteFile } from '~/utils/file'
 import { encodeHLSWithMultipleVideoStreams } from '../libs/encodeHLS.services.js'
 import cryto from 'crypto'
 import path from 'path'
 import fs from 'fs'
 import databaseService from './database/database.services.js'
-
+import s3Services from './database/s3Service.services.js'
+import mime from 'mime-types'
 class MediaService {
   async uploadImageSingle(req: Request) {
     const isMultiple = false
@@ -67,15 +68,16 @@ class MediaService {
   }
 
   async compressAndStorageImage(file: File) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const newFile = await sharp(file.filepath)
       .withMetadata()
       .jpeg()
       .toFile(UPLOAD_FOLDER.IMAGES + `/${file.newFilename}.jpg`)
-    const removeTemp = await deleteFile(file.filepath)
-    if (newFile && removeTemp) {
-      const url = isProduction
-        ? `${process.env.HOST}/static/image/${file.newFilename}.jpg`
-        : `http://localhost:${process.env.PORT}/static/image/${file.newFilename}.jpg`
+    const newFilePath = UPLOAD_FOLDER.IMAGES + `/${file.newFilename}.jpg`
+    const uploadToS3 = await s3Services.uploadFile(`images/${file.newFilename}.jpg`, newFilePath, 'image/jpeg')
+    const [removeTemp, reomveLocalFile] = await Promise.all([deleteFile(file.filepath), deleteFile(newFilePath)])
+    if (removeTemp && reomveLocalFile && uploadToS3) {
+      const url = uploadToS3.Location as string
       const imageObj = { url, type: MediaType.Image, status: StatusType.Done }
       await this.storageMedia(imageObj)
       return imageObj
@@ -91,18 +93,22 @@ class MediaService {
     const { options } = optionsUploadVideo(isHLS)
     const form = formidable(options)
     return new Promise<Media>((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
+      form.parse(req, async (err, fields, files) => {
         if (err as ErrorWithStatus) {
           reject(err)
         }
         if (!files || Object.keys(files).length === 0 || !files.file) {
           reject(new ErrorWithStatus({ message: MEDIA_MESSAGES.VIDEO_IS_REQUIRED, status: HTTP_STATUS.BAD_REQUEST }))
         } else {
-          const url = isProduction
-            ? `${process.env.HOST}/static/video/${files.file[0].newFilename}`
-            : `http://localhost:${process.env.PORT}/static/video/${files.file[0].newFilename}`
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const uploadToS3 = await s3Services.uploadFile(
+            `videos/${files.file[0].newFilename}`,
+            files.file[0].filepath,
+            'video/mp4'
+          )
+          const url = uploadToS3.Location as string
           const videoObj = { url, type: MediaType.Video, status: StatusType.Done }
-          this.storageMedia(videoObj)
+          Promise.all([this.storageMedia(videoObj), deleteFile(files.file[0].filepath)])
           resolve(videoObj)
         }
         reject(
@@ -136,8 +142,17 @@ class MediaService {
           resolve(videoObj)
           try {
             await encodeHLSWithMultipleVideoStreams(filePath)
+            console.log('encodeHLSWithMultipleVideoStreams -DONE')
+            await deleteFile(filePath)
+            const files = getFiles(folderPath, [])
+            await Promise.all(
+              files.map((file) => {
+                const filename = 'video-hls/' + videoID + file.replace(folderPath, '')
+                return s3Services.uploadFile(filename, file, mime.lookup(file) as string)
+              })
+            )
             videoObj.status = StatusType.Done
-            await Promise.all([deleteFile(filePath), this.storageMedia(videoObj)])
+            await Promise.all([clearAllFile(folderPath), this.storageMedia(videoObj)])
           } catch (error) {
             throw new ErrorWithStatus({
               message: MEDIA_MESSAGES.INTERNAL_SERVER_ERROR,
@@ -225,6 +240,25 @@ function optionsUploadVideo(isHLS: boolean, form?: any) {
     }
   }
   return { folderPath, options, videoID }
+}
+
+// Recursive function to get files
+function getFiles(dir: string, files: string[]) {
+  // Get an array of all files and directories in the passed directory using fs.readdirSync
+  const fileList = fs.readdirSync(dir)
+  // Create the full path of the file/directory by concatenating the passed directory and file/directory name
+  for (const file of fileList) {
+    const name = `${dir}/${file}`
+    // Check if the current file/directory is a directory using fs.statSync
+    if (fs.statSync(name).isDirectory()) {
+      // If it is a directory, recursively call the getFiles function with the directory path and the files array
+      getFiles(name, files)
+    } else {
+      // If it is a file, push the full path to the files array
+      files.push(name)
+    }
+  }
+  return files
 }
 
 // Options: Update multiple video HLS

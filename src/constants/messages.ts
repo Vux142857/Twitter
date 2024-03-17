@@ -100,7 +100,9 @@ export const MEDIA_MESSAGES = {
   HLS_VIDEO_IS_DONE: 'HLS video is done',
   HLS_VIDEO_IS_FAILURE: 'HLS video is failure',
   HLS_VIDEO_IS_CANCELLED: 'HLS video is cancelled',
-  VIDEO_IS_ABAONDONED: 'Video is abandoned'
+  VIDEO_IS_ABAONDONED: 'Video is abandoned',
+  UPLOAD_S3_SUCCESS: 'Upload to S3 successfully',
+  UPLOAD_S3_FAILURE: 'Upload to S3 failed'
 }
 
 export const TWEET_MESSAGES = {

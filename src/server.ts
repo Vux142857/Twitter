@@ -16,7 +16,6 @@ import likeRouter from './routes/like.routes'
 import searchRouter from './routes/search.routes'
 import os from 'os'
 import redisService from './services/database/redis.services'
-import './libs/uploadS3Bucket'
 // import "./utils/faker"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
