@@ -4,6 +4,7 @@ import 'dotenv/config'
 import 'fs'
 import path from 'path'
 import fs from 'fs'
+import { S3_FOLDER } from '~/constants/uploadFolder'
 
 class s3Service {
   private client: S3Client
@@ -44,6 +45,33 @@ class s3Service {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: filepath,
       Range: streamRange
+    })
+    const { Body: chunks } = await this.client.send(command)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for await (const chunk of chunks as any) {
+      yield chunk
+    }
+  }
+
+  async *getObjectFile(key: string) {
+    const command = new GetObjectCommand({
+      Key: key,
+      Bucket: process.env.AWS_BUCKET_NAME
+    })
+    const { Body: chunks } = await this.client.send(command)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for await (const chunk of chunks as any) {
+      yield chunk
+    }
+  }
+
+  async *getSegmentFile(id: string, v: string, segment: string) {
+    const key = S3_FOLDER.VIDEOS_HLS + `${id}/${v}/${segment}`
+    const command = new GetObjectCommand({
+      Key: key,
+      Bucket: process.env.AWS_BUCKET_NAME
     })
     const { Body: chunks } = await this.client.send(command)
 

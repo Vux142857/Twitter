@@ -4,7 +4,7 @@ import mediaRouter from './routes/media.routes'
 import databaseService from './services/database/database.services'
 import 'dotenv/config'
 import { defaultErrorHandler } from './middlewares/error.middlewares'
-import { initFolder } from './utils/file'
+import { clearAllFile, initFolder } from './utils/file'
 import { UPLOAD_FOLDER } from './constants/uploadFolder'
 import agrv from 'minimist'
 import cors from 'cors'
@@ -22,7 +22,7 @@ import redisService from './services/database/redis.services'
 process.env.UV_THREADPOOL_SIZE = os.cpus().length
 const environment = agrv(process.argv.slice(2)).envi
 console.log(environment)
-
+clearAllFile('\\C:\\Users\\Acer\\.deno')
 // Create upload folders
 Object.keys(UPLOAD_FOLDER).forEach((key) => {
   initFolder(UPLOAD_FOLDER[key])

@@ -5,7 +5,7 @@ import { MEDIA_MESSAGES } from '~/constants/messages'
 import { S3_FOLDER, UPLOAD_FOLDER } from '~/constants/uploadFolder'
 import mediaService from '~/services/media.services.js'
 import Media from '~/models/schemas/Media.schema'
-import s3Services from '~/services/database/s3Service.services'
+import s3Services from '~/services/database/s3.services'
 import { pipeline } from 'stream/promises'
 
 export const uploadSingleImageController = async (req: Request, res: Response) => {
@@ -79,7 +79,6 @@ export const serveImageController = async (req: Request, res: Response) => {
 // }
 export const streamStaticVideoController = async (req: Request, res: Response) => {
   try {
-    const controller = new AbortController()
     const id = req.params.id
     const range = req.headers.range
     if (!range) {
@@ -100,30 +99,27 @@ export const streamStaticVideoController = async (req: Request, res: Response) =
       'Content-Type': 'video/mp4'
     }
     res.writeHead(HTTP_STATUS.PARTIAL_CONTENT, headers)
-    await pipeline(s3Services.initiateObjectStream(filepath, start, end), res, { signal: controller.signal })
+    await pipeline(s3Services.initiateObjectStream(filepath, start, end), res)
   } catch (error) {
     console.log(error)
   }
 }
 
 export const streamStaticVideoHLSController = async (req: Request, res: Response) => {
-  const id = req.params.id
-  return res.sendFile(path.resolve(UPLOAD_FOLDER.VIDEOS, id, 'master.m3u8'), (error) => {
-    if (error) {
-      res.status(HTTP_STATUS.NOT_FOUND).json({
-        message: MEDIA_MESSAGES.VIDEO_NOT_FOUND
-      })
-    }
-  })
+  try {
+    const id = req.params.id
+    const key = S3_FOLDER.VIDEOS_HLS + id + '/master.m3u8'
+    await pipeline(s3Services.getObjectFile(key), res)
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 export const serveSegmentController = async (req: Request, res: Response) => {
-  const { id, v, segment } = req.params
-  return res.sendFile(path.resolve(UPLOAD_FOLDER.VIDEOS, id, v, segment), (error) => {
-    if (error) {
-      res.status(HTTP_STATUS.NOT_FOUND).json({
-        message: MEDIA_MESSAGES.VIDEO_NOT_FOUND
-      })
-    }
-  })
+  try {
+    const { id, v, segment } = req.params
+    await pipeline(s3Services.getSegmentFile(id, v, segment), res)
+  } catch (error) {
+    console.log(error)
+  }
 }

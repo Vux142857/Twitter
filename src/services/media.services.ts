@@ -16,7 +16,7 @@ import cryto from 'crypto'
 import path from 'path'
 import fs from 'fs'
 import databaseService from './database/database.services.js'
-import s3Services from './database/s3Service.services.js'
+import s3Services from './database/s3.services.js'
 import mime from 'mime-types'
 class MediaService {
   async uploadImageSingle(req: Request) {
