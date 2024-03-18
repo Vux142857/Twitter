@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { createServer } from 'http'
-import cryto from 'crypto'
+import agrv from 'minimist'
 import { Server } from 'socket.io'
 import app from './server'
 import 'dotenv/config'
 import sessionStore from './libs/sessionStore'
 import tokenService from './services/token.services'
 import { USER_MESSAGES } from './constants/messages'
+const environment = agrv(process.argv.slice(2)).envi
 const port = process.env.PORT || 3000
 const server = createServer(app)
-const io = new Server(server, { cors: { origin: '*' } })
+const io = new Server(server, { cors: { origin: environment == 'product' ? process.env.CLIENT : '*' } })
 
 interface MessageInChat {
   from: string

@@ -133,6 +133,22 @@ class DatabaseService {
       this.tweets.createIndex({ content: 'text', hashtag: 'text' })
     }
   }
+
+  async indexesConversation() {
+    const checkExisted = await this.conversations.indexExists(['sender_1', 'receiver_1', 'sender_1_receiver_1'])
+    if (!checkExisted) {
+      this.conversations.createIndex({ sender: 1 })
+      this.conversations.createIndex({ receiver: 1 })
+      this.conversations.createIndex({ sender: 1, receiver: 1 }, { unique: true })
+    }
+  }
+
+  async indexesMessage() {
+    const checkExisted = await this.messages.indexExists(['conversation_1'])
+    if (!checkExisted) {
+      this.messages.createIndex({ conversation: 1 })
+    }
+  }
 }
 const databaseService = new DatabaseService()
 export default databaseService

@@ -40,7 +40,9 @@ databaseService.connect().then(async () => {
     databaseService.indexesHashtag(),
     databaseService.indexesBookmark(),
     databaseService.indexesLike(),
-    databaseService.indexesTweet()
+    databaseService.indexesTweet(),
+    databaseService.indexesMessage(),
+    databaseService.indexesConversation()
   ])
 })
 redisService
@@ -51,7 +53,7 @@ redisService
   .catch((err) => console.log(err))
 app.use(
   cors({
-    origin: 'http://localhost:3001',
+    origin: environment == 'product' ? process.env.CLIENT : '*',
     credentials: true
   })
 )
