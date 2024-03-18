@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { createServer } from 'http'
-import cryto from 'crypto'
+import http from 'node:http'
+import express from 'express'
+import cluster from 'cluster'
 import { Server } from 'socket.io'
 import app from './server'
 import 'dotenv/config'
-import sessionStore from './libs/sessionStore'
-import messageStore, { Message } from './libs/messageStore'
-import tokenService from './services/token.services'
-import { USER_MESSAGES } from './constants/messages'
+import { Message } from './libs/messageStore'
+import { setupMaster, setupWorker } from '@socket.io/sticky'
+import { createAdapter, setupPrimary } from '@socket.io/cluster-adapter'
 const port = process.env.PORT || 3000
-const server = createServer(app)
-const io = new Server(server, { cors: { origin: '*' } })
+import { availableParallelism } from 'node:os'
+import process from 'node:process'
+const numCPUs = availableParallelism()
 
 interface UserInChat {
   userID: string
@@ -20,60 +22,52 @@ interface UserInChat {
   self?: boolean
 }
 
-io.use(async (socket, next) => {
-  const accessToken = socket.handshake.auth.accessToken
-  if (accessToken) {
-    const decodedAT = await tokenService.decodeAccessToken(accessToken)
-    if (decodedAT) {
-      return next()
-    } else {
-      return next(new Error(USER_MESSAGES.ACCESS_TOKEN_EXPIRED))
-    }
-  }
-  return next(new Error(USER_MESSAGES.USER_UNAUTHORIZED))
-})
-const users: {
-  [userID: string]: {
-    userID: string
-    username: string
-    socketID: string
-    connected: boolean
-  }
-} = {}
-io.on('connection', (socket) => {
-  const userID = socket.handshake.auth.id
-  const username = socket.handshake.auth.username
-  users[userID] = {
-    userID,
-    username: username,
-    socketID: socket.id,
-    connected: true
-  }
-  console.log(users)
-
-  socket.emit('users', users)
-
-  socket.on('private message', ({ content, from, to }) => {
-    const message: Message = {
-      from,
-      content,
-      to
-    }
-    console.log('private message', message)
-    if (users[to]) {
-      socket.to(users[to].socketID).emit('receive message', message)
-    }
-    // messageStore.saveMessage(message)
+if (cluster.isPrimary) {
+  console.log(`Primary ${process.pid} is running`)
+  /**
+   * Creating http-server for the master.
+   * All the child workers will share the same port (port)
+   */
+  const server = createServer(app).listen(port)
+  // Setting up stick session
+  setupMaster(server, {
+    loadBalancingMethod: 'least-connection'
   })
 
-  socket.on('disconnect', async () => {
-    console.log('User disconnected: ' + users[userID])
-    delete users[userID]
+  //Setting up communication between workers and primary.
+  cluster.setupPrimary({
+    serialization: 'advanced'
   })
-})
-server.listen(port, () => {
-  console.log(`App listening on port ${port}`)
-})
+
+  // Launching workers based on the number of CPU threads.
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork()
+  }
+
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`worker ${worker.process.pid} died`)
+  })
+} else {
+  /**
+   * Setting up the worker threads
+   */
+
+  console.log(`Worker ${process.pid} started`)
+
+  /**
+   * Creating Express App and Socket.io Server
+   * and binding them to HTTP Server.
+   */
+  const app = express()
+  const httpServer = http.createServer(app)
+  const io = new Server(httpServer)
+
+  // Using the cluster socket.io adapter.
+  io.adapter(createAdapter())
+
+  // Setting up worker connection with the primary thread.
+  setupWorker(io)
+}
 
 declare module 'socket.io' {
   interface Socket {
