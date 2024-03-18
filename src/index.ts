@@ -32,25 +32,17 @@ io.use(async (socket, next) => {
   }
   return next(new Error(USER_MESSAGES.USER_UNAUTHORIZED))
 })
-const users: {
-  [userID: string]: {
-    userID: string
-    username: string
-    socketID: string
-    connected: boolean
-  }
-} = {}
+
 io.on('connection', (socket) => {
   const userID = socket.handshake.auth.id
   const username = socket.handshake.auth.username
-  users[userID] = {
+  sessionStore.saveSession(userID, {
     userID,
     username: username,
     socketID: socket.id,
     connected: true
-  }
-  console.log(users)
-
+  })
+  const users = sessionStore.findAllSessions()
   socket.emit('users', users)
 
   socket.on('private message', ({ content, from, to }) => {
@@ -60,15 +52,15 @@ io.on('connection', (socket) => {
       to
     }
     console.log('private message', message)
-    if (users[to]) {
-      socket.to(users[to].socketID).emit('receive message', message)
+    const toUser = sessionStore.findSession(to)
+    if (toUser) {
+      socket.to(toUser.socketID).emit('receive message', message)
     }
-    // messageStore.saveMessage(message)
   })
 
   socket.on('disconnect', async () => {
-    console.log('User disconnected: ' + users[userID])
-    delete users[userID]
+    console.log('User disconnected: ' + userID)
+    sessionStore.deleteSession(userID)
   })
 })
 server.listen(port, () => {

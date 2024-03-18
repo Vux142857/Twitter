@@ -6,8 +6,15 @@
   findAllSessions() {}
 }
 
+interface UserInChat {
+  userID: string
+  username: string
+  socketID: string
+  connected?: boolean
+}
+
 class InMemorySessionStore extends SessionStore {
-  private sessions: Map<any, any>
+  private sessions: Map<string, UserInChat>
 
   constructor() {
     super()
@@ -18,12 +25,16 @@ class InMemorySessionStore extends SessionStore {
     return this.sessions.get(id)
   }
 
-  saveSession(id: string, session: any) {
-    this.sessions.set(id, session)
+  saveSession(id: string, user: UserInChat) {
+    this.sessions.set(id, user)
   }
 
   findAllSessions() {
     return Array.from(this.sessions.values())
+  }
+
+  deleteSession(id: string) {
+    this.sessions.delete(id)
   }
 }
 
