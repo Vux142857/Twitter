@@ -159,3 +159,13 @@ export const LIKE_MESSAGES = {
   UNLIKE_ALREADY_EXISTS: 'Unlike already exists',
   UNLIKE_NOT_FOUND: 'Unlike not found'
 }
+
+export const MESSAGE_RESPONSE = {
+  MESSAGE_CREATED: 'Message created',
+  MESSAGE_CREATED_FAILED: 'Message created failed'
+}
+
+export const CONVERSATION_MESSAGES = {
+  CONVERSATION_CREATED: 'Conversation created',
+  CONVERSATION_CREATED_FAILED: 'Conversation created failed'
+}
