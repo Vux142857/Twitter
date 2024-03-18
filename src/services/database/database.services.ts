@@ -8,6 +8,8 @@ import Tweet from '~/models/schemas/Tweet.schema'
 import Hashtag from '~/models/schemas/Hashtag.schema'
 import Bookmark from '~/models/schemas/Bookmark.schema'
 import Like from '~/models/schemas/Like.schema'
+import Message from '~/models/schemas/Message.schema'
+import Conversation from '~/models/schemas/Conversation.schema'
 
 class DatabaseService {
   private client: MongoClient
@@ -63,6 +65,14 @@ class DatabaseService {
 
   get likes(): Collection<Like> {
     return this.db.collection(process.env.COLLECTION_LIKES as string)
+  }
+
+  get messages(): Collection<Message> {
+    return this.db.collection(process.env.COLLECTION_MESSAGES as string)
+  }
+
+  get conversations(): Collection<Conversation> {
+    return this.db.collection(process.env.COLLECTION_CONVERSATIONS as string)
   }
 
   async indexesUsers() {

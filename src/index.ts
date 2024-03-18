@@ -5,19 +5,16 @@ import { Server } from 'socket.io'
 import app from './server'
 import 'dotenv/config'
 import sessionStore from './libs/sessionStore'
-import messageStore, { Message } from './libs/messageStore'
 import tokenService from './services/token.services'
 import { USER_MESSAGES } from './constants/messages'
 const port = process.env.PORT || 3000
 const server = createServer(app)
 const io = new Server(server, { cors: { origin: '*' } })
 
-interface UserInChat {
-  userID: string
-  username: string
-  connected?: boolean
-  messages: Message[]
-  self?: boolean
+interface MessageInChat {
+  from: string
+  content: string
+  to: string
 }
 
 io.use(async (socket, next) => {
@@ -46,7 +43,7 @@ io.on('connection', (socket) => {
   socket.emit('users', users)
 
   socket.on('private message', ({ content, from, to }) => {
-    const message: Message = {
+    const message: MessageInChat = {
       from,
       content,
       to

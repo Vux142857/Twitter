@@ -16,6 +16,8 @@ import likeRouter from './routes/like.routes'
 import searchRouter from './routes/search.routes'
 import os from 'os'
 import redisService from './services/database/redis.services'
+import messageRouter from './routes/message.routes'
+import conversationRouter from './routes/conversation.routes'
 // import "./utils/faker"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -66,6 +68,9 @@ app.use('/hashtag', hashtagRouter)
 app.use('/bookmark', bookmarkRouter)
 app.use('/like', likeRouter)
 app.use('/search', searchRouter)
+app.use('/message', messageRouter)
+app.use('/conversation', conversationRouter)
+
 app.use(defaultErrorHandler)
 
 export default app
