@@ -12,6 +12,9 @@ import { createAdapter, setupPrimary } from '@socket.io/cluster-adapter'
 const port = process.env.PORT || 3000
 import { availableParallelism } from 'node:os'
 import process from 'node:process'
+import sessionStore from './libs/sessionStore'
+import tokenService from './services/token.services'
+import { USER_MESSAGES } from './constants/messages'
 const numCPUs = availableParallelism()
 
 interface UserInChat {
@@ -51,7 +54,6 @@ if (cluster.isPrimary) {
   /**
    * Setting up the worker threads
    */
-
   console.log(`Worker ${process.pid} started`)
 
   /**
@@ -67,6 +69,56 @@ if (cluster.isPrimary) {
 
   // Setting up worker connection with the primary thread.
   setupWorker(io)
+
+  io.use(async (socket, next) => {
+    const accessToken = socket.handshake.auth.accessToken
+    if (accessToken) {
+      const decodedAT = await tokenService.decodeAccessToken(accessToken)
+      if (decodedAT) {
+        return next()
+      } else {
+        return next(new Error(USER_MESSAGES.ACCESS_TOKEN_EXPIRED))
+      }
+    }
+    return next(new Error(USER_MESSAGES.USER_UNAUTHORIZED))
+  })
+
+  io.on('connection', (socket) => {
+    const userID = socket.handshake.auth.id
+    const username = socket.handshake.auth.username
+    sessionStore.saveSession(userID, {
+      userID,
+      username: username,
+      socketID: socket.id,
+      connected: true
+    })
+    const users = sessionStore.findAllSessions()
+    socket.emit('users', users)
+
+    socket.on('private message', ({ content, from, to }) => {
+      const message: Message = {
+        from,
+        content,
+        to
+      }
+      console.log('private message', message)
+      const toUser = sessionStore.findSession(to)
+      if (toUser) {
+        socket.to(toUser.socketID).emit('receive message', message)
+      }
+      // messageStore.saveMessage(message)
+    })
+
+    socket.on('disconnect', async () => {
+      sessionStore.deleteSession(userID)
+      console.log('User disconnected: ' + userID)
+    })
+  })
+
+  // Handle HTTP Requests
+  app.get('/', (req, res) => {
+    res.send('Hello world')
+  })
 }
 
 declare module 'socket.io' {
