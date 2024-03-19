@@ -19,7 +19,10 @@ export const createTweetController = async (req: Request, res: Response) => {
 }
 
 export const getTweetByIdController = async (req: Request, res: Response) => {
-  await tweetService.updateViewsTweet(req.tweet?._id as ObjectId, req.decoded_authorization?.user_id)
+  await tweetService.updateViewsTweet(
+    new ObjectId(req.tweet?._id),
+    new ObjectId(req.decoded_authorization?.user_id as string)
+  )
   res.status(HTTP_STATUS.OK).json({
     result: req.tweet,
     message: TWEET_MESSAGES.GET_TWEET_SUCCESS
@@ -33,7 +36,7 @@ export const getTweetChildrenController = async (
   const { skip, limit, type } = req.query
   const { tweetChildren, total } = await tweetService.getTweetChildren(
     req.tweet?._id as ObjectId,
-    req.decoded_authorization?.user_id as string,
+    new ObjectId(req.decoded_authorization?.user_id as string),
     parseInt(type as string),
     parseInt(skip as string),
     parseInt(limit as string)
@@ -55,7 +58,7 @@ export const getTweetByFollowed = async (req: Request<ParamsDictionary, any, any
   const isChildren = false
   const updatedTweetsByFollowed = await tweetService.updateViewsTweet(
     null,
-    req.decoded_authorization?.user_id as string,
+    new ObjectId(req.decoded_authorization?.user_id as string),
     isChildren,
     tweetsByFollowed
   )
@@ -68,14 +71,14 @@ export const getTweetByFollowed = async (req: Request<ParamsDictionary, any, any
 export const getTweetsByViews = async (req: Request<ParamsDictionary, any, any, TweetQuery>, res: Response) => {
   const { skip, limit } = req.query
   const tweetsByViews = await tweetService.getTweetsByViews(
-    req.decoded_authorization?.user_id as string,
+    new ObjectId(req.decoded_authorization?.user_id as string),
     parseInt(skip as string),
     parseInt(limit as string)
   )
   const isChildren = false
   const updatedTweetsByViews = await tweetService.updateViewsTweet(
     null,
-    req.decoded_authorization?.user_id as string,
+    new ObjectId(req.decoded_authorization?.user_id as string),
     isChildren,
     tweetsByViews
   )
@@ -89,7 +92,7 @@ export const getTweetsByHashtag = async (req: Request<ParamsDictionary, any, any
   const { skip, limit } = req.query
   const name = req.params.name
   const { tweetsByHashtag, totalTweetsByHashtag } = await tweetService.getTweetsByHashtag(
-    req.decoded_authorization?.user_id as string,
+    new ObjectId(req.decoded_authorization?.user_id as string),
     name,
     parseInt(skip as string),
     parseInt(limit as string)
@@ -97,7 +100,7 @@ export const getTweetsByHashtag = async (req: Request<ParamsDictionary, any, any
   const isChildren = false
   const updatedTweetsByHashtag = await tweetService.updateViewsTweet(
     null,
-    req.decoded_authorization?.user_id as string,
+    new ObjectId(req.decoded_authorization?.user_id as string),
     isChildren,
     tweetsByHashtag
   )
