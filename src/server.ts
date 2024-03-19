@@ -18,6 +18,8 @@ import os from 'os'
 import redisService from './services/database/redis.services'
 import messageRouter from './routes/message.routes'
 import conversationRouter from './routes/conversation.routes'
+import helmet from 'helmet'
+import { rateLimit } from 'express-rate-limit'
 // import "./utils/faker"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -31,7 +33,22 @@ Object.keys(UPLOAD_FOLDER).forEach((key) => {
 })
 
 const app = express()
-
+app.use(helmet())
+app.use(
+  cors({
+    origin: environment == 'product' ? process.env.CLIENT : '*',
+    credentials: true
+  })
+)
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+  })
+)
 databaseService.connect().then(async () => {
   await Promise.all([
     databaseService.indexesUsers(),
@@ -51,12 +68,6 @@ redisService
   //   await redisService.createRedisSearchUser()
   // })
   .catch((err) => console.log(err))
-app.use(
-  cors({
-    origin: environment == 'product' ? process.env.CLIENT : '*',
-    credentials: true
-  })
-)
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.get('/', (req, res) => {
