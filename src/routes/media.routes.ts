@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express'
 import HTTP_STATUS from '~/constants/httpStatus'
-import UPLOAD_FOLDER from '~/constants/uploadFolder'
+import { UPLOAD_FOLDER } from '~/constants/uploadFolder'
 const mediaRouter = Router()
 import {
   uploadSingleImageController,
