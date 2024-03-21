@@ -56,7 +56,8 @@ class TweetService {
               in: {
                 _id: '$$item._id',
                 name: '$$item.name',
-                username: '$$item.username'
+                username: '$$item.username',
+                avatar: '$$item.avatar'
               }
             }
           }
