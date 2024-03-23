@@ -147,21 +147,39 @@ export const getUserController = async (req: Request, res: Response) => {
   })
 }
 
+export const getFollow = async (req: Request, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { following_user_id } = req.params
+  const result = await userService.getFollow(user_id, following_user_id)
+  res.status(HTTP_STATUS.OK).json({
+    message: USER_MESSAGES.GET_FOLLOW_SUCCESS,
+    result
+  })
+}
+
 export const followController = async (req: Request<ParamsDictionary, any, followBody>, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const { following_user_id } = req.body as followBody
-  await userService.followUser(user_id, following_user_id)
-  res.status(HTTP_STATUS.OK).json({
-    message: USER_MESSAGES.FOLLOW_USER_SUCCESS
+  const result = await userService.followUser(user_id, following_user_id)
+  console.log('I am here')
+  console.log(following_user_id)
+  const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
+  const message = result ? USER_MESSAGES.FOLLOW_USER_SUCCESS : USER_MESSAGES.FOLLOW_USER_FAILURE
+  res.status(status).json({
+    result,
+    message
   })
 }
 
 export const unfollowController = async (req: Request<unfollowParams>, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const { following_user_id } = req.params as unfollowParams
-  await userService.unfollowUser(user_id, following_user_id)
-  res.status(HTTP_STATUS.OK).json({
-    message: USER_MESSAGES.UNFOLLOW_USER_SUCCESS
+  const result = await userService.unfollowUser(user_id, following_user_id)
+  const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
+  const message = result ? USER_MESSAGES.UNFOLLOW_USER_SUCCESS : USER_MESSAGES.UNFOLLOW_USER_FAILURE
+  res.status(status).json({
+    result,
+    message
   })
 }
 
