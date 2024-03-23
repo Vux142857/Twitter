@@ -1,11 +1,20 @@
 import { Router, Request, Response } from 'express'
-import { createLikeController, unlikeController } from '~/controllers/like.controller'
+import { createLikeController, getLikeController, unlikeController } from '~/controllers/like.controller'
 import { tweetIdValidator } from '~/middlewares/tweet.middlewares'
 import { accessTokenValidator } from '~/middlewares/user.middlewares'
 import databaseService from '~/services/database/database.services'
 import { wrapAsync } from '~/utils/handler'
 
 const likeRouter = Router()
+
+// *********************** GET ***********************
+// WIP: 90% - 100%
+// Desciption: Get bookmarks of Tweet
+// Route: /api/bookmark/get-bookmarks/:tweet_id
+// Method: GET
+// Header: {Authorization: Bearer <accessToken> }
+// Response OK: {data: {result: {bookmarks: Bookmark[]}}, message}
+likeRouter.get('/get-like/:tweet_id', accessTokenValidator, tweetIdValidator, wrapAsync(getLikeController))
 
 // *********************** POST ***********************
 

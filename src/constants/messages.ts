@@ -139,6 +139,8 @@ export const TWEET_MESSAGES = {
 }
 
 export const BOOKMARK_MESSAGES = {
+  GET_BOOKMARK_SUCCESS: 'Get bookmarks successfully',
+  GET_BOOKMARK_FAILURE: 'Get bookmarks failed',
   BOOKMARK_SUCCESS: 'Bookmark successfully',
   BOOKMARK_FAILURE: 'Bookmark failed',
   BOOKMARK_ALREADY_EXISTS: 'Bookmark already exists',
@@ -150,6 +152,8 @@ export const BOOKMARK_MESSAGES = {
 }
 
 export const LIKE_MESSAGES = {
+  GET_LIKE_SUCCESS: 'Get likes successfully',
+  GET_LIKE_FAILURE: 'Get likes failed',
   LIKE_SUCCESS: 'Like successfully',
   LIKE_FAILURE: 'Like failed',
   LIKE_ALREADY_EXISTS: 'Like already exists',

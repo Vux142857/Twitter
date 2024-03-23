@@ -114,14 +114,14 @@ class DatabaseService {
   }
 
   async indexesBookmark() {
-    const checkExisted = await this.bookmarks.indexExists(['user_id_1', 'tweet_id_1'])
+    const checkExisted = await this.bookmarks.indexExists(['user_id_1', 'tweet_id_1', 'user_id_1_tweet_id_1'])
     if (!checkExisted) {
       this.bookmarks.createIndex({ user_id: 1, tweet_id: 1 }, { unique: true })
     }
   }
 
   async indexesLike() {
-    const checkExisted = await this.likes.indexExists(['user_id_1', 'tweet_id_1'])
+    const checkExisted = await this.likes.indexExists(['user_id_1', 'tweet_id_1', 'user_id_1_tweet_id_1'])
     if (!checkExisted) {
       this.likes.createIndex({ user_id: 1, tweet_id: 1 }, { unique: true })
     }
