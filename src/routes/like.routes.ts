@@ -23,7 +23,6 @@ likeRouter.get('/get-like/:tweet_id', accessTokenValidator, tweetIdValidator, wr
 // Route: /api/bookmark/create-bookmark
 // Method: POST
 // Header: {Authorization: Bearer <accessToken> }
-// Body: {user_id, tweet_id}
 // Response OK: {data: {result: {bookmark: Bookmark}}, message}
 likeRouter.post('/create-like/:tweet_id', accessTokenValidator, tweetIdValidator, wrapAsync(createLikeController))
 
