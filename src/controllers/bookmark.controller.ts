@@ -5,6 +5,22 @@ import bookmarkService from '~/services/bookmark.services'
 import { ObjectId } from 'mongodb'
 import HTTP_STATUS from '~/constants/httpStatus'
 
+export const getBookmarksController = async (req: Request, res: Response) => {
+  const find = {
+    user_id: new ObjectId(req.decoded_authorization?.user_id),
+    tweet_id: new ObjectId(req.params.tweet_id)
+  }
+  const bookmark = await bookmarkService.getBookmark(find.tweet_id, find.user_id)
+  const status = bookmark ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
+  const message = bookmark ? BOOKMARK_MESSAGES.GET_BOOKMARK_SUCCESS : BOOKMARK_MESSAGES.GET_BOOKMARK_FAILURE
+  res.status(status).json({
+    result: {
+      bookmark
+    },
+    message
+  })
+}
+
 export const createBookmarkController = async (req: Request, res: Response) => {
   const bookmark = {
     user_id: new ObjectId(req.decoded_authorization?.user_id),

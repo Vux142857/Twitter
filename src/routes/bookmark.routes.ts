@@ -1,14 +1,24 @@
 import { Router, Request, Response } from 'express'
-import { createBookmarkController, unbookmarkController } from '~/controllers/bookmark.controller'
+import {
+  createBookmarkController,
+  getBookmarksController,
+  unbookmarkController
+} from '~/controllers/bookmark.controller'
 import { tweetIdValidator } from '~/middlewares/tweet.middlewares'
 import { accessTokenValidator } from '~/middlewares/user.middlewares'
 import databaseService from '~/services/database/database.services'
 import { wrapAsync } from '~/utils/handler'
 
 const bookmarkRouter = Router()
-bookmarkRouter.get('/', (req, res) => {
-  res.send('bookmark')
-})
+
+// *********************** GET ***********************
+// WIP: 90% - 100%
+// Desciption: Get bookmarks of Tweet
+// Route: /api/bookmark/get-bookmarks/:tweet_id
+// Method: GET
+// Header: {Authorization: Bearer <accessToken> }
+// Response OK: {data: {result: {bookmarks: Bookmark[]}}, message}
+bookmarkRouter.get('/get-bookmark/:tweet_id', accessTokenValidator, tweetIdValidator, wrapAsync(getBookmarksController))
 
 // *********************** POST ***********************
 

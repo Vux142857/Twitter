@@ -8,6 +8,9 @@ export interface BookmarkReqBody {
 }
 
 class BookmarkService {
+  async getBookmark(tweet_id: ObjectId, user_id: ObjectId) {
+    return await databaseService.bookmarks.findOne({ tweet_id, user_id })
+  }
   async createBookmark(bookmark: BookmarkReqBody) {
     return await databaseService.bookmarks.findOneAndUpdate(
       { user_id: bookmark.user_id, tweet_id: bookmark.tweet_id },
