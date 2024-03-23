@@ -3,6 +3,7 @@ import { UserVerifyStatus } from '~/constants/enum'
 import {
   createForgotPasswordController,
   followController,
+  getFollow,
   getMeController,
   getUserController,
   loginController,
@@ -40,7 +41,7 @@ const userRouter = Router()
 // *********************** GET ***********************
 // WIP: 90% - 100%
 // Desciption: Get me
-// Route: /api/users/me
+// Route: /api/user/me
 // Method: GET
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {result: {user}, message}
@@ -48,14 +49,22 @@ userRouter.get('/me', accessTokenValidator, wrapAsync(getMeController))
 
 // WIP: 90% - 100%
 // Desciption: Get user
-// Route: /api/users/:username
+// Route: /api/user/:username
 // Method: GET
 // Response OK: {user: {name, date_of_birth, bio, location, username, avatar, cover_photo, website}, message}
 userRouter.get('/:username', wrapAsync(getUserController))
 
 // WIP: 90% - 100%
+// Desciption: Get follow
+// Route: /api/user/follow/:username
+// Method: GET
+// Header: {Authorization: Bearer <accessToken> }
+// Response OK: {result: {follow: Follow}, message}
+userRouter.get('/follow/:following_user_id', accessTokenValidator, wrapAsync(getFollow))
+
+// WIP: 90% - 100%
 // Desciption: Update me
-// Route: /api/users/me
+// Route: /api/user/me
 // Method: PATCH
 // Header: {Authorization: Bearer <accessToken> }
 // Body: {name, date_of_birth, bio, location, username, avatar, cover_photo, website}
@@ -82,7 +91,7 @@ userRouter.patch(
 
 // WIP: 90% - 100%
 // Desciption: Login
-// Route: /api/users/login
+// Route: /api/user/login
 // Method: POST
 // Body: {email, password}
 // Response OK: {result: {accessToken, refreshToken}, message}
@@ -90,7 +99,7 @@ userRouter.post('/login', loginValidator, wrapAsync(loginController))
 
 // WIP: 90% - 100%
 // Desciption: Register
-// Route: /api/users/register
+// Route: /api/user/register
 // Method: POST
 // Body: {name, username, email, password, confirm_password, date_of_birth}
 // Response OK: {result: {accessToken, refreshToken, verifyEmailToken}, message}
@@ -98,7 +107,7 @@ userRouter.post('/register', registerValidator, wrapAsync(registerController))
 
 // WIP: 90% - 100%
 // Desciption: Logout
-// Route: /api/users/logout
+// Route: /api/user/logout
 // Method: POST
 // Header: {Authorization: Bearer <accessToken> }
 // Body: {refreshToken}
@@ -107,7 +116,7 @@ userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapAsyn
 
 // WIP: 90% - 100%
 // Desciption: Verify email
-// Route: /api/users/verify-email
+// Route: /api/user/verify-email
 // Method: POST
 // Body: {verifyEmailToken}
 // Response OK: {result: {accessToken, refreshToken}, message}
@@ -115,7 +124,7 @@ userRouter.post('/verify-email', verifyEmailTokenValidator, wrapAsync(verifyEmai
 
 // WIP: 90% - 100%
 // Desciption: Resend verify email
-// Route: /api/users/resend-verify-email
+// Route: /api/user/resend-verify-email
 // Method: POST
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {result: {verifyEmailToken}, message}
@@ -123,14 +132,14 @@ userRouter.post('/resend-verify-email', accessTokenValidator, wrapAsync(resendVe
 
 // WIP: 90% - 100%
 // Desciption: Create forgot password
-// Route: /api/users/create-forgot-password
+// Route: /api/user/create-forgot-password
 // Method: POST
 // Response OK: {result: {forgotPasswordToken}, message}
 userRouter.post('/create-forgot-password', forgotPasswordEmailValidator, wrapAsync(createForgotPasswordController))
 
 // WIP: 90% - 100%
 // Desciption: Verify forgot password
-// Route: /api/users/verify-forgot-password
+// Route: /api/user/verify-forgot-password
 // Method: POST
 // Body: {forgot_password_token}
 // Response OK: {message}
@@ -138,7 +147,7 @@ userRouter.post('/verify-forgot-password', forgotPasswordTokenValidator, wrapAsy
 
 // WIP: 90% - 100%
 // Desciption: Reset password
-// Route: /api/users/reset-password
+// Route: /api/user/reset-password
 // Method: POST
 // Body: {password, confirm_password}
 // Response OK: {result: {accessToken, refreshToken} ,message}
@@ -146,15 +155,16 @@ userRouter.post('/reset-password', resetPasswordValidator, wrapAsync(resetPasswo
 
 // WIP: 90% - 100%
 // Desciption: Follow verified user
-// Route: /api/users/follow
+// Route: /api/user/follow
 // Method: POST
+// Body: {following_user_id}
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {message}
 userRouter.post('/follow', accessTokenValidator, followValidator, verifedUserValidator, wrapAsync(followController))
 
 // WIP: 80% - 90%
 // Desciption: Verify RT then create new AT
-// Route: /api/users/refresh-token
+// Route: /api/user/refresh-token
 // Method: POST
 // Body: {refreshToken}
 // Response OK: {result: {accessToken, refreshToken}, message}
@@ -164,12 +174,12 @@ userRouter.post('/refresh-token', refreshTokenValidator, wrapAsync(refreshTokenC
 
 // WIP: 90% - 100%
 // Desciption: Unfollow verified user
-// Route: /api/users/unfollow/:following_user_id
+// Route: /api/user/unfollow/:following_user_id
 // Method: DELETE
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {message}
 userRouter.delete(
-  '/follow/:following_user_id',
+  '/unfollow/:following_user_id',
   accessTokenValidator,
   unfollowValidator,
   verifedUserValidator,

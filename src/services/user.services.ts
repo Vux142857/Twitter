@@ -231,6 +231,10 @@ class UserService {
     return await followService.getFollowings(user_id)
   }
 
+  async getFollow(user_id: string, following_user_id: string) {
+    return await followService.findFollow(user_id, following_user_id)
+  }
+
   async updateToken(user_id: string, exp: number, token: string) {
     const [accessToken, refreshToken] = await Promise.all([
       tokenService.signAccessToken(user_id),

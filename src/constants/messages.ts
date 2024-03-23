@@ -69,13 +69,15 @@ export const USER_MESSAGES = {
   USER_NOT_VERIFIED: 'User have not been verified',
   UPDATE_TOKEN_SUCCESS: 'Update token successfully',
   // Follow
+  GET_FOLLOW_SUCCESS: 'Get followers successfully',
   FOLLOW_USER_SUCCESS: 'Follow user successfully',
   FOLLOWING_USER_ID_IS_REQUIRED: 'Following user id is required',
   INVALID_FOLLOWING_USER_ID_FORMAT: 'Following user id must be a string',
   FOLLOW_USER_FAILURE: 'Follow user failed',
   USER_ALREADY_FOLLOWED: 'User already followed',
   USER_ALREADY_UNFOLLOWED: 'User already unfollowed',
-  UNFOLLOW_USER_SUCCESS: 'Unfollow user successfully'
+  UNFOLLOW_USER_SUCCESS: 'Unfollow user successfully',
+  UNFOLLOW_USER_FAILURE: 'Unfollow user failed'
 }
 
 export const MEDIA_MESSAGES = {
