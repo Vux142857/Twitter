@@ -10,6 +10,7 @@ import { enumToNumArray } from '~/utils/common'
 import { validate } from '~/utils/validation'
 import { NextFunction, Request, Response } from 'express'
 import hashtagService from '~/services/hashtag.services'
+import redisService from '~/services/database/redis.services'
 
 const TweetTypesArray = enumToNumArray(TweetType)
 const TweetAudienceArray = enumToNumArray(TweetAudience)
@@ -202,6 +203,11 @@ export const tweetIdValidator = validate(
                 status: HTTP_STATUS.BAD_REQUEST
               })
             }
+            const cachedTweet = await redisService.getCachedTweetById(value)
+            if (cachedTweet) {
+              req.tweet = JSON.parse(cachedTweet)
+              return true
+            }
             const tweet = await tweetService.getTweetById(new ObjectId(value))
             if (!tweet) {
               throw new ErrorWithStatus({
@@ -210,6 +216,7 @@ export const tweetIdValidator = validate(
               })
             }
             req.tweet = tweet
+            await redisService.cacheTweetById(value, tweet)
             return true
           }
         }
