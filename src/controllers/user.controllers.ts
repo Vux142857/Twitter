@@ -14,6 +14,7 @@ import {
 } from '~/models/requests/User.requests'
 import { USER_MESSAGES } from '~/constants/messages'
 import HTTP_STATUS from '~/constants/httpStatus'
+import redisService from '~/services/database/redis.services'
 // import followService from '~/services/follower.services'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
@@ -141,6 +142,7 @@ export const updateMeController = async (req: Request<ParamsDictionary, any, Upd
 export const getUserController = async (req: Request, res: Response) => {
   const { username } = req.params
   const user = await userService.getUserByUsername(username)
+  await redisService.cacheByUsername(username, user)
   res.status(HTTP_STATUS.OK).json({
     message: USER_MESSAGES.USER_FOUND,
     user

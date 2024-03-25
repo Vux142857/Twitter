@@ -6,13 +6,14 @@ import crypto from 'crypto'
 class RedisService {
   private client: any
   constructor() {
-    this.client = createClient({
-      password: process.env.REDIS_PASSWORD as string,
-      socket: {
-        host: process.env.REDIS_HOST as string,
-        port: parseInt(process.env.REDIS_PORT as string)
-      }
-    })
+    // this.client = createClient({
+    //   password: process.env.REDIS_PASSWORD as string,
+    //   socket: {
+    //     host: process.env.REDIS_HOST as string,
+    //     port: parseInt(process.env.REDIS_PORT as string)
+    //   }
+    // })
+    this.client = createClient()
   }
 
   async connect() {
@@ -25,18 +26,8 @@ class RedisService {
     }
   }
 
-  async createRedisSearchUser() {
+  async cacheByUsername(username: string, user: any) {
     try {
-      const data = await userService.getAllUsers()
-      const promiseList: Promise<any>[] = []
-      data.forEach((user) => {
-        promiseList.push(this.client.json.set(`user:${crypto.randomUUID()}`, '$', user))
-      })
-      // data.forEach((user: any) => {
-      //   Object.keys(user).forEach((key: any) => {
-      //     promiseList.push(this.client.hSet(`user:${user._id.toString()}` as string, key, String(user[key])))
-      //   })
-      // })
       await this.client.ft.create(
         'idx:users',
         {
@@ -82,7 +73,7 @@ class RedisService {
           PREFIX: 'user:'
         }
       )
-      await Promise.all(promiseList).then(() => console.log('Redis search user created'))
+      await this.client.json.set(`user:${username}`, '$', user)
     } catch (error) {
       console.log('Error creating Redis search user', error)
     }

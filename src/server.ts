@@ -64,9 +64,10 @@ databaseService.connect().then(async () => {
 })
 redisService
   .connect()
-  // .then(async () => {
-  //   await redisService.createRedisSearchUser()
-  // })
+  .then(async () => {
+    // await redisService.createRedisSearchUser()
+    console.log('Hello')
+  })
   .catch((err) => console.log(err))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
