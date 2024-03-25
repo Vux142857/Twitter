@@ -141,8 +141,15 @@ export const updateMeController = async (req: Request<ParamsDictionary, any, Upd
 
 export const getUserController = async (req: Request, res: Response) => {
   const { username } = req.params
-  const user = await userService.getUserByUsername(username)
-  await redisService.cacheByUsername(username, user)
+  const cacheUser = await redisService.getCachedUserByUsername(username)
+  let user
+  console.log(cacheUser)
+  if (cacheUser) {
+    user = JSON.parse(cacheUser)
+  } else {
+    user = await userService.getUserByUsername(username)
+    await redisService.cacheByUsername(username, user)
+  }
   res.status(HTTP_STATUS.OK).json({
     message: USER_MESSAGES.USER_FOUND,
     user

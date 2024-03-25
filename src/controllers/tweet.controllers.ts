@@ -7,6 +7,8 @@ import { TWEET_MESSAGES } from '~/constants/messages'
 import tweetService, { TweetReqBody } from '~/services/tweet.services'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { TweetQuery } from '~/models/requests/Tweet.requests'
+import { Redis } from 'ioredis'
+import redisService from '~/services/database/redis.services'
 
 export const createTweetController = async (req: Request, res: Response) => {
   const tweet = req.body as TweetReqBody
