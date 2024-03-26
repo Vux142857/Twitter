@@ -1,11 +1,20 @@
 import { Router, Request, Response } from 'express'
-import { storeConversationController } from '~/controllers/conversation.controller'
+import { getConversationController, storeConversationController } from '~/controllers/conversation.controller'
 import { accessTokenValidator } from '~/middlewares/user.middlewares'
 import databaseService from '~/services/database/database.services'
 import { wrapAsync } from '~/utils/handler'
 
 const conversationRouter = Router()
 
+// *********************** POST ***********************
+
+// WIP: 90% - 100%
+// Desciption: Get a conversation
+// Route: /api/conversation/:id
+// Method: GET
+// Header: {Authorization: Bearer <accessToken> }
+// Response OK: {data: {result: {conversation: Conversation}}, message}
+conversationRouter.get('/:id', accessTokenValidator, wrapAsync(getConversationController))
 // *********************** POST ***********************
 
 // WIP: 90% - 100%

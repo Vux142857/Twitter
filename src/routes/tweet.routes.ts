@@ -55,9 +55,9 @@ tweetRouter.get(
 // WIP: 80% - 90%
 // Desciption: Get tweet's children by id
 // Route: /api/tweet/:tweet_id/children
-// Query: {type, skip, limit}:{number, number, number}
+// Query: { skip, limit}:{number, number, number}
 // Method: GET
-// Response OK: {data: {result: { tweetChildren, total, totalPage, skip, limit }, message}
+// Response OK: {data: {result: { tweetsByUser, total, totalPage, skip, limit }, message}
 tweetRouter.get(
   '/:user_id/tweets',
   isUserLoggedInValidator(accessTokenValidator),
