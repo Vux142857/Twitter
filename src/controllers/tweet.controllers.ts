@@ -7,7 +7,6 @@ import { TWEET_MESSAGES } from '~/constants/messages'
 import tweetService, { TweetReqBody } from '~/services/tweet.services'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { TweetQuery } from '~/models/requests/Tweet.requests'
-import { Redis } from 'ioredis'
 import redisService from '~/services/database/redis.services'
 
 export const createTweetController = async (req: Request, res: Response) => {
@@ -31,7 +30,7 @@ export const getTweetByIdController = async (req: Request, res: Response) => {
   })
 }
 
-export const getTweetChildrenController = async (
+export const getTweetsChildrenController = async (
   req: Request<ParamsDictionary, any, any, TweetQuery>,
   res: Response
 ) => {
@@ -44,7 +43,7 @@ export const getTweetChildrenController = async (
   )
   if (cachedTweetsChildren.length > 0) {
     const total = await tweetService.countTweetsChildren(
-      req.tweet?._id?.toString() as string,
+      new ObjectId(req.tweet?._id),
       parseInt(type as string)
     )
     const totalPage = Math.ceil(total / parseInt(limit as string))
@@ -74,6 +73,53 @@ export const getTweetChildrenController = async (
   res.status(HTTP_STATUS.OK).json({
     result,
     message: TWEET_MESSAGES.GET_TWEET_CHILDREN_SUCCESS
+  })
+}
+
+export const getTweetsByUserController = async (
+  req: Request<ParamsDictionary, any, any, TweetQuery>,
+  res: Response
+) => {
+  const { skip, limit, type } = req.query
+  const user_id = req.params.user_id
+  let result
+  const cachedTweetsByUser = await redisService.getCachedTweetsByUser(
+    user_id,
+    req.decoded_authorization?.user_id.toString() as string,
+    parseInt(skip as string),
+    parseInt(limit as string),
+  )
+  if (cachedTweetsByUser.length > 0) {
+    const total = await tweetService.countTweetsChildren(
+      new ObjectId(req.tweet?._id),
+      parseInt(type as string)
+    )
+    const totalPage = Math.ceil(total / parseInt(limit as string))
+    result = { tweetsByUser: cachedTweetsByUser, total, totalPage, skip, limit }
+  } else {
+    const { tweetsByUser, total } = await tweetService.getTweetsByUser(
+      new ObjectId(user_id),
+      new ObjectId(req.decoded_authorization?.user_id as string),
+      parseInt(skip as string),
+      parseInt(limit as string)
+    )
+    if (Array.isArray(tweetsByUser)) {
+      tweetsByUser.forEach(async (element: any) => {
+        await redisService.cacheTweetsByUser(
+          user_id,
+          req.decoded_authorization?.user_id.toString() as string,
+          parseInt(skip as string),
+          parseInt(limit as string),
+          element
+        )
+      });
+    }
+    const totalPage = Math.ceil(total / parseInt(limit as string))
+    result = { tweetsByUser, total, totalPage, skip, limit }
+  }
+  res.status(HTTP_STATUS.OK).json({
+    result,
+    message: TWEET_MESSAGES.GET_TWEET_BY_USER
   })
 }
 

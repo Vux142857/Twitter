@@ -3,7 +3,7 @@ import { checkSchema } from 'express-validator'
 import { ObjectId } from 'mongodb'
 import { MediaType, StatusType, TweetAudience, TweetType } from '~/constants/enum'
 import HTTP_STATUS from '~/constants/httpStatus'
-import { TWEET_MESSAGES } from '~/constants/messages'
+import { TWEET_MESSAGES, USER_MESSAGES } from '~/constants/messages'
 import { ErrorWithStatus } from '~/models/Error'
 import tweetService from '~/services/tweet.services'
 import { enumToNumArray } from '~/utils/common'
@@ -11,6 +11,7 @@ import { validate } from '~/utils/validation'
 import { NextFunction, Request, Response } from 'express'
 import hashtagService from '~/services/hashtag.services'
 import redisService from '~/services/database/redis.services'
+import userService from '~/services/user.services'
 
 const TweetTypesArray = enumToNumArray(TweetType)
 const TweetAudienceArray = enumToNumArray(TweetAudience)
@@ -240,6 +241,34 @@ export const audienceValidator = (request: Request, response: Response, next: Ne
   }
   next()
 }
+
+export const tweetsByUserValidator = validate(
+  checkSchema(
+    {
+      user_id: {
+        isString: {
+          errorMessage: TWEET_MESSAGES.USER_ID_INVALID
+        },
+        notEmpty:{
+          errorMessage: TWEET_MESSAGES.USER_ID_IS_REQUIRED
+        },
+        custom: {
+          options: async (value: string) => {
+            const user = await userService.getUser(value)
+            if (!user) {
+              throw new ErrorWithStatus({
+                message: USER_MESSAGES.USER_NOT_FOUND,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params']
+  )
+)
 
 export const tweetQueryValidator = validate(
   checkSchema(
