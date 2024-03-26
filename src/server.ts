@@ -62,13 +62,7 @@ databaseService.connect().then(async () => {
     databaseService.indexesConversation()
   ])
 })
-redisService
-  .connect()
-  .then(async () => {
-    // await redisService.createRedisSearchUser()
-    console.log('Hello')
-  })
-  .catch((err) => console.log(err))
+redisService.connect()
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.get('/', (req, res) => {
