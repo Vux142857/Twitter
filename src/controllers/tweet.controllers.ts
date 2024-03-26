@@ -36,16 +36,43 @@ export const getTweetChildrenController = async (
   res: Response
 ) => {
   const { skip, limit, type } = req.query
-  const { tweetsChildren, total } = await tweetService.getTweetsChildren(
-    new ObjectId(req.tweet?._id),
-    new ObjectId(req.decoded_authorization?.user_id as string),
-    parseInt(type as string),
+  let result
+  const cachedTweetsChildren = await redisService.getCachedTweetsChildren(
+    req.tweet?._id?.toString() as string,
     parseInt(skip as string),
-    parseInt(limit as string)
+    parseInt(limit as string),
   )
-  const totalPage = Math.ceil(total / parseInt(limit as string))
+  if (cachedTweetsChildren.length > 0) {
+    const total = await tweetService.countTweetsChildren(
+      req.tweet?._id?.toString() as string,
+      parseInt(type as string)
+    )
+    const totalPage = Math.ceil(total / parseInt(limit as string))
+    result = { tweetsChildren: cachedTweetsChildren, total, totalPage, skip, limit }
+  } else {
+    const { tweetsChildren, total } = await tweetService.getTweetsChildren(
+      new ObjectId(req.tweet?._id),
+      new ObjectId(req.decoded_authorization?.user_id as string),
+      parseInt(type as string),
+      parseInt(skip as string),
+      parseInt(limit as string)
+    )
+    if (Array.isArray(tweetsChildren)) {
+      tweetsChildren.forEach(async (element: any) => {
+        // Your code here
+        await redisService.cacheTweetsChildren(
+          req.tweet?._id?.toString() as string,
+          parseInt(skip as string),
+          parseInt(limit as string),
+          element
+        )
+      });
+    }
+    const totalPage = Math.ceil(total / parseInt(limit as string))
+    result = { tweetsChildren, total, totalPage, skip, limit }
+  }
   res.status(HTTP_STATUS.OK).json({
-    result: { tweetsChildren, total, totalPage, skip, limit },
+    result,
     message: TWEET_MESSAGES.GET_TWEET_CHILDREN_SUCCESS
   })
 }

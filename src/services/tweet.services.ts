@@ -125,16 +125,16 @@ class TweetService {
     const tweet =
       type !== TweetType.Tweet && payload.parent_id
         ? new Tweet({
-            ...payload,
-            parent_id: new ObjectId(payload.parent_id),
-            user_id,
-            tweet_circle: tweet_circle_ids
-          })
+          ...payload,
+          parent_id: new ObjectId(payload.parent_id),
+          user_id,
+          tweet_circle: tweet_circle_ids
+        })
         : new Tweet({
-            ...payload,
-            user_id,
-            tweet_circle: tweet_circle_ids
-          })
+          ...payload,
+          user_id,
+          tweet_circle: tweet_circle_ids
+        })
     if (payload.hashtag) {
       await Promise.all([databaseService.tweets.insertOne(tweet), hashtagService.checkAndCreatHashtag(payload.hashtag)])
     } else {
@@ -499,6 +499,13 @@ class TweetService {
         ...this.aggreTweetsBody
       ])
       .toArray()
+  }
+
+  async countTweetsChildren(parent_id: string, type: number) {
+    return await databaseService.tweets.countDocuments({
+      parent_id: parent_id,
+      type: type
+    })
   }
 }
 const tweetService = new TweetService()
