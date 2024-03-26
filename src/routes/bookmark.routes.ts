@@ -2,10 +2,12 @@ import { Router, Request, Response } from 'express'
 import {
   createBookmarkController,
   getBookmarksController,
+  getBookmarksListController,
   unbookmarkController
 } from '~/controllers/bookmark.controller'
 import { tweetIdValidator } from '~/middlewares/tweet.middlewares'
 import { accessTokenValidator } from '~/middlewares/user.middlewares'
+import { queryPaginationValidator } from '~/middlewares/utils.middlewates'
 import databaseService from '~/services/database/database.services'
 import { wrapAsync } from '~/utils/handler'
 
@@ -13,12 +15,20 @@ const bookmarkRouter = Router()
 
 // *********************** GET ***********************
 // WIP: 90% - 100%
-// Desciption: Get bookmarks of Tweet
+// Desciption: Get bookmark of Tweet
 // Route: /api/bookmark/get-bookmarks/:tweet_id
 // Method: GET
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {data: {result: {bookmarks: Bookmark[]}}, message}
 bookmarkRouter.get('/get-bookmark/:tweet_id', accessTokenValidator, tweetIdValidator, wrapAsync(getBookmarksController))
+
+// WIP: 90% - 100%
+// Desciption: Get bookmarks list
+// Route: /api/bookmark/get-bookmarks
+// Method: GET
+// Header: {Authorization: Bearer <accessToken> }
+// Response OK: {data: {result: {bookmarks: Bookmark[]}}, message}
+bookmarkRouter.get('/get-bookmarks', accessTokenValidator, queryPaginationValidator, wrapAsync(getBookmarksListController))
 
 // *********************** POST ***********************
 

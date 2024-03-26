@@ -11,6 +11,57 @@ class BookmarkService {
   async getBookmark(tweet_id: ObjectId, user_id: ObjectId) {
     return await databaseService.bookmarks.findOne({ tweet_id, user_id })
   }
+
+  async getBookmarksList(user_id: ObjectId, skip: number, limit: number) {
+    return await databaseService.bookmarks
+      .aggregate([
+        {
+          '$match': {
+            'user_id': user_id
+          }
+        }, {
+          '$skip': skip
+        }, {
+          '$limit': limit
+        }, {
+          '$lookup': {
+            'from': 'tweets',
+            'localField': 'tweet_id',
+            'foreignField': '_id',
+            'as': 'tweet'
+          }
+        }, {
+          '$unwind': {
+            'path': '$tweet'
+          }
+        }, {
+          '$lookup': {
+            'from': 'users',
+            'localField': 'tweet.user_id',
+            'foreignField': '_id',
+            'as': 'author'
+          }
+        }, {
+          '$unwind': {
+            'path': '$author'
+          }
+        }, {
+          '$project': {
+            'author.password': 0,
+            'author.verify_email_token': 0,
+            'author.forgot_password_token': 0,
+            'author.created_at': 0,
+            'author.updated_at': 0
+          }
+        }, {
+          '$sort': {
+            'tweet.create_at': -1
+          }
+        }
+      ])
+      .toArray()
+  }
+
   async createBookmark(bookmark: BookmarkReqBody) {
     return await databaseService.bookmarks.findOneAndUpdate(
       { user_id: bookmark.user_id, tweet_id: bookmark.tweet_id },

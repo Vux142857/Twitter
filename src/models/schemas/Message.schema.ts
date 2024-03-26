@@ -6,6 +6,8 @@ export interface MessageConstructor {
   from: ObjectId
   to: ObjectId
   conversation: ObjectId
+  created_at?: Date
+  updated_at?: Date
 }
 
 class Message {
@@ -14,12 +16,16 @@ class Message {
   from: ObjectId
   to: ObjectId
   conversation: ObjectId
+  created_at: Date
+  updated_at: Date
   constructor(message: MessageConstructor) {
     this._id = message._id || new ObjectId()
     this.content = message.content
     this.from = message.from
     this.to = message.to
     this.conversation = message.conversation
+    this.created_at = message.created_at || new Date()
+    this.updated_at = message.updated_at || new Date()
   }
 }
 
