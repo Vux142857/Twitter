@@ -15,6 +15,7 @@ import {
 import { USER_MESSAGES } from '~/constants/messages'
 import HTTP_STATUS from '~/constants/httpStatus'
 import redisService from '~/services/database/redis.services'
+import { ObjectId } from 'mongodb'
 // import followService from '~/services/follower.services'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
@@ -161,8 +162,24 @@ export const getFollow = async (req: Request, res: Response) => {
   const { following_user_id } = req.params
   const result = await userService.getFollow(user_id, following_user_id)
   res.status(HTTP_STATUS.OK).json({
-    message: USER_MESSAGES.GET_FOLLOW_SUCCESS,
-    result
+    result,
+    message: USER_MESSAGES.GET_FOLLOW_SUCCESS
+  })
+}
+
+export const getFollowList = async (req: Request, res: Response) => {
+  const { user_id } = req.params
+  const { skip, limit, type } = req.query
+  const result = await userService.getFollowList(
+    user_id,
+    parseInt(skip as string),
+    parseInt(limit as string),
+    type as string
+  )
+  const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
+  res.status(status).json({
+    result,
+    message: USER_MESSAGES.GET_FOLLOW_LIST_SUCCESS
   })
 }
 

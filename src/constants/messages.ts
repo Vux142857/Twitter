@@ -77,7 +77,12 @@ export const USER_MESSAGES = {
   USER_ALREADY_FOLLOWED: 'User already followed',
   USER_ALREADY_UNFOLLOWED: 'User already unfollowed',
   UNFOLLOW_USER_SUCCESS: 'Unfollow user successfully',
-  UNFOLLOW_USER_FAILURE: 'Unfollow user failed'
+  UNFOLLOW_USER_FAILURE: 'Unfollow user failed',
+  FILTER_FOLLOW_LIST_INVALID: 'Filter follow list invalid',
+  PAGINATION_LIMIT_VALUE_INVALID: 'Pagination skip value invalid, must be in range [0, 10]',
+  PAGINATION_SKIP_VALUE_INVALID: 'Pagination limit value invalid',
+  GET_FOLLOW_LIST_SUCCESS: 'Get follow list successfully',
+  GET_FOLLOW_LIST_FAILED: 'Get follow list failed',
 }
 
 export const MEDIA_MESSAGES = {
@@ -110,7 +115,10 @@ export const MEDIA_MESSAGES = {
 export const TWEET_MESSAGES = {
   TWEET_SUCCESS: 'Tweet successfully',
   GET_TWEET_SUCCESS: 'Get tweet successfully',
+  USER_ID_IS_REQUIRED: 'User id is required',
+  USER_ID_INVALID: 'User id invalid',
   GET_TWEET_CHILDREN_SUCCESS: "Get tweet's children successfully",
+  GET_TWEET_BY_USER:"Get tweets by user successfully",
   TWEET_INVALID: 'Tweet invalid',
   TWEET_NOT_FOUND: 'Tweet not found',
   TWEET_TYPE_INVALID: 'Tweet type invalid',

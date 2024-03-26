@@ -3,7 +3,7 @@ import databaseService from './database/database.services'
 import tokenService from './token.services'
 import { RegisterReqBody, LoginReqBody, UpdateProfileBody } from '~/models/requests/User.requests'
 import { encryptPassword, comparePassword } from '~/utils/crypto'
-import { UserVerifyStatus } from '~/constants/enum'
+import { FollowFilterQuery, UserVerifyStatus } from '~/constants/enum'
 import { USER_MESSAGES } from '~/constants/messages'
 import { ObjectId } from 'mongodb'
 import followService from './follower.services'
@@ -223,16 +223,35 @@ class UserService {
     return await followService.deleteFollow(user_id, following_user_id)
   }
 
-  async getFollowers(user_id: string) {
-    return await followService.getFollowers(user_id)
+  private async getFollowers(user_id: string, skip: number, limit: number) {
+    return await followService.getFollowers(user_id, skip, limit)
   }
 
-  async getFollowing(user_id: string) {
-    return await followService.getFollowings(user_id)
+  private async getFollowing(user_id: string, skip: number, limit: number) {
+    return await followService.getFollowings(user_id, skip, limit)
   }
 
   async getFollow(user_id: string, following_user_id: string) {
     return await followService.findFollow(user_id, following_user_id)
+  }
+
+  async getFollowList(user_id: string, skip: number, limit: number, type: string) {
+    switch (type) {
+      case FollowFilterQuery.Followers:
+        const [followers, totalFollowers] = await Promise.all([
+          this.getFollowers(user_id, skip, limit),
+          followService.countFollowers(user_id)
+        ])
+        return { followers, totalFollowers }
+      case FollowFilterQuery.Following:
+        const [followings, totalFollowings] = await Promise.all([
+          this.getFollowers(user_id, skip, limit),
+          followService.countFollowings(user_id)
+        ])
+        return { followings, totalFollowings }
+      default:
+        return null
+    }
   }
 
   async updateToken(user_id: string, exp: number, token: string) {
