@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RedisClientType, SchemaFieldTypes } from 'redis'
-import { createClient } from 'redis';
-import userService from '../user.services'
 import 'dotenv/config'
-import { TweetConstructor } from '~/models/schemas/Tweet.schema'
 import Redis from 'ioredis'
 class RedisService {
   private local: any
@@ -141,7 +137,7 @@ class RedisService {
           `tweets:${parent_id}:children:${skip}:${limit}`,
           value
         )
-        .expire(`tweets:children:${skip}:${limit}`, Number(process.env.REDIS_EXPIRE_5MIN))
+        .expire(`tweets:${parent_id}:children:${skip}:${limit}`, Number(process.env.REDIS_EXPIRE_5MIN))
         .exec()
     } catch (error) {
       console.log('Error creating Redis search user', error)
@@ -152,6 +148,35 @@ class RedisService {
     try {
       return await this.local
         .lrange(`tweets:${parent_id}:children:${skip}:${limit}`, 0, -1)
+        .then((res: any) => {
+          return res.map((tweet: any) => JSON.parse(tweet))
+        })
+    } catch (error) {
+      console.log('Error find tweets children', error)
+    }
+  }
+
+  // CACHING TWEETS BY USER
+  async cacheTweetsByUser(user_id: string, self: string, skip: number, limit: number, tweets: any) {
+    const value = JSON.stringify(tweets)
+    try {
+      await this.local
+        .multi()
+        .rpush(
+          `tweets:${user_id}:self:${self}:${skip}:${limit}`,
+          value
+        )
+        .expire(`tweets:${user_id}:self:${self}:${skip}:${limit}`, Number(process.env.REDIS_EXPIRE_5MIN))
+        .exec()
+    } catch (error) {
+      console.log('Error creating Redis search user', error)
+    }
+  }
+
+  async getCachedTweetsByUser(user_id: string, self: string, skip: number, limit: number) {
+    try {
+      return await this.local
+        .lrange(`tweets:${user_id}:self:${self}:${skip}:${limit}`, 0, -1)
         .then((res: any) => {
           return res.map((tweet: any) => JSON.parse(tweet))
         })
