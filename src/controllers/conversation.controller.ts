@@ -6,6 +6,16 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import conversationService from '~/services/conversation.service'
 import { ConversationConstructor } from '~/models/schemas/Conversation.schema'
 
+export const getConversationController = async (req: Request, res: Response) => {
+  const id = req.params.id
+  const result = await conversationService.getConversationById(new ObjectId(id))
+  const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
+  const message = result ? CONVERSATION_MESSAGES.CONVERSATION_FOUND : CONVERSATION_MESSAGES.CONVERSATION_NOT_FOUND
+  res.status(status).json({
+    result,
+    message
+  })
+}
 export const storeConversationController = async (req: Request, res: Response) => {
   const conversation: ConversationConstructor = {
     sender: new ObjectId(req.decoded_authorization?.user_id),

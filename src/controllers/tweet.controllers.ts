@@ -90,9 +90,8 @@ export const getTweetsByUserController = async (
     parseInt(limit as string),
   )
   if (cachedTweetsByUser.length > 0) {
-    const total = await tweetService.countTweetsChildren(
-      new ObjectId(req.tweet?._id),
-      parseInt(type as string)
+    const total = await tweetService.countTweetsByUser(
+      new ObjectId(req.tweet?._id)
     )
     const totalPage = Math.ceil(total / parseInt(limit as string))
     result = { tweetsByUser: cachedTweetsByUser, total, totalPage, skip, limit }

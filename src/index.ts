@@ -10,6 +10,7 @@ import { USER_MESSAGES } from './constants/messages'
 import { wrapSocketAsync } from './utils/handler'
 import conversationService from './services/conversation.service'
 import { ObjectId } from 'mongodb'
+import redisService from './services/database/redis.services'
 const port = process.env.PORT || 3000
 const server = createServer(app)
 const io = new Server(server, { cors: { origin: '*' } })
@@ -50,10 +51,18 @@ io.on('connection', async (socket) => {
   sessionStore.saveSession(userID, {
     userID,
     username: username,
-    socketID: socket.id
+    socketID: socket.id,
   })
   const users: UserInConversation[] = []
-  const conversations = await conversationService.getConversationsByUserId(new ObjectId(userID))
+  let conversations = await redisService.getCachedConversationById(userID)
+  if (conversations.length < 1) {
+    conversations = await conversationService.getConversationsByUserId(new ObjectId(userID))
+    if (conversations.length > 0) {
+      conversations.forEach(async (conversation: any) => {
+        await redisService.cacheConversationById(userID, conversation)
+      })
+    }
+  }
   conversations.map((item: any) => {
     if (item.sender._id.toString() === userID) {
       const isOnline = sessionStore.findSession(item.receiver._id.toString()) ? true : false
@@ -105,5 +114,6 @@ declare module 'socket.io' {
     sessionID?: string
     userID?: string
     username?: string
+    avatar?: string
   }
 }

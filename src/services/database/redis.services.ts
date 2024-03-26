@@ -185,6 +185,34 @@ class RedisService {
     }
   }
 
+  // CACHING CONVERSATIONS
+  async cacheConversationById(user_id: string, conversation: any) {
+    try {
+      await this.local
+        .multi()
+        .rpush(
+          `conversation:${user_id}`,
+          JSON.stringify(conversation)
+        )
+        .expire(`conversation:${user_id}`, Number(process.env.REDIS_EXPIRE_15MIN))
+        .exec()
+    } catch (error) {
+      console.log('Error creating Redis search user', error)
+    }
+  }
+
+  async getCachedConversationById(user_id: string) {
+    try {
+      return await this.local
+        .lrange(`conversation:${user_id}`, 0, -1)
+        .then((res: any) => {
+          return res.map((conversation: any) => JSON.parse(conversation))
+        })
+    } catch (error) {
+      console.log('Error find tweets children', error)
+    }
+  }
+
   get getClient(): any {
     return this.cloud
   }

@@ -184,5 +184,7 @@ export const MESSAGE_RESPONSE = {
 
 export const CONVERSATION_MESSAGES = {
   CONVERSATION_CREATED: 'Conversation created',
-  CONVERSATION_CREATED_FAILED: 'Conversation created failed'
+  CONVERSATION_CREATED_FAILED: 'Conversation created failed',
+  CONVERSATION_FOUND: 'Conversation found',
+  CONVERSATION_NOT_FOUND: 'Conversation not found'
 }
