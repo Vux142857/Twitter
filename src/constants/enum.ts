@@ -42,3 +42,8 @@ export enum SearchFilterQuery {
   User = 'user',
   Tweet = ''
 }
+
+export enum FollowFilterQuery {
+  Followers = 'followers',
+  Following = 'following'
+}

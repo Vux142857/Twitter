@@ -9,9 +9,11 @@ import tokenService from '~/services/token.services'
 import { JsonWebTokenError } from 'jsonwebtoken'
 import { Request, Response, NextFunction } from 'express'
 import { TokenPayload } from '~/models/requests/User.requests'
-import { UserVerifyStatus } from '~/constants/enum'
+import { UserVerifyStatus, FollowFilterQuery } from '~/constants/enum'
 import followService from '~/services/follower.services'
+import { enumToStringArray } from '~/utils/common'
 
+const filterFollowerList = enumToStringArray(FollowFilterQuery)
 const passwordSchema: ParamSchema = {
   notEmpty: {
     errorMessage: USER_MESSAGES.PASSWORD_IS_REQUIRED
@@ -530,3 +532,55 @@ export const isUserLoggedInValidator = (middleware: (req: Request, res: Response
     }
   }
 }
+
+export const queryFollowListValidator = validate(
+  checkSchema(
+    {
+      user_id: {
+        notEmpty: {
+          errorMessage: USER_MESSAGES.FOLLOWING_USER_ID_IS_REQUIRED
+        },
+        isString: {
+          errorMessage: USER_MESSAGES.INVALID_FOLLOWING_USER_ID_FORMAT
+        },
+        custom: {
+          options: async (value) => {
+            const existedUser = await userService.checkExistedUser(value)
+            if (!existedUser) {
+              throw new ErrorWithStatus({
+                message: USER_MESSAGES.USER_NOT_FOUND,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+            return true
+          }
+        }
+      },
+      type: {
+        isIn: {
+          options: [filterFollowerList],
+          errorMessage: USER_MESSAGES.FILTER_FOLLOW_LIST_INVALID
+        }
+      },
+      skip: {
+        isNumeric: true,
+        errorMessage: USER_MESSAGES.PAGINATION_SKIP_VALUE_INVALID
+      },
+      limit: {
+        isNumeric: true,
+        custom: {
+          options: async (value: string) => {
+            if (parseInt(value) < 0 || isNaN(parseInt(value)) || parseInt(value) > 10) {
+              throw new ErrorWithStatus({
+                message: USER_MESSAGES.PAGINATION_LIMIT_VALUE_INVALID,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params', 'query']
+  )
+)
