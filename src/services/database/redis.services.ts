@@ -3,8 +3,8 @@ import { RedisClientType, SchemaFieldTypes } from 'redis'
 import { createClient } from 'redis';
 import userService from '../user.services'
 import 'dotenv/config'
-import crypto from 'crypto'
 import { TweetConstructor } from '~/models/schemas/Tweet.schema'
+import Redis from 'ioredis'
 class RedisService {
   private local: any
   private cloud: any
@@ -16,7 +16,12 @@ class RedisService {
     //     port: parseInt(process.env.REDIS_PORT as string)
     //   }
     // })
-    this.local = createClient()
+    // this.local = createClient()
+    try {
+      this.local = new Redis()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   // private async connectToCloud(){
@@ -32,13 +37,15 @@ class RedisService {
   async connect() {
     try {
       // await Promise.all([this.connectToLocal(), this.connectToCloud()])
-      await this.connectToLocal()
+      // await this.connectToLocal()
       console.log('Connected to Redis')
     } catch (error) {
       console.log('Error connecting to Redis', error)
     }
   }
 
+
+  // CACHING USERS BY USERNAME
   async cacheByUsername(username: string, user: any) {
     try {
       // await this.client.ft.create(
@@ -103,39 +110,8 @@ class RedisService {
       console.log('Error find Redis search user', error)
     }
   }
-  //   {
-  //     "_id": "65b9d504d80d6c0ff6ebde2e",
-  //     "user_id": "6599705a1f4b01086ff9caa4",
-  //     "audience": 1,
-  //     "content": "",
-  //     "media": [],
-  //     "mention": [
-  //         "someone"
-  //     ],
-  //     "parent_id": "65db41e0349d6f687e631898",
-  //     "hashtag": [
-  //         "111",
-  //         "2222",
-  //         "2333",
-  //         "222"
-  //     ],
-  //     "user_views": 38,
-  //     "guest_views": 0,
-  //     "tweet_circle": [],
-  //     "type": 1,
-  //     "createdAt": "2024-01-31T05:05:08.873Z",
-  //     "updatedAt": "2024-03-23T07:19:20.036Z",
-  //     "bookmarks": 0,
-  //     "likes": 1,
-  //     "author": {
-  //         "_id": "6599705a1f4b01086ff9caa4",
-  //         "name": "TTVux",
-  //         "username": "Vu14",
-  //         "avatar": ""
-  //     },
-  //     "retweets": 0,
-  //     "comments": 0
-  // }
+
+  // CACHING TWEETS BY ID
   async cacheTweetById(tweetId: string, tweet: any) {
     try {
       await this.local
@@ -155,7 +131,36 @@ class RedisService {
     return await this.local.get(`tweet:${tweetId}`)
   }
 
-  get getClient(): RedisClientType {
+  // CACHING TWEETS CHILDREN
+  async cacheTweetsChildren(parent_id: string, skip: number, limit: number, tweets: any) {
+    const value = JSON.stringify(tweets)
+    try {
+      await this.local
+        .multi()
+        .rpush(
+          `tweets:${parent_id}:children:${skip}:${limit}`,
+          value
+        )
+        .expire(`tweets:children:${skip}:${limit}`, Number(process.env.REDIS_EXPIRE_5MIN))
+        .exec()
+    } catch (error) {
+      console.log('Error creating Redis search user', error)
+    }
+  }
+
+  async getCachedTweetsChildren(parent_id: string, skip: number, limit: number) {
+    try {
+      return await this.local
+        .lrange(`tweets:${parent_id}:children:${skip}:${limit}`, 0, -1)
+        .then((res: any) => {
+          return res.map((tweet: any) => JSON.parse(tweet))
+        })
+    } catch (error) {
+      console.log('Error find tweets children', error)
+    }
+  }
+
+  get getClient(): any {
     return this.cloud
   }
 }
