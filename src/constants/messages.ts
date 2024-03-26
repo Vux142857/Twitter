@@ -142,6 +142,7 @@ export const TWEET_MESSAGES = {
   MEDIA_MAX_LENGTH: 'You only upload max 4 items in the tweet',
   TWEET_CIRCLE_MAX_LENGTH: 'You only add max 20 users in the tweet circle',
   PAGINATION_LIMIT_VALUE_INVALID: 'Pagination skip value invalid, must be in range [0, 10]',
+  PAGINATION_SKIP_VALUE_REQUIRED: 'Pagination skip value is required',
   PAGINATION_SKIP_VALUE_INVALID: 'Pagination limit value invalid',
   GET_TWEETS_BY_FOLLOWED_SUCCESS: 'Get tweets by followed successfully',
   GET_TWEETS_BY_VIEWS_SUCCESS: 'Get tweets by views successfully',
@@ -149,8 +150,10 @@ export const TWEET_MESSAGES = {
 }
 
 export const BOOKMARK_MESSAGES = {
-  GET_BOOKMARK_SUCCESS: 'Get bookmarks successfully',
-  GET_BOOKMARK_FAILURE: 'Get bookmarks failed',
+  GET_BOOKMARK_SUCCESS: 'Get bookmark successfully',
+  GET_BOOKMARK_FAILURE: 'Get bookmark failed',
+  GET_BOOMARKS_SUCCESS: 'Get bookmarks successfully',
+  GET_BOOMARKS_FAILURE: 'Get bookmarks failed',
   BOOKMARK_SUCCESS: 'Bookmark successfully',
   BOOKMARK_FAILURE: 'Bookmark failed',
   BOOKMARK_ALREADY_EXISTS: 'Bookmark already exists',

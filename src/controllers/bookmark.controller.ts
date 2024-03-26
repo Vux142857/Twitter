@@ -21,6 +21,21 @@ export const getBookmarksController = async (req: Request, res: Response) => {
   })
 }
 
+export const getBookmarksListController = async (req: Request, res: Response) => {
+  const { skip, limit } = req.query
+  const result = await bookmarkService.getBookmarksList(
+    new ObjectId(req.decoded_authorization?.user_id),
+    parseInt(skip as string),
+    parseInt(limit as string)
+  )
+  const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
+  const message = result ? BOOKMARK_MESSAGES.GET_BOOMARKS_SUCCESS : BOOKMARK_MESSAGES.GET_BOOMARKS_FAILURE
+  res.status(status).json({
+    result,
+    message
+  })
+}
+
 export const createBookmarkController = async (req: Request, res: Response) => {
   const bookmark = {
     user_id: new ObjectId(req.decoded_authorization?.user_id),

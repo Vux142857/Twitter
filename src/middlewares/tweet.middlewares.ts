@@ -249,7 +249,7 @@ export const tweetsByUserValidator = validate(
         isString: {
           errorMessage: TWEET_MESSAGES.USER_ID_INVALID
         },
-        notEmpty:{
+        notEmpty: {
           errorMessage: TWEET_MESSAGES.USER_ID_IS_REQUIRED
         },
         custom: {
@@ -281,7 +281,10 @@ export const tweetQueryValidator = validate(
       },
       skip: {
         isNumeric: true,
-        errorMessage: TWEET_MESSAGES.PAGINATION_SKIP_VALUE_INVALID
+        errorMessage: TWEET_MESSAGES.PAGINATION_SKIP_VALUE_INVALID,
+        notEmpty: {
+          errorMessage: TWEET_MESSAGES.PAGINATION_SKIP_VALUE_REQUIRED
+        }
       },
       limit: {
         isNumeric: true,
