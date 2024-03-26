@@ -77,7 +77,12 @@ export const USER_MESSAGES = {
   USER_ALREADY_FOLLOWED: 'User already followed',
   USER_ALREADY_UNFOLLOWED: 'User already unfollowed',
   UNFOLLOW_USER_SUCCESS: 'Unfollow user successfully',
-  UNFOLLOW_USER_FAILURE: 'Unfollow user failed'
+  UNFOLLOW_USER_FAILURE: 'Unfollow user failed',
+  FILTER_FOLLOW_LIST_INVALID: 'Filter follow list invalid',
+  PAGINATION_LIMIT_VALUE_INVALID: 'Pagination skip value invalid, must be in range [0, 10]',
+  PAGINATION_SKIP_VALUE_INVALID: 'Pagination limit value invalid',
+  GET_FOLLOW_LIST_SUCCESS: 'Get follow list successfully',
+  GET_FOLLOW_LIST_FAILED: 'Get follow list failed',
 }
 
 export const MEDIA_MESSAGES = {

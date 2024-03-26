@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express'
-import { UserVerifyStatus } from '~/constants/enum'
 import {
   createForgotPasswordController,
   followController,
   getFollow,
+  getFollowList,
   getMeController,
   getUserController,
   loginController,
@@ -30,11 +30,11 @@ import {
   verifedUserValidator,
   updateMeValidator,
   followValidator,
-  unfollowValidator
+  unfollowValidator,
+  queryFollowListValidator
 } from '~/middlewares/user.middlewares'
 import { UpdateProfileBody } from '~/models/requests/User.requests'
 import databaseService from '~/services/database/database.services'
-import redisService from '~/services/database/redis.services'
 import { wrapAsync } from '~/utils/handler'
 const userRouter = Router()
 
@@ -61,6 +61,14 @@ userRouter.get('/:username', wrapAsync(getUserController))
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {result: {follow: Follow}, message}
 userRouter.get('/follow/:following_user_id', accessTokenValidator, wrapAsync(getFollow))
+
+// WIP: 90% - 100%
+// Desciption: Get following
+// Route: /api/user/follows/:user_id
+// Method: GET
+// Header: {Authorization: Bearer <accessToken> }
+// Response OK: {result: {follow: Follow}, message}
+userRouter.get('/follows/:user_id', queryFollowListValidator, wrapAsync(getFollowList))
 
 // WIP: 90% - 100%
 // Desciption: Update me
