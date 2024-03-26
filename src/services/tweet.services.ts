@@ -268,8 +268,8 @@ class TweetService {
     return tweet
   }
 
-  async getTweetChildren(id: ObjectId, user_id: ObjectId, tweetType: number, skip: number, limit: number) {
-    const [tweetChildren, total] = await Promise.all([
+  async getTweetsChildren(id: ObjectId, user_id: ObjectId, tweetType: number, skip: number, limit: number) {
+    const [tweetsChildren, total] = await Promise.all([
       databaseService.tweets
         .aggregate<Tweet>([
           {
@@ -294,7 +294,7 @@ class TweetService {
     ])
     const isChildren = true
     const result = {
-      tweetChildren: await this.updateViewsTweet(id, user_id, isChildren, tweetChildren),
+      tweetsChildren: await this.updateViewsTweet(id, user_id, isChildren, tweetsChildren),
       total
     }
     return result
