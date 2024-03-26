@@ -9,3 +9,13 @@ export const wrapAsync = (func: any) => {
     }
   }
 }
+
+export const wrapSocketAsync = (func: any) => {
+  return async (socket: any, next: any) => {
+    try {
+      await func(socket, next)
+    } catch (err) {
+      next(err)
+    }
+  }
+}
