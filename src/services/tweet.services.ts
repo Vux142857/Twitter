@@ -142,7 +142,8 @@ class TweetService {
     }
     return tweet
   }
-
+  // description: Update views tweet by id if id !== null, else update views tweets array if it isChildren update views tweets array
+  // id can be ObjectId of tweet or parent_id if it isChildren, or null if it return tweets arr 
   async updateViewsTweet(id: ObjectId | null, user_id?: ObjectId, isChildren?: boolean, tweetsArr?: Tweet[]) {
     const inc = user_id ? { user_views: 1 } : { guest_views: 1 }
     if (isChildren && tweetsArr && id) {
@@ -268,6 +269,56 @@ class TweetService {
     return tweet
   }
 
+  async getTweetsByUser(user_id: ObjectId, self: ObjectId, skip: number, limit: number) {
+    const [tweetsByUser, total] = await Promise.all([
+      databaseService.tweets
+        .aggregate<Tweet>([
+          {
+            $match: {
+              user_id: user_id,
+              $or: [
+                {
+                  audience: TweetAudience.Everyone
+                },
+                {
+                  $and: [
+                    {
+                      audience: TweetAudience.TweetCircle
+                    },
+                    {
+                      tweet_circle: {
+                        $elemMatch: {
+                          $eq: self
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            $skip: skip
+          },
+          {
+            $limit: limit
+          },
+          ...this.aggreTweetsBody
+        ])
+        .toArray(),
+      databaseService.tweets.countDocuments({
+        user_id: user_id,
+        // type: tweetType
+      })
+    ])
+    const isChildren = false
+    const result = {
+      tweetsByUser: await this.updateViewsTweet(null, user_id, isChildren, tweetsByUser),
+      total
+    }
+    return result
+  }
+
   async getTweetsChildren(id: ObjectId, user_id: ObjectId, tweetType: number, skip: number, limit: number) {
     const [tweetsChildren, total] = await Promise.all([
       databaseService.tweets
@@ -293,6 +344,7 @@ class TweetService {
       })
     ])
     const isChildren = true
+
     const result = {
       tweetsChildren: await this.updateViewsTweet(id, user_id, isChildren, tweetsChildren),
       total
@@ -501,10 +553,16 @@ class TweetService {
       .toArray()
   }
 
-  async countTweetsChildren(parent_id: string, type: number) {
+  async countTweetsChildren(parent_id: ObjectId, type: number) {
     return await databaseService.tweets.countDocuments({
       parent_id: parent_id,
       type: type
+    })
+  }
+
+  async countTweetsByUser(user_id: ObjectId) {
+    return await databaseService.tweets.countDocuments({
+      user_id: user_id,
     })
   }
 }
