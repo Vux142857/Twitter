@@ -36,8 +36,8 @@ export const getTweetChildrenController = async (
   res: Response
 ) => {
   const { skip, limit, type } = req.query
-  const { tweetChildren, total } = await tweetService.getTweetChildren(
-    req.tweet?._id as ObjectId,
+  const { tweetsChildren, total } = await tweetService.getTweetsChildren(
+    new ObjectId(req.tweet?._id),
     new ObjectId(req.decoded_authorization?.user_id as string),
     parseInt(type as string),
     parseInt(skip as string),
@@ -45,7 +45,7 @@ export const getTweetChildrenController = async (
   )
   const totalPage = Math.ceil(total / parseInt(limit as string))
   res.status(HTTP_STATUS.OK).json({
-    result: { tweetChildren, total, totalPage, skip, limit },
+    result: { tweetsChildren, total, totalPage, skip, limit },
     message: TWEET_MESSAGES.GET_TWEET_CHILDREN_SUCCESS
   })
 }

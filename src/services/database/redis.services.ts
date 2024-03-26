@@ -24,7 +24,7 @@ class RedisService {
   //   await this.cloud.flushDb()
   // }
 
-  private async connectToLocal(){
+  private async connectToLocal() {
     await this.local.connect()
     await this.local.flushDb()
   }
@@ -89,7 +89,7 @@ class RedisService {
       await this.local
         .multi()
         .set(`user:${username}`, JSON.stringify(user))
-        .expire(`user:${username}`, Number(process.env.REDIS_EXPIRE))
+        .expire(`user:${username}`, Number(process.env.REDIS_EXPIRE_15MIN))
         .exec()
     } catch (error) {
       console.log('Error creating Redis search user', error)
@@ -138,10 +138,14 @@ class RedisService {
   // }
   async cacheTweetById(tweetId: string, tweet: any) {
     try {
-      await this.local.set(
+      await this.local
+        .multi()
+        .set(
           `tweet:${tweetId}`,
           JSON.stringify(tweet)
         )
+        .expire(`tweet:${tweetId}`, Number(process.env.REDIS_EXPIRE_1MIN))
+        .exec()
     } catch (error) {
       console.log('Error creating Redis search user', error)
     }
