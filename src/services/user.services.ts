@@ -265,12 +265,48 @@ class UserService {
   }
 
   async searchUsers(value: string, skip: number, limit: number) {
-    return await redisService.getClient.ft.search('idx:users', `%${value}%`, {
-      LIMIT: {
-        from: skip,
-        size: limit
-      }
-    })
+    return await databaseService.users.aggregate(
+      [
+        {
+          '$search': {
+            'index': 'users',
+            'compound': {
+              'filter': [
+                {
+                  'compound': {
+                    'should': [
+                      {
+                        'autocomplete': {
+                          'path': 'username',
+                          'query': value
+                        }
+                      }, {
+                        'autocomplete': {
+                          'path': 'name',
+                          'query': value
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }, {
+          '$skip': skip
+        }, {
+          '$limit': limit
+        }, {
+          '$project': {
+            'password': 0,
+            'verify_email_token': 0,
+            'forgot_password_token': 0,
+            'created_at': 0,
+            'updated_at': 0
+          }
+        }
+      ]
+    ).toArray()
   }
 }
 

@@ -15,8 +15,6 @@ import {
 import { USER_MESSAGES } from '~/constants/messages'
 import HTTP_STATUS from '~/constants/httpStatus'
 import redisService from '~/services/database/redis.services'
-import { ObjectId } from 'mongodb'
-// import followService from '~/services/follower.services'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const result = await userService.login(req.body)
@@ -144,7 +142,6 @@ export const getUserController = async (req: Request, res: Response) => {
   const { username } = req.params
   const cacheUser = await redisService.getCachedUserByUsername(username)
   let user
-  console.log(cacheUser)
   if (cacheUser) {
     user = JSON.parse(cacheUser)
   } else {
