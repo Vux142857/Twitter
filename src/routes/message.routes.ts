@@ -1,21 +1,21 @@
 import { Router, Request, Response } from 'express'
-import { storeMessageController } from '~/controllers/message.controller'
+import { getMessagesController } from '~/controllers/message.controller'
+import { messageValidator } from '~/middlewares/message.middlewares'
 import { accessTokenValidator } from '~/middlewares/user.middlewares'
 import databaseService from '~/services/database/database.services'
 import { wrapAsync } from '~/utils/handler'
 
 const messageRouter = Router()
 
-// *********************** POST ***********************
+// *********************** GET ***********************
 
 // WIP: 90% - 100%
-// Desciption: Store a message
-// Route: /api/message/store-message/:to
-// Method: POST
+// Desciption: Get messages by conversation_id
+// Route: /api/message/:conversation_id
+// Method: GET
 // Header: {Authorization: Bearer <accessToken> }
-// Body: {conversation: ObjectId, content: string}
-// Response OK: {data: {result: {message: Message}}, message}
-messageRouter.post('/store-message/:to', accessTokenValidator, wrapAsync(storeMessageController))
+// Response OK: {data: {result: { messages as Message[], total, totalPage, skip, limit }, message}
+messageRouter.get('/:conversation_id', accessTokenValidator, messageValidator, wrapAsync(getMessagesController))
 
 // *********************** FOR TESTING ONLY ***********************
 messageRouter.post(

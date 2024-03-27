@@ -20,10 +20,6 @@ class BookmarkService {
             'user_id': user_id
           }
         }, {
-          '$skip': skip
-        }, {
-          '$limit': limit
-        }, {
           '$lookup': {
             'from': 'tweets',
             'localField': 'tweet_id',
@@ -34,7 +30,18 @@ class BookmarkService {
           '$unwind': {
             'path': '$tweet'
           }
+        },
+        {
+          '$sort': {
+            'tweet.create_at': -1
+          }
+        },
+        {
+          '$skip': skip
         }, {
+          '$limit': limit
+        },
+        {
           '$lookup': {
             'from': 'users',
             'localField': 'tweet.user_id',
@@ -51,11 +58,13 @@ class BookmarkService {
             'author.verify_email_token': 0,
             'author.forgot_password_token': 0,
             'author.created_at': 0,
-            'author.updated_at': 0
-          }
-        }, {
-          '$sort': {
-            'tweet.create_at': -1
+            'author.updated_at': 0,
+            'author.date_of_birth': 0,
+            'author.bio': 0,
+            'author.location': 0,
+            'author.website': 0,
+            'author.cover_photo': 0,
+            'author.verify': 0
           }
         }
       ])

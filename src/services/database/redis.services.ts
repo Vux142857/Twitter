@@ -213,6 +213,35 @@ class RedisService {
     }
   }
 
+  async cacheMessagesById(conversation_id: string, messages: any) {
+    try {
+      return await this.local
+        .multi()
+        .rpush(`messages:${conversation_id}`, JSON.stringify(messages))
+        .expire(`messages:${conversation_id}`, Number(process.env.REDIS_EXPIRE_15MIN))
+        .exec()
+    } catch (error) {
+      console.log('Error creating Redis message queue', error)
+    }
+  }
+
+  async getCachedMessagesById(conversation_id: string, skip: number, limit: number) {
+    try {
+      const page = Math.ceil(skip / limit)
+      const length = await this.local.llen(`messages:${conversation_id}`)
+      const end = length - limit * page - 1
+      const start = end - limit + 1
+      console.log(length + " " + start + ' ' + end)
+      return await this.local
+        .lrange(`messages:${conversation_id}`, start, end)
+        .then((res: any) => {
+          return res.map((messages: any) => JSON.parse(messages))
+        })
+    } catch (error) {
+      console.log('Error find Redis message queue', error)
+    }
+  }
+
   get getClient(): any {
     return this.cloud
   }

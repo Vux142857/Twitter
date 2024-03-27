@@ -57,15 +57,16 @@ export const getTweetsChildrenController = async (
       parseInt(limit as string)
     )
     if (Array.isArray(tweetsChildren)) {
-      tweetsChildren.forEach(async (element: any) => {
-        // Your code here
-        await redisService.cacheTweetsChildren(
-          req.tweet?._id?.toString() as string,
-          parseInt(skip as string),
-          parseInt(limit as string),
-          element
-        )
-      });
+      await Promise.all(
+        tweetsChildren.map(async (element: any) => {
+          await redisService.cacheTweetsChildren(
+            req.tweet?._id?.toString() as string,
+            parseInt(skip as string),
+            parseInt(limit as string),
+            element
+          )
+        })
+      )
     }
     const totalPage = Math.ceil(total / parseInt(limit as string))
     result = { tweetsChildren, total, totalPage, skip, limit }
@@ -102,16 +103,16 @@ export const getTweetsByUserController = async (
       parseInt(skip as string),
       parseInt(limit as string)
     )
-    if (Array.isArray(tweetsByUser)) {
-      tweetsByUser.forEach(async (element: any) => {
+    if (Array.isArray(tweetsByUser) && tweetsByUser.length > 0) {
+      await Promise.all((tweetsByUser).map(async (tweet: any) => {
         await redisService.cacheTweetsByUser(
           user_id,
           req.decoded_authorization?.user_id.toString() as string,
           parseInt(skip as string),
           parseInt(limit as string),
-          element
-        )
-      });
+          tweet
+        );
+      }));
     }
     const totalPage = Math.ceil(total / parseInt(limit as string))
     result = { tweetsByUser, total, totalPage, skip, limit }

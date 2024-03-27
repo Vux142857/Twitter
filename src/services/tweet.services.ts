@@ -298,6 +298,11 @@ class TweetService {
             }
           },
           {
+            $sort: {
+              created_at: -1
+            }
+          },
+          {
             $skip: skip
           },
           {
