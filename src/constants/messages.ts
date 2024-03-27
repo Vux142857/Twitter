@@ -178,13 +178,14 @@ export const LIKE_MESSAGES = {
 }
 
 export const MESSAGE_RESPONSE = {
-  MESSAGE_CREATED: 'Message created',
-  MESSAGE_CREATED_FAILED: 'Message created failed'
+  GET_MESSAGES_SUCCESS: 'Get messages successfully',
+  GET_MESSAGES_FAILURE: 'Get messages failed',
+  CONVERSATION_ID_INVALID: 'Conversation id must be a string',
 }
 
 export const CONVERSATION_MESSAGES = {
   CONVERSATION_CREATED: 'Conversation created',
   CONVERSATION_CREATED_FAILED: 'Conversation created failed',
   CONVERSATION_FOUND: 'Conversation found',
-  CONVERSATION_NOT_FOUND: 'Conversation not found'
+  CONVERSATION_NOT_FOUND: 'Conversation not found',
 }

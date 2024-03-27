@@ -11,15 +11,11 @@ import { wrapSocketAsync } from './utils/handler'
 import conversationService from './services/conversation.service'
 import { ObjectId } from 'mongodb'
 import redisService from './services/database/redis.services'
+import messageService from './services/message.service'
+import { MessageConstructor } from './models/schemas/Message.schema'
 const port = process.env.PORT || 3000
 const server = createServer(app)
 const io = new Server(server, { cors: { origin: '*' } })
-
-interface MessageInChat {
-  from: string
-  content: string
-  to: string
-}
 
 interface UserInConversation {
   userID: string
@@ -88,13 +84,17 @@ io.on('connection', async (socket) => {
   })
   socket.emit('users', users)
 
-  socket.on('private message', ({ content, from, to }) => {
-    const message: MessageInChat = {
+  socket.on('private message', async ({ content, from, to, conversation_id }) => {
+    const message: MessageConstructor = {
       from,
       content,
-      to
+      to,
+      conversation_id: new ObjectId(conversation_id)
     }
-    console.log('private message', message)
+    await Promise.all([
+      messageService.storeMessage(message),
+      redisService.cacheMessagesById(conversation_id, message)
+    ])
     const toUser = sessionStore.findSession(to)
     if (toUser) {
       socket.to(toUser.socketID).emit('receive message', message)
