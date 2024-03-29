@@ -37,7 +37,6 @@ bookmarkRouter.get('/get-bookmarks', accessTokenValidator, queryPaginationValida
 // Route: /api/bookmark/create-bookmark
 // Method: POST
 // Header: {Authorization: Bearer <accessToken> }
-// Body: {user_id, tweet_id}
 // Response OK: {data: {result: {bookmark: Bookmark}}, message}
 bookmarkRouter.post(
   '/create-bookmark/:tweet_id',

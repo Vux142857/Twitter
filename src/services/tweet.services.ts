@@ -25,14 +25,6 @@ class TweetService {
     this.aggreTweetsBody = [
       {
         $lookup: {
-          from: 'bookmarks',
-          localField: '_id',
-          foreignField: 'tweet_id',
-          as: 'bookmarks'
-        }
-      },
-      {
-        $lookup: {
           from: 'likes',
           localField: '_id',
           foreignField: 'tweet_id',
@@ -73,9 +65,6 @@ class TweetService {
       },
       {
         $addFields: {
-          bookmarks: {
-            $size: '$bookmarks'
-          },
           likes: {
             $size: '$likes'
           },
