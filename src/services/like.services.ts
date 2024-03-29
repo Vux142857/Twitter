@@ -11,6 +11,7 @@ class LikeService {
   async getLike(tweet_id: ObjectId, user_id: ObjectId) {
     return await databaseService.likes.findOne({ tweet_id, user_id })
   }
+  
   async createLike(like: LikeReqBody) {
     return await databaseService.likes.findOneAndUpdate(
       { user_id: like.user_id, tweet_id: like.tweet_id },

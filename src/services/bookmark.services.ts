@@ -82,6 +82,17 @@ class BookmarkService {
     )
   }
 
+  // async createLike(like: LikeReqBody) {
+  //   return await databaseService.likes.findOneAndUpdate(
+  //     { user_id: like.user_id, tweet_id: like.tweet_id },
+  //     { $setOnInsert: new Like(like) },
+  //     {
+  //       upsert: true,
+  //       returnDocument: 'after'
+  //     }
+  //   )
+  // }
+
   async unbookmark(bookmark: BookmarkReqBody) {
     return await databaseService.bookmarks.findOneAndDelete({ user_id: bookmark.user_id, tweet_id: bookmark.tweet_id })
   }
