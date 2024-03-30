@@ -32,9 +32,9 @@ export const USER_MESSAGES = {
   INVALID_AVATAR_FORMAT: 'Avatar must be a URL',
   INVALID_USERNAME_FORMAT: 'Username must be a string',
   IMG_URL_LENGTH: 'Image url must be between 3 and 400 characters',
-  INVALID_IMG_URL_FORMAT: 'Image url must be a string',
-  WEBSITE_URL_LENGTH: 'Image url must be between 3 and 400 characters',
-  INVALID_WEBSITE_URL_FORMAT: 'Image url must be a URL',
+  INVALID_IMG_URL_FORMAT: 'Image url must be a web URL',
+  WEBSITE_URL_LENGTH: 'Website url must be between 3 and 400 characters',
+  INVALID_WEBSITE_URL_FORMAT: 'Website url must be a URL',
   // Update user's profile
   UPDATE_USER_SUCCESS: 'Update user successfully',
   UPDATE_USER_FAILURE: 'Update user failed',

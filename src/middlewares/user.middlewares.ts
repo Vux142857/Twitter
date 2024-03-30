@@ -103,18 +103,25 @@ const dateOfBirthSchema: ParamSchema = {
 const imageSchema: ParamSchema = {
   optional: true,
   trim: true,
-  isURL: {
-    options: {
-      protocols: ['http', 'https'], // protocols to allow
-      require_tld: false, // if TLD (Top Level Domain .com, .net, etc.) is required
-      require_protocol: true // if protocol is required
-    },
-    errorMessage: USER_MESSAGES.INVALID_AVATAR_FORMAT
-  },
-  isLength: {
-    options: {
-      min: 3,
-      max: 400
+  custom: {
+    options: (value) => {
+      if (value) {
+        if (!isValidWebsiteUrl(value)) {
+          throw new ErrorWithStatus({
+            message: USER_MESSAGES.INVALID_IMG_URL_FORMAT,
+            status: HTTP_STATUS.BAD_REQUEST
+          })
+        }
+        if (value) {
+          if (value.length > 400 || value.length < 3) {
+            throw new ErrorWithStatus({
+              message: USER_MESSAGES.IMG_URL_LENGTH,
+              status: HTTP_STATUS.BAD_REQUEST
+            })
+          }
+        }
+      }
+      return true
     }
   }
 }
@@ -379,20 +386,28 @@ export const updateMeValidator = validate(
         optional: true
       },
       bio: {
+        notEmpty: false,
         optional: true,
-        isString: {
-          errorMessage: USER_MESSAGES.INVALID_BIO_FORMAT
-        },
-        isLength: {
-          options: {
-            min: 1,
-            max: 255
-          },
-          errorMessage: USER_MESSAGES.BIO_TOO_LONG
+        custom: {
+          options: async (value) => {
+            if (typeof value !== 'string') {
+              throw new ErrorWithStatus({
+                message: USER_MESSAGES.INVALID_BIO_FORMAT,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            if (value.length > 255) {
+              throw new ErrorWithStatus({
+                message: USER_MESSAGES.BIO_TOO_LONG,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            return true
+          }
         }
       },
       location: {
-        optional: true,
+        notEmpty: false,
         isString: {
           errorMessage: USER_MESSAGES.INVALID_BIO_FORMAT
         },
@@ -401,7 +416,7 @@ export const updateMeValidator = validate(
             max: 200
           },
           errorMessage: USER_MESSAGES.LOCATION_TOO_LONG
-        }
+        },
       },
       username: {
         optional: true,
@@ -425,16 +440,27 @@ export const updateMeValidator = validate(
       cover_photo: imageSchema,
       website: {
         optional: true,
-        isURL: {
-          errorMessage: USER_MESSAGES.INVALID_WEBSITE_URL_FORMAT
-        },
         trim: true,
-        isLength: {
-          options: {
-            min: 3,
-            max: 400
-          },
-          errorMessage: USER_MESSAGES.WEBSITE_URL_LENGTH
+        custom: {
+          options: (value) => {
+            if (value) {
+              if (!isValidWebsiteUrl(value)) {
+                throw new ErrorWithStatus({
+                  message: USER_MESSAGES.INVALID_WEBSITE_URL_FORMAT,
+                  status: HTTP_STATUS.BAD_REQUEST
+                })
+              }
+              if (value) {
+                if (value.length > 400 || value.length < 3) {
+                  throw new ErrorWithStatus({
+                    message: USER_MESSAGES.WEBSITE_URL_LENGTH,
+                    status: HTTP_STATUS.BAD_REQUEST
+                  })
+                }
+              }
+            }
+            return true
+          }
         }
       }
     },
@@ -584,3 +610,25 @@ export const queryFollowListValidator = validate(
     ['params', 'query']
   )
 )
+
+// Utils
+function isValidWebsiteUrl(url: string) {
+  if (!url) {
+    return true; // Allow empty string
+  }
+  // Regular expression for a valid URL format
+  // const urlRegex = /^(?:(http(s)?:\/\/)?(?:[\w.-]+\.)?([^\s:@]+)(?::\d+)?|(?:www\.|[\w.-]+\.)+[^\s:@]+))(?:\/[\w\.-\/?#[\\]%]*|\.(?:jpg|jpeg|png|gif|svg))?$/i;
+  const urlRegex = /^(https?:\/\/)?([^\s:@]+)(:\d+)?(\/[^\s]*)?$/i;
+
+  // Check if the URL matches the regex pattern
+  if (!urlRegex.test(url)) {
+    return false; // Invalid format
+  }
+
+  // Check if the URL length is within the allowed range
+  if (url.length < 3 || url.length > 400) {
+    return false; // URL length outside allowed range
+  }
+
+  return true; // Valid website URL
+}
