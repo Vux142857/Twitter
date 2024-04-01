@@ -166,7 +166,7 @@ class RedisService {
           `tweets:${user_id}:self:${self}:${skip}:${limit}`,
           value
         )
-        .expire(`tweets:${user_id}:self:${self}:${skip}:${limit}`, Number(process.env.REDIS_EXPIRE_5MIN))
+        .expire(`tweets:${user_id}:self:${self}:${skip}:${limit}`, Number(process.env.REDIS_EXPIRE_2MIN))
         .exec()
     } catch (error) {
       console.log('Error creating Redis search user', error)

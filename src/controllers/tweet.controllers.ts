@@ -81,7 +81,7 @@ export const getTweetsByUserController = async (
   req: Request<ParamsDictionary, any, any, TweetQuery>,
   res: Response
 ) => {
-  const { skip, limit, type } = req.query
+  const { skip, limit } = req.query
   const user_id = req.params.user_id
   let result
   const cachedTweetsByUser = await redisService.getCachedTweetsByUser(
