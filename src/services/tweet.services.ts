@@ -198,31 +198,13 @@ class TweetService {
 
   // ****************************** GET
   private async getLatestTweet(user_id: ObjectId, author_id: ObjectId): Promise<Tweet> {
+    const match = this.filterTweetCircle(author_id, user_id)
     const [latestTweet] = await databaseService.tweets
       .aggregate<Tweet>(
         [
           {
             $match: {
-              user_id: author_id,
-              $or: [
-                {
-                  audience: TweetAudience.Everyone
-                },
-                {
-                  $and: [
-                    {
-                      audience: TweetAudience.TweetCircle
-                    },
-                    {
-                      tweet_circle: {
-                        $elemMatch: {
-                          $eq: user_id
-                        }
-                      }
-                    }
-                  ]
-                }
-              ]
+              ...match
             }
           },
           {
@@ -259,31 +241,14 @@ class TweetService {
   }
 
   async getTweetsByUser(user_id: ObjectId, self: ObjectId, skip: number, limit: number) {
+    const match = this.filterTweetCircle(user_id, self)
+    console.log(match)
     const [tweetsByUser, total] = await Promise.all([
       databaseService.tweets
         .aggregate<Tweet>([
           {
             $match: {
-              user_id: user_id,
-              $or: [
-                {
-                  audience: TweetAudience.Everyone
-                },
-                {
-                  $and: [
-                    {
-                      audience: TweetAudience.TweetCircle
-                    },
-                    {
-                      tweet_circle: {
-                        $elemMatch: {
-                          $eq: self
-                        }
-                      }
-                    }
-                  ]
-                }
-              ]
+              ...match
             }
           },
           {
@@ -558,6 +523,37 @@ class TweetService {
     return await databaseService.tweets.countDocuments({
       user_id: user_id,
     })
+  }
+
+  private filterTweetCircle(user_id: ObjectId, self: ObjectId) {
+    if (user_id.toString() !== self.toString()) {
+      return {
+        user_id: user_id,
+        $or: [
+          {
+            audience: TweetAudience.Everyone
+          },
+          {
+            $and: [
+              {
+                audience: TweetAudience.TweetCircle
+              },
+              {
+                tweet_circle: {
+                  $elemMatch: {
+                    $eq: self
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    } else {
+      return {
+        user_id: user_id
+      }
+    }
   }
 }
 const tweetService = new TweetService()

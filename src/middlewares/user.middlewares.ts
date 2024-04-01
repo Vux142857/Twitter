@@ -617,7 +617,6 @@ function isValidWebsiteUrl(url: string) {
     return true; // Allow empty string
   }
   // Regular expression for a valid URL format
-  // const urlRegex = /^(?:(http(s)?:\/\/)?(?:[\w.-]+\.)?([^\s:@]+)(?::\d+)?|(?:www\.|[\w.-]+\.)+[^\s:@]+))(?:\/[\w\.-\/?#[\\]%]*|\.(?:jpg|jpeg|png|gif|svg))?$/i;
   const urlRegex = /^(https?:\/\/)?([^\s:@]+)(:\d+)?(\/[^\s]*)?$/i;
 
   // Check if the URL matches the regex pattern
