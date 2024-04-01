@@ -209,7 +209,7 @@ class TweetService {
           },
           {
             $sort: {
-              created_at: -1
+              createdAt: -1
             }
           },
           {
@@ -242,7 +242,6 @@ class TweetService {
 
   async getTweetsByUser(user_id: ObjectId, self: ObjectId, skip: number, limit: number) {
     const match = this.filterTweetCircle(user_id, self)
-    console.log(match)
     const [tweetsByUser, total] = await Promise.all([
       databaseService.tweets
         .aggregate<Tweet>([
@@ -253,7 +252,7 @@ class TweetService {
           },
           {
             $sort: {
-              created_at: -1
+              createdAt: -1
             }
           },
           {
