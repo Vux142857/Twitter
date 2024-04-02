@@ -15,6 +15,7 @@ import {
 import { USER_MESSAGES } from '~/constants/messages'
 import HTTP_STATUS from '~/constants/httpStatus'
 import redisService from '~/services/database/redis.services'
+import followService from '~/services/follower.services'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const result = await userService.login(req.body)
@@ -122,10 +123,15 @@ export const resetPasswordController = async (req: Request, res: Response) => {
 
 export const getMeController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
-  const user = await userService.getUser(user_id)
+  const [user, followers, following] = await Promise.all([
+    userService.getUser(user_id),
+    followService.countFollowers(user_id),
+    followService.countFollowings(user_id)
+  ])
+  const result = { user, followers, following }
   res.status(HTTP_STATUS.OK).json({
     message: USER_MESSAGES.GET_USER_SUCCESS,
-    user
+    result
   })
 }
 
@@ -141,16 +147,29 @@ export const updateMeController = async (req: Request<ParamsDictionary, any, Upd
 export const getUserController = async (req: Request, res: Response) => {
   const { username } = req.params
   const cacheUser = await redisService.getCachedUserByUsername(username)
+  let result
   let user
   if (cacheUser) {
     user = JSON.parse(cacheUser)
+    const [followers, following] = await Promise.all([
+      followService.countFollowers(user._id),
+      followService.countFollowings(user._id)
+    ])
+    result = { user, followers, following }
   } else {
     user = await userService.getUserByUsername(username)
-    await redisService.cacheByUsername(username, user)
+    if (user) {
+      const [followers, following, cache] = await Promise.all([
+        followService.countFollowers(user._id.toString()),
+        followService.countFollowings(user._id.toString()),
+        redisService.cacheByUsername(username, user)
+      ])
+      result = { user, followers, following }
+    }
   }
   res.status(HTTP_STATUS.OK).json({
     message: USER_MESSAGES.USER_FOUND,
-    user
+    result
   })
 }
 

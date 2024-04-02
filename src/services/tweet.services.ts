@@ -56,48 +56,13 @@ class TweetService {
         }
       },
       {
-        $lookup: {
-          from: 'tweets',
-          localField: '_id',
-          foreignField: 'parent_id',
-          as: 'tweet_children'
-        }
-      },
-      {
         $addFields: {
           likes: {
             $size: '$likes'
           },
-          retweets: {
-            $size: {
-              $filter: {
-                input: '$tweet_children',
-                as: 'item',
-                cond: {
-                  $eq: ['$$item.type', 1]
-                }
-              }
-            }
-          },
-          comments: {
-            $size: {
-              $filter: {
-                input: '$tweet_children',
-                as: 'item',
-                cond: {
-                  $eq: ['$$item.type', 2]
-                }
-              }
-            }
-          },
           author: {
             $arrayElemAt: ['$author', 0]
           }
-        }
-      },
-      {
-        $project: {
-          tweet_children: 0
         }
       }
     ]
@@ -285,6 +250,11 @@ class TweetService {
             $match: {
               parent_id: id,
               type: tweetType
+            }
+          },
+          {
+            $sort: {
+              createdAt: -1
             }
           },
           {
