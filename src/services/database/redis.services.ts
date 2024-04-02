@@ -156,6 +156,35 @@ class RedisService {
     }
   }
 
+  // CACHING COMMENTS
+  async cacheComments(parent_id: string, comments: any) {
+    try {
+      return await this.local
+        .multi()
+        .lpush(`comments:${parent_id}`, JSON.stringify(comments))
+        .expire(`comments:${parent_id}`, Number(process.env.REDIS_EXPIRE_15MIN))
+        .exec()
+    } catch (error) {
+      console.log('Error creating Redis message queue', error)
+    }
+  }
+
+  async getCachedComments(parent_id: string, skip: number, limit: number) {
+    try {
+      const page = Math.ceil(skip / limit)
+      const length = await this.local.llen(`comments:${parent_id}`)
+      const end = length - limit * page - 1
+      const start = end - limit + 1
+      return await this.local
+        .lrange(`comments:${parent_id}`, start, end)
+        .then((res: any) => {
+          return res.map((comment: any) => JSON.parse(comment))
+        })
+    } catch (error) {
+      console.log('Error find Redis message queue', error)
+    }
+  }
+
   // CACHING TWEETS BY USER
   async cacheTweetsByUser(user_id: string, self: string, skip: number, limit: number, tweets: any) {
     const value = JSON.stringify(tweets)

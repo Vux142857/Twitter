@@ -8,11 +8,19 @@ import tweetService, { TweetReqBody } from '~/services/tweet.services'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { TweetQuery } from '~/models/requests/Tweet.requests'
 import redisService from '~/services/database/redis.services'
+import { TweetType } from '~/constants/enum'
 
 export const createTweetController = async (req: Request, res: Response) => {
   const tweet = req.body as TweetReqBody
   const user_id = new ObjectId(req.decoded_authorization?.user_id as string)
   const result = await tweetService.createTweet(tweet, user_id)
+  if (result && result.type === TweetType.Comment) {
+    const comment = await tweetService.getTweetById(new ObjectId(result._id))
+    await redisService.cacheComments(
+      comment?.parent_id?.toString() as string,
+      comment
+    )
+  }
   res.status(HTTP_STATUS.OK).json({
     result,
     message: TWEET_MESSAGES.TWEET_SUCCESS
@@ -36,11 +44,17 @@ export const getTweetsChildrenController = async (
 ) => {
   const { skip, limit, type } = req.query
   let result
-  const cachedTweetsChildren = await redisService.getCachedTweetsChildren(
-    req.tweet?._id?.toString() as string,
-    parseInt(skip as string),
-    parseInt(limit as string),
-  )
+  const cachedTweetsChildren = (parseInt(type as string) === TweetType.Comment)
+    ? await redisService.getCachedComments(
+      req.tweet?._id?.toString() as string,
+      parseInt(skip as string),
+      parseInt(limit as string),
+    )
+    : await redisService.getCachedTweetsChildren(
+      req.tweet?._id?.toString() as string,
+      parseInt(skip as string),
+      parseInt(limit as string),
+    )
   if (cachedTweetsChildren.length > 0) {
     const total = await tweetService.countTweetsChildren(
       new ObjectId(req.tweet?._id),
