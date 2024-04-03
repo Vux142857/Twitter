@@ -16,6 +16,7 @@ import { USER_MESSAGES } from '~/constants/messages'
 import HTTP_STATUS from '~/constants/httpStatus'
 import redisService from '~/services/database/redis.services'
 import followService from '~/services/follower.services'
+import mailService from '~/libs/nodemailer'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const result = await userService.login(req.body)
@@ -72,15 +73,21 @@ export const resendVerifyEmailController = async (req: Request, res: Response) =
       message: USER_MESSAGES.EMAIL_ALREADY_VERIFIED
     })
   }
+  await mailService.sendMailVerify(user.email, user.verify_email_token)
   res.status(HTTP_STATUS.OK).json({
     message: USER_MESSAGES.RESEND_EMAIL_SUCCESS
   })
 }
 
 export const createForgotPasswordController = async (req: Request, res: Response) => {
-  const user_id = req.user_id as string
-  const result = await userService.createForgotPasswordToken(user_id)
-  res.status(HTTP_STATUS.OK).json(result)
+  const { user_id, email } = req
+  const result = user_id ? await userService.createForgotPasswordToken(user_id) : null
+  const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
+  const message = result ? result.message : USER_MESSAGES.FORGOT_PASSWORD_VALID
+  if (result && email) {
+    await mailService.sendMailForgotPassword(email, result.forgot_password_token)
+  }
+  res.status(status).json(message)
 }
 
 export const verifyForgotPasswordController = async (req: Request, res: Response) => {
