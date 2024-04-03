@@ -4,6 +4,7 @@ import { TweetConstructor } from './models/schemas/Tweet.schema'
 declare module 'express' {
   interface Request {
     user_id?: string
+    email?: string
     decoded_authorization?: TokenPayload
     decoded_refresh_token?: TokenPayload
     decoded_verify_email_token?: TokenPayload

@@ -335,10 +335,10 @@ export const forgotPasswordEmailValidator = validate(
                 message: USER_MESSAGES.USER_NOT_FOUND,
                 status: HTTP_STATUS.NOT_FOUND
               })
-            } else {
-              const user_id = user._id.toString()
-              req.user_id = user_id
             }
+            const user_id = user._id.toString()
+            req.user_id = user_id
+            req.email = user.email
             return true
           }
         }

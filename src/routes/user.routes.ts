@@ -142,7 +142,8 @@ userRouter.post('/resend-verify-email', accessTokenValidator, wrapAsync(resendVe
 // Desciption: Create forgot password
 // Route: /api/user/create-forgot-password
 // Method: POST
-// Response OK: {result: {forgotPasswordToken}, message}
+// Body: {email}
+// Response OK: {message}
 userRouter.post('/create-forgot-password', forgotPasswordEmailValidator, wrapAsync(createForgotPasswordController))
 
 // WIP: 90% - 100%
@@ -157,7 +158,7 @@ userRouter.post('/verify-forgot-password', forgotPasswordTokenValidator, wrapAsy
 // Desciption: Reset password
 // Route: /api/user/reset-password
 // Method: POST
-// Body: {password, confirm_password}
+// Body: {password, confirm_password, forgot_password_token}
 // Response OK: {result: {accessToken, refreshToken} ,message}
 userRouter.post('/reset-password', resetPasswordValidator, wrapAsync(resetPasswordController))
 

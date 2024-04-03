@@ -108,6 +108,7 @@ class UserService {
       }
     ])
     return {
+      forgot_password_token: forgotPasswordToken,
       message: USER_MESSAGES.FORGOT_PASSWORD_TOKEN_DONE
     }
   }
