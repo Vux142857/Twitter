@@ -133,12 +133,23 @@ export const resetPasswordController = async (req: Request, res: Response) => {
 
 export const getMeController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
-  const [user, followers, following] = await Promise.all([
-    userService.getUser(user_id),
-    followService.countFollowers(user_id),
-    followService.countFollowings(user_id)
-  ])
-  const result = { user, followers, following }
+  let result
+  const cachedUser = await redisService.getCachedUserById(user_id)
+  if (cachedUser) {
+    const [followers, following] = await Promise.all([
+      userService.getUser(user_id),
+      followService.countFollowers(user_id),
+      followService.countFollowings(user_id)
+    ])
+    result = { user: cachedUser, followers, following }
+  } else {
+    const [user, followers, following] = await Promise.all([
+      userService.getUser(user_id),
+      followService.countFollowers(user_id),
+      followService.countFollowings(user_id)
+    ])
+    result = { user, followers, following }
+  }
   res.status(HTTP_STATUS.OK).json({
     message: USER_MESSAGES.GET_USER_SUCCESS,
     result

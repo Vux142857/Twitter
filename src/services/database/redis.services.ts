@@ -40,6 +40,26 @@ class RedisService {
     }
   }
 
+  // CACHING USERS BY ID
+  async cacheUserById(user_id: string, user: any) {
+    try {
+      await this.local
+        .multi()
+        .set(`user:${user_id}`, JSON.stringify(user))
+        .expire(`user:${user_id}`, Number(process.env.REDIS_EXPIRE_15MIN))
+        .exec()
+    } catch (error) {
+      console.log('Error creating Redis search user', error)
+    }
+  }
+
+  async getCachedUserById(user_id: string) {
+    try {
+      return await this.local.get(`user:${user_id}`).then((res: any) => JSON.parse(res))
+    } catch (error) {
+      console.log('Error find Redis search user', error)
+    }
+  }
 
   // CACHING USERS BY USERNAME
   async cacheByUsername(username: string, user: any) {

@@ -79,7 +79,7 @@ const nameSchema: ParamSchema = {
   notEmpty: {
     errorMessage: USER_MESSAGES.NAME_IS_REQUIRED
   },
-  trim: true,
+  // trim: true,
   isLength: {
     options: {
       min: 1,
