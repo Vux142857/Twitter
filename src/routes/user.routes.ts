@@ -125,16 +125,17 @@ userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapAsyn
 // WIP: 90% - 100%
 // Desciption: Verify email
 // Route: /api/user/verify-email
+// Header: {Authorization: Bearer <accessToken> }
 // Method: POST
-// Body: {verifyEmailToken}
+// Body: {verify_email_token}
 // Response OK: {result: {accessToken, refreshToken}, message}
-userRouter.post('/verify-email', verifyEmailTokenValidator, wrapAsync(verifyEmailController))
+userRouter.post('/verify-email', accessTokenValidator, verifyEmailTokenValidator, wrapAsync(verifyEmailController))
 
 // WIP: 90% - 100%
 // Desciption: Resend verify email
 // Route: /api/user/resend-verify-email
-// Method: POST
 // Header: {Authorization: Bearer <accessToken> }
+// Method: POST
 // Response OK: {result: {verifyEmailToken}, message}
 userRouter.post('/resend-verify-email', accessTokenValidator, wrapAsync(resendVerifyEmailController))
 

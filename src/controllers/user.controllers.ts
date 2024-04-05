@@ -30,6 +30,9 @@ export const loginController = async (req: Request<ParamsDictionary, any, LoginR
 
 export const registerController = async (req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) => {
   const result = await userService.register(req.body)
+  if (result) {
+    await mailService.sendMailVerify(req.body.email, result.verifyEmailToken)
+  }
   res.status(HTTP_STATUS.OK).json({
     result,
     message: USER_MESSAGES.REGISTER_SUCCESS
