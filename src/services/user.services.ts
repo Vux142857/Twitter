@@ -246,7 +246,7 @@ class UserService {
         return { followers, totalFollowers }
       case FollowFilterQuery.Following:
         const [followings, totalFollowings] = await Promise.all([
-          this.getFollowers(user_id, skip, limit),
+          this.getFollowing(user_id, skip, limit),
           followService.countFollowings(user_id)
         ])
         return { followings, totalFollowings }
