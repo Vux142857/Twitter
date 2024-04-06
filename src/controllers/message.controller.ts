@@ -16,7 +16,6 @@ export const getMessagesController = async (req: Request, res: Response) => {
     parseInt(limit as string)
   )
   if (cachedMessages.length === parseInt(limit as string)) {
-    console.log("is cached" + cachedMessages)
     const total = await messageService.countTotalMessages(new ObjectId(conversation_id))
     const totalPage = Math.ceil(total / parseInt(limit as string))
     result = { messages: cachedMessages, total, totalPage, skip, limit }

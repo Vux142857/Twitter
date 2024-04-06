@@ -339,7 +339,6 @@ class TweetService {
   }
 
   async getTweetsByHashtag(user_id: ObjectId, hashtag: string, skip: number, limit: number) {
-    console.log(user_id, hashtag, skip, limit)
     const [tweetsByHashtag, totalTweetsByHashtag] = await Promise.all([
       databaseService.tweets
         .aggregate<Tweet>([

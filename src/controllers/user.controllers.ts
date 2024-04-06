@@ -224,8 +224,6 @@ export const followController = async (req: Request<ParamsDictionary, any, follo
   const { user_id } = req.decoded_authorization as TokenPayload
   const { following_user_id } = req.body as followBody
   const result = await userService.followUser(user_id, following_user_id)
-  console.log('I am here')
-  console.log(following_user_id)
   const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
   const message = result ? USER_MESSAGES.FOLLOW_USER_SUCCESS : USER_MESSAGES.FOLLOW_USER_FAILURE
   res.status(status).json({

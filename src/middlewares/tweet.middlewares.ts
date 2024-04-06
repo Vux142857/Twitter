@@ -128,7 +128,6 @@ export const createTweetValidator = validate(
               value.some((item) => !MediaArray.includes(item.type)) ||
               value.some((item) => !MediaStatusArray.includes(item.status))
             ) {
-              console.log(value[0])
               throw new ErrorWithStatus({
                 message: TWEET_MESSAGES.MEDIA_INVALID,
                 status: HTTP_STATUS.BAD_REQUEST

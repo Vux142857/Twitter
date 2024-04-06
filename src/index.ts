@@ -54,9 +54,9 @@ io.on('connection', async (socket) => {
   if (conversations.length < 1) {
     conversations = await conversationService.getConversationsByUserId(new ObjectId(userID))
     if (conversations.length > 0) {
-      conversations.forEach(async (conversation: any) => {
-        await redisService.cacheConversationById(userID, conversation)
-      })
+      await Promise.all(conversations.map(async (conversation: any) => {
+        await redisService.cacheConversationById(userID, conversation);
+      }));
     }
   }
   conversations.map((item: any) => {
