@@ -10,5 +10,6 @@ declare module 'express' {
     decoded_verify_email_token?: TokenPayload
     decoded_forgot_password_token?: TokenPayload
     tweet?: TweetConstructor
+    user?: UserConstructor
   }
 }

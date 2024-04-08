@@ -118,7 +118,7 @@ export const TWEET_MESSAGES = {
   USER_ID_IS_REQUIRED: 'User id is required',
   USER_ID_INVALID: 'User id invalid',
   GET_TWEET_CHILDREN_SUCCESS: "Get tweet's children successfully",
-  GET_TWEET_BY_USER:"Get tweets by user successfully",
+  GET_TWEET_BY_USER: "Get tweets by user successfully",
   TWEET_INVALID: 'Tweet invalid',
   TWEET_NOT_FOUND: 'Tweet not found',
   TWEET_TYPE_INVALID: 'Tweet type invalid',
@@ -186,6 +186,10 @@ export const MESSAGE_RESPONSE = {
 }
 
 export const CONVERSATION_MESSAGES = {
+  CONVERSATION_ID_REQUIRED: 'Conversation id is required',
+  CONVERSATION_ID_INVALID: 'Conversation id is invalid',
+  CONVERSATION_RECEIVER_REQUIRED: 'Conversation receiver is required',
+  CONVERSATION_RECEIVER_INVALID: 'Conversation receiver is invalid',
   CONVERSATION_CREATED: 'Conversation created',
   CONVERSATION_CREATED_FAILED: 'Conversation created failed',
   CONVERSATION_FOUND: 'Conversation found',

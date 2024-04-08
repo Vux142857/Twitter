@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express'
-import { getConversationController, storeConversationController } from '~/controllers/conversation.controller'
+import { getConversationByUsersController, getConversationController, storeConversationController } from '~/controllers/conversation.controller'
+import { conversationIdValidator, createConversationValidator } from '~/middlewares/conversation.middlewares'
 import { accessTokenValidator } from '~/middlewares/user.middlewares'
 import databaseService from '~/services/database/database.services'
 import { wrapAsync } from '~/utils/handler'
@@ -14,7 +15,16 @@ const conversationRouter = Router()
 // Method: GET
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {data: {result: {conversation: Conversation}}, message}
-conversationRouter.get('/:id', accessTokenValidator, wrapAsync(getConversationController))
+conversationRouter.get('/:id', conversationIdValidator, accessTokenValidator, wrapAsync(getConversationController))
+
+// WIP: 90% - 100%
+// Desciption: Get a conversation by users
+// Route: /api/conversation/get-conversation/:receiver
+// Method: GET
+// Header: {Authorization: Bearer <accessToken> }
+// Response OK: {data: {result: {conversation: Conversation}}, message}
+conversationRouter.get('/get-conversation/:receiver', accessTokenValidator, createConversationValidator, wrapAsync(getConversationByUsersController))
+
 // *********************** POST ***********************
 
 // WIP: 90% - 100%
@@ -22,9 +32,8 @@ conversationRouter.get('/:id', accessTokenValidator, wrapAsync(getConversationCo
 // Route: /api/conversation/store-conversation/:receiver
 // Method: POST
 // Header: {Authorization: Bearer <accessToken> }
-// Body: {conversation: ObjectId, content: string}
 // Response OK: {data: {result: {conversation: Conversation}}, message}
-conversationRouter.post('/store-conversation/:receiver', accessTokenValidator, wrapAsync(storeConversationController))
+conversationRouter.post('/store-conversation/:receiver', accessTokenValidator, createConversationValidator, wrapAsync(storeConversationController))
 
 // *********************** FOR TESTING ONLY ***********************
 conversationRouter.post(

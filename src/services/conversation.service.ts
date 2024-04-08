@@ -7,17 +7,19 @@ class ConversationService {
     return await databaseService.conversations.insertOne(new Conversation(conversation))
   }
 
-  async getConversationsByUserId(userId: ObjectId) {
-    return await databaseService.conversations
+  async getConversationByUsers(self: ObjectId, another: ObjectId) {
+    const [conversation] = await databaseService.conversations
       .aggregate([
         {
           $match: {
             $or: [
               {
-                sender: userId
+                sender: self,
+                receiver: another
               },
               {
-                receiver: userId
+                receiver: self,
+                sender: another
               }
             ]
           }
@@ -78,6 +80,7 @@ class ConversationService {
         }
       ])
       .toArray()
+    return conversation
   }
 
   async getConversationById(id: ObjectId) {
@@ -146,6 +149,7 @@ class ConversationService {
       .toArray()
     return conversation
   }
+
 }
 
 const conversationService = new ConversationService()

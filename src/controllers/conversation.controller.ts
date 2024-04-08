@@ -16,6 +16,23 @@ export const getConversationController = async (req: Request, res: Response) => 
     message
   })
 }
+
+export const getConversationByUsersController = async (req: Request, res: Response) => {
+  const conversation: ConversationConstructor = {
+    sender: new ObjectId(req.decoded_authorization?.user_id),
+    receiver: new ObjectId(req.params.receiver)
+  }
+  const result = await conversationService.getConversationByUsers(conversation.sender, conversation.receiver)
+  const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
+  const message = result
+    ? CONVERSATION_MESSAGES.CONVERSATION_CREATED
+    : CONVERSATION_MESSAGES.CONVERSATION_CREATED_FAILED
+  res.status(status).json({
+    result,
+    message
+  })
+}
+
 export const storeConversationController = async (req: Request, res: Response) => {
   const conversation: ConversationConstructor = {
     sender: new ObjectId(req.decoded_authorization?.user_id),
