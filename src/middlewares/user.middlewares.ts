@@ -267,9 +267,22 @@ export const refreshTokenValidator = validate(
           options: async (value: string, { req }) => {
             try {
               const refreshToken = await tokenService.checkExistedRefreshToken(value)
-              const existedToken = refreshToken ? refreshToken.token : ''
-              const decoded_refresh_token = await tokenService.decodeRefreshToken(existedToken)
+              if (!refreshToken) {
+                throw new ErrorWithStatus({
+                  message: USER_MESSAGES.REFRESH_TOKEN_INVALID,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
+              const decoded_refresh_token = await tokenService.decodeRefreshToken(refreshToken.token)
+              const user = await userService.checkExistedUser(decoded_refresh_token.user_id)
+              if (!user) {
+                throw new ErrorWithStatus({
+                  message: USER_MESSAGES.USER_NOT_FOUND,
+                  status: HTTP_STATUS.NOT_FOUND
+                })
+              }
               req.decoded_refresh_token = decoded_refresh_token
+              req.user = user
             } catch (error) {
               throw new ErrorWithStatus({
                 message: USER_MESSAGES.REFRESH_TOKEN_EXPIRED,

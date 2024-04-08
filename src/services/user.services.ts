@@ -7,7 +7,6 @@ import { FollowFilterQuery, UserVerifyStatus } from '~/constants/enum'
 import { USER_MESSAGES } from '~/constants/messages'
 import { ObjectId } from 'mongodb'
 import followService from './follower.services'
-import redisService from './database/redis.services'
 
 class UserService {
   async register(payload: RegisterReqBody) {
@@ -255,9 +254,9 @@ class UserService {
     }
   }
 
-  async updateToken(user_id: string, exp: number, token: string) {
+  async updateToken(user_id: string, verify_status: UserVerifyStatus, exp: number, token: string) {
     const [accessToken, refreshToken] = await Promise.all([
-      tokenService.signAccessToken(user_id),
+      tokenService.signAccessToken(user_id, verify_status),
       tokenService.signRefreshToken(user_id, exp),
       tokenService.deleteRefreshToken(token)
     ])
