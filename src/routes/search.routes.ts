@@ -9,8 +9,9 @@ const searchRouter = Router()
 // WIP: 80% - 90%
 // Desciption: Search tweets
 // Route: /api/search
+// Headers: {Authorization: Bearer <accessToken>}
 // Method: GET
 // Response OK: {data: {result: {tweets: Tweet}}, message}
-searchRouter.get('/', searchQueryValidator, wrapAsync(searchController))
+searchRouter.get('/', accessTokenValidator, searchQueryValidator, wrapAsync(searchController))
 
 export default searchRouter

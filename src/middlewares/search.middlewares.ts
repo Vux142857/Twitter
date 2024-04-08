@@ -16,6 +16,14 @@ export const searchQueryValidator = validate(
           errorMessage: TWEET_MESSAGES.TWEET_TYPE_INVALID
         }
       },
+      value: {
+        isString: {
+          errorMessage: TWEET_MESSAGES.SEARCH_VALUE_INVALID
+        },
+        notEmpty: {
+          errorMessage: TWEET_MESSAGES.SEARCH_VALUE_REQUIRED
+        }
+      },
       skip: {
         isNumeric: true,
         errorMessage: TWEET_MESSAGES.PAGINATION_SKIP_VALUE_INVALID
