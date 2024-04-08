@@ -25,12 +25,37 @@ export const getConversationByUsersController = async (req: Request, res: Respon
   const result = await conversationService.getConversationByUsers(conversation.sender, conversation.receiver)
   const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
   const message = result
-    ? CONVERSATION_MESSAGES.CONVERSATION_CREATED
-    : CONVERSATION_MESSAGES.CONVERSATION_CREATED_FAILED
+    ? CONVERSATION_MESSAGES.CONVERSATION_FOUND
+    : CONVERSATION_MESSAGES.CONVERSATION_NOT_FOUND
   res.status(status).json({
     result,
     message
   })
+}
+
+export const enterConversationController = async (req: Request, res: Response) => {
+  const conversation: ConversationConstructor = {
+    sender: new ObjectId(req.decoded_authorization?.user_id),
+    receiver: new ObjectId(req.params.receiver)
+  }
+  let result = null
+  let existedConversation = await conversationService.getConversationByUsers(conversation.sender, conversation.receiver)
+  if (!existedConversation) {
+    existedConversation = await conversationService.storeConversation(conversation)
+    const { insertedId } = existedConversation
+    result = insertedId ? await conversationService.getConversationById(insertedId) : null
+  } else {
+    result = existedConversation
+  }
+  const status = result ? HTTP_STATUS.OK : HTTP_STATUS.BAD_REQUEST
+  const message = result
+    ? CONVERSATION_MESSAGES.CONVERSATION_FOUND
+    : CONVERSATION_MESSAGES.CONVERSATION_NOT_FOUND
+  res.status(status).json({
+    result,
+    message
+  })
+
 }
 
 export const storeConversationController = async (req: Request, res: Response) => {

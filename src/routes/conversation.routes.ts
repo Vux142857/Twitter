@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express'
-import { getConversationByUsersController, getConversationController, storeConversationController } from '~/controllers/conversation.controller'
+import { enterConversationController, getConversationController, storeConversationController } from '~/controllers/conversation.controller'
 import { conversationIdValidator, createConversationValidator } from '~/middlewares/conversation.middlewares'
 import { accessTokenValidator } from '~/middlewares/user.middlewares'
 import databaseService from '~/services/database/database.services'
@@ -23,7 +23,7 @@ conversationRouter.get('/:id', conversationIdValidator, accessTokenValidator, wr
 // Method: GET
 // Header: {Authorization: Bearer <accessToken> }
 // Response OK: {data: {result: {conversation: Conversation}}, message}
-conversationRouter.get('/get-conversation/:receiver', accessTokenValidator, createConversationValidator, wrapAsync(getConversationByUsersController))
+conversationRouter.get('/get-conversation/:receiver', accessTokenValidator, createConversationValidator, wrapAsync(enterConversationController))
 
 // *********************** POST ***********************
 
