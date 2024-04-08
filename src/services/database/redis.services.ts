@@ -280,7 +280,6 @@ class RedisService {
       const length = await this.local.llen(`messages:${conversation_id}`)
       const end = length - limit * page - 1
       const start = end - limit + 1
-      console.log(length + " " + start + ' ' + end)
       return await this.local
         .lrange(`messages:${conversation_id}`, start, end)
         .then((res: any) => {
