@@ -146,7 +146,9 @@ export const TWEET_MESSAGES = {
   PAGINATION_SKIP_VALUE_INVALID: 'Pagination limit value invalid',
   GET_TWEETS_BY_FOLLOWED_SUCCESS: 'Get tweets by followed successfully',
   GET_TWEETS_BY_VIEWS_SUCCESS: 'Get tweets by views successfully',
-  SEARCH_TWEETS_SUCCESS: 'Search tweets successfully'
+  SEARCH_TWEETS_SUCCESS: 'Search tweets successfully',
+  SEARCH_VALUE_INVALID: 'Search value is string',
+  SEARCH_VALUE_REQUIRED: 'Search value is required',
 }
 
 export const BOOKMARK_MESSAGES = {
