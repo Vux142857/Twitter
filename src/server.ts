@@ -25,8 +25,7 @@ import { isDev } from './constants/config'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 process.env.UV_THREADPOOL_SIZE = os.cpus().length
-const environment = agrv(process.argv.slice(2)).envi
-console.log(environment)
+console.log(isDev)
 // Create upload folders
 Object.keys(UPLOAD_FOLDER).forEach((key) => {
   initFolder(UPLOAD_FOLDER[key])
