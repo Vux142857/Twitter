@@ -2,15 +2,12 @@ import 'dotenv/config'
 import Redis from 'ioredis'
 class RedisService {
   private local: any
-  constructor() { }
+  constructor() {
+  }
 
   async connect() {
     try {
-      this.local = new Redis({
-        host: 'redis',
-        port: 6379
-      })
-      console.log('Redis connected')
+      this.local = new Redis()
     } catch (error) {
       console.log(error)
     }
@@ -224,3 +221,33 @@ class RedisService {
 
 const redisService = new RedisService()
 export default redisService
+
+//    * Save each individual poem as a Hash
+//    */
+//   var promiseList = list.map((poem, i) =>
+//     Promise.all(Object.keys(poem).map((key) => client.hSet(`poem:${md5(i)}`, key, poem[key])))
+//   );
+//   await Promise.all(promiseList);
+
+//   /**
+//    * Create the inverted index that we will use to query the poems data
+//    *
+//    * FT.CREATE idx:poems ON HASH PREFIX 1 poem: SCHEMA content TEXT author TEXT title TEXT SORTABLE age TAG type TAG
+//    *
+//    */
+//   await client.ft.create(
+//     "idx:poems",
+//     {
+//       content: redis.SchemaFieldTypes.TEXT,
+//       author: redis.SchemaFieldTypes.TEXT,
+//       title: { type: redis.SchemaFieldTypes.TEXT, sortable: true },
+//       age: redis.SchemaFieldTypes.TAG,
+//       type: redis.SchemaFieldTypes.TAG,
+//     },
+//     {
+//       ON: "HASH",
+//       PREFIX: "poem:",
+//     }
+//   );
+//   return client;
+// };

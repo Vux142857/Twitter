@@ -1,15 +1,6 @@
-version: '3'
+version: '3.8'
 services:
-  redis:
-    image: redis
-    container_name: redis
-    ports: 
-      - "6379:6379"
-    expose:
-      - 6379
   twitter:
     image: 'vu/twitter:v0'
     ports:
-      - '3000:3000'
-    links: 
-      - redis
+      - 3000:3000
