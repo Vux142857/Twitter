@@ -3,7 +3,7 @@ import { Request } from 'express'
 import formidable, { File } from 'formidable'
 import 'dotenv/config'
 import sharp from 'sharp'
-import { isProduction } from '~/constants/config'
+import { isDev } from '~/constants/config'
 import { MediaType, StatusType } from '~/constants/enum'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { MEDIA_MESSAGES } from '~/constants/messages'
@@ -110,9 +110,9 @@ class MediaService {
             files.file[0].filepath,
             'video/mp4'
           )
-          const url = isProduction
-            ? `${process.env.HOST}/static/video/${files.file[0].newFilename}`
-            : `http://localhost:${process.env.PORT}/static/video/${files.file[0].newFilename}`
+          const url = isDev
+            ? `http://localhost:${process.env.PORT}/static/video/${files.file[0].newFilename}`
+            : `${process.env.HOST}/static/video/${files.file[0].newFilename}`
           const videoObj = { url, type: MediaType.Video, status: StatusType.Done }
           Promise.all([this.storageMedia(videoObj), deleteFile(files.file[0].filepath)])
           resolve(videoObj)
@@ -141,9 +141,9 @@ class MediaService {
           reject(new ErrorWithStatus({ message: MEDIA_MESSAGES.VIDEO_IS_REQUIRED, status: HTTP_STATUS.BAD_REQUEST }))
         } else {
           const filePath = files.file[0].filepath
-          const url = isProduction
-            ? `${process.env.HOST}/static/video-hls/${videoID}/master.m3u8`
-            : `http://localhost:${process.env.PORT}/static/video-hls/${videoID}/master.m3u8`
+          const url = isDev
+            ? `http://localhost:${process.env.PORT}/static/video-hls/${videoID}/master.m3u8`
+            : `${process.env.HOST}/static/video-hls/${videoID}/master.m3u8`
           const videoObj = { url, type: MediaType.Video, status: StatusType.Pending }
           resolve(videoObj)
           try {
