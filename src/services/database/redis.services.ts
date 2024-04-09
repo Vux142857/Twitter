@@ -8,6 +8,7 @@ class RedisService {
   async connect() {
     try {
       this.local = new Redis()
+      console.log('Redis connected')
     } catch (error) {
       console.log(error)
     }
