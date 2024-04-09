@@ -11,8 +11,9 @@ COPY ./src ./src
 RUN apk add python3
 RUN apk add --no-cache ffmpeg
 RUN npm install
+RUN npm install pm2 -g
 RUN npm run build
 
 EXPOSE 3000
 
-CMD ["node", "dist/index.js", "--envi=production"]
+CMD ["pm2-runtime", "dist/index.js", "--envi=production"]
