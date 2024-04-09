@@ -33,11 +33,19 @@ Object.keys(UPLOAD_FOLDER).forEach((key) => {
 
 const app = express()
 app.use(helmet())
+var whitelist = [process.env.CLIENT, process.env.CLIENT_ALIAS]
+var corsOptions = {
+  origin: function (origin: any, callback: any) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  credentials: true
+}
 app.use(
-  cors({
-    origin: isDev ? '*' : process.env.CLIENT,
-    credentials: true
-  })
+  cors(isDev ? { origin: '*', credentials: true } : corsOptions)
 )
 app.use(
   rateLimit({
