@@ -3,27 +3,13 @@ import 'dotenv/config'
 import Redis from 'ioredis'
 class RedisService {
   private local: any
-  private cloud: any
   constructor() {
-    // this.cloud = createClient({
-    //   password: process.env.REDIS_PASSWORD as string,
-    //   socket: {
-    //     host: process.env.REDIS_HOST as string,
-    //     port: parseInt(process.env.REDIS_PORT as string)
-    //   }
-    // })
-    // this.local = createClient()
     try {
       this.local = new Redis()
     } catch (error) {
       console.log(error)
     }
   }
-
-  // private async connectToCloud(){
-  //   await this.cloud.connect()
-  //   await this.cloud.flushDb()
-  // }
 
   private async connectToLocal() {
     await this.local.connect()
@@ -32,8 +18,7 @@ class RedisService {
 
   async connect() {
     try {
-      // await Promise.all([this.connectToLocal(), this.connectToCloud()])
-      // await this.connectToLocal()
+      await this.connectToLocal()
       console.log('Connected to Redis')
     } catch (error) {
       console.log('Error connecting to Redis', error)
@@ -64,51 +49,6 @@ class RedisService {
   // CACHING USERS BY USERNAME
   async cacheByUsername(username: string, user: any) {
     try {
-      // await this.client.ft.create(
-      //   'idx:users',
-      //   {
-      //     '$.name': {
-      //       type: SchemaFieldTypes.TEXT,
-      //       sortable: true
-      //     },
-      //     '$.username': {
-      //       type: SchemaFieldTypes.TEXT,
-      //       sortable: true
-      //     },
-      //     '$.email': {
-      //       type: SchemaFieldTypes.TEXT,
-      //       sortable: true
-      //     },
-      //     '$.date_of_birth': {
-      //       type: SchemaFieldTypes.TEXT,
-      //       as: 'date_of_birth'
-      //     },
-      //     '$.bio': {
-      //       type: SchemaFieldTypes.TEXT,
-      //       as: 'bio'
-      //     },
-      //     '$.location': {
-      //       type: SchemaFieldTypes.TEXT,
-      //       as: 'location'
-      //     },
-      //     '$.avatar': {
-      //       type: SchemaFieldTypes.TEXT,
-      //       as: 'avatar'
-      //     },
-      //     '$.cover_photo': {
-      //       type: SchemaFieldTypes.TEXT,
-      //       as: 'cover_photo'
-      //     },
-      //     '$.website': {
-      //       type: SchemaFieldTypes.TEXT,
-      //       as: 'website'
-      //     }
-      //   },
-      //   {
-      //     ON: 'JSON',
-      //     PREFIX: 'user:'
-      //   }
-      // )
       await this.local
         .multi()
         .set(`user:${username}`, JSON.stringify(user))
@@ -288,10 +228,6 @@ class RedisService {
     } catch (error) {
       console.log('Error find Redis message queue', error)
     }
-  }
-
-  get getClient(): any {
-    return this.cloud
   }
 }
 
