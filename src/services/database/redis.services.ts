@@ -1,11 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'dotenv/config'
 import Redis from 'ioredis'
 class RedisService {
   private local: any
   constructor() {
     try {
-      this.local = new Redis()
+      this.local = new Redis({
+        host: 'redis',
+        port: 6379
+      })
     } catch (error) {
       console.log(error)
     }
