@@ -13,14 +13,9 @@ class RedisService {
     }
   }
 
-  private async connectToLocal() {
-    await this.local.connect()
-    await this.local.flushDb()
-  }
-
   async connect() {
     try {
-      await this.connectToLocal()
+      await this.local.flushDb()
       console.log('Connected to Redis')
     } catch (error) {
       console.log('Error connecting to Redis', error)
