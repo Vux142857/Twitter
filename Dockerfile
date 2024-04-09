@@ -16,4 +16,4 @@ RUN npm run build
 
 EXPOSE 3000
 
-CMD ["pm2", "start","dist/index.js", "--name", "mytwitter"]
+CMD ["pm2", "start","dist/index.js", "--name", "mytwitter", "--watch"]
