@@ -1,18 +1,10 @@
 version: '3'
 services:
-  redis:
-    image: redis:latest
-    container_name: redis
-    restart: unless-stopped
-    expose:
-      - 6379
   twitter:
     image: vu/twitter:v0
     ports:
       - '3000:3000'
     volumes:
-      - '~Typescript/Twitter/uploads:/app/uploads'
-    links: 
-      - redis
+      - '/Twitter/uploads:/app/uploads'
 
     
