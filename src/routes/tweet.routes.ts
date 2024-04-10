@@ -61,7 +61,7 @@ tweetRouter.get(
 tweetRouter.get(
   '/:user_id/tweets',
   isUserLoggedInValidator(accessTokenValidator),
-  verifedUserValidator,
+  // verifedUserValidator,
   tweetQueryValidator,
   tweetsByUserValidator,
   wrapAsync(getTweetsByUserController)
