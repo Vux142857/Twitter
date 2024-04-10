@@ -172,7 +172,7 @@ class RedisService {
           `conversation:${user_id}`,
           JSON.stringify(conversation)
         )
-        .expire(`conversation:${user_id}`, Number(process.env.REDIS_EXPIRE_15MIN))
+        .expire(`conversation:${user_id}`, Number(process.env.REDIS_EXPIRE_1MIN))
         .exec()
     } catch (error) {
       console.log('Error creating Redis search user', error)
