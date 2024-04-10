@@ -47,6 +47,7 @@ var corsOptions = {
 app.use(
   cors(isDev ? { origin: '*', credentials: true } : corsOptions)
 )
+
 app.use(
   rateLimit({
     windowMs: 20 * 60 * 1000, // 20 minutes
