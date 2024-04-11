@@ -13,7 +13,6 @@ import hashtagRouter from './routes/hashtag.routes'
 import bookmarkRouter from './routes/bookmark.routes'
 import likeRouter from './routes/like.routes'
 import searchRouter from './routes/search.routes'
-import os from 'os'
 import redisService from './services/database/redis.services'
 import messageRouter from './routes/message.routes'
 import conversationRouter from './routes/conversation.routes'
@@ -21,9 +20,7 @@ import helmet from 'helmet'
 import { rateLimit } from 'express-rate-limit'
 import { isDev } from './constants/config'
 // import "./utils/faker"
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-process.env.UV_THREADPOOL_SIZE = os.cpus().length
+
 console.log(isDev)
 // Create upload folders
 Object.keys(UPLOAD_FOLDER).forEach((key) => {
