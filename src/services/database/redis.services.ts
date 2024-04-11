@@ -135,33 +135,33 @@ class RedisService {
   }
 
   // CACHING TWEETS BY USER
-  async cacheTweetsByUser(user_id: string, self: string, skip: number, limit: number, tweets: any) {
-    const value = JSON.stringify(tweets)
-    try {
-      await this.local
-        .multi()
-        .rpush(
-          `tweets:${user_id}:self:${self}:${skip}:${limit}`,
-          value
-        )
-        .expire(`tweets:${user_id}:self:${self}:${skip}:${limit}`, Number(process.env.REDIS_EXPIRE_2MIN))
-        .exec()
-    } catch (error) {
-      console.log('Error creating Redis search user', error)
-    }
-  }
+  // async cacheTweetsByUser(user_id: string, self: string, skip: number, limit: number, tweets: any) {
+  //   const value = JSON.stringify(tweets)
+  //   try {
+  //     await this.local
+  //       .multi()
+  //       .rpush(
+  //         `tweets:${user_id}:self:${self}:${skip}:${limit}`,
+  //         value
+  //       )
+  //       .expire(`tweets:${user_id}:self:${self}:${skip}:${limit}`, Number(process.env.REDIS_EXPIRE_1MIN))
+  //       .exec()
+  //   } catch (error) {
+  //     console.log('Error creating Redis search user', error)
+  //   }
+  // }
 
-  async getCachedTweetsByUser(user_id: string, self: string, skip: number, limit: number) {
-    try {
-      return await this.local
-        .lrange(`tweets:${user_id}:self:${self}:${skip}:${limit}`, 0, -1)
-        .then((res: any) => {
-          return res.map((tweet: any) => JSON.parse(tweet))
-        })
-    } catch (error) {
-      console.log('Error find tweets children', error)
-    }
-  }
+  // async getCachedTweetsByUser(user_id: string, self: string, skip: number, limit: number) {
+  //   try {
+  //     return await this.local
+  //       .lrange(`tweets:${user_id}:self:${self}:${skip}:${limit}`, 0, -1)
+  //       .then((res: any) => {
+  //         return res.map((tweet: any) => JSON.parse(tweet))
+  //       })
+  //   } catch (error) {
+  //     console.log('Error find tweets children', error)
+  //   }
+  // }
 
   // CACHING CONVERSATIONS
   async cacheConversationById(user_id: string, conversation: any) {

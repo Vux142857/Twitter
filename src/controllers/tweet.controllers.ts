@@ -97,40 +97,14 @@ export const getTweetsByUserController = async (
 ) => {
   const { skip, limit } = req.query
   const user_id = req.params.user_id
-  let result
-  const cachedTweetsByUser = await redisService.getCachedTweetsByUser(
-    user_id,
-    req.decoded_authorization?.user_id.toString() as string,
+  const { tweetsByUser, total } = await tweetService.getTweetsByUser(
+    new ObjectId(user_id),
+    new ObjectId(req.decoded_authorization?.user_id as string),
     parseInt(skip as string),
-    parseInt(limit as string),
+    parseInt(limit as string)
   )
-  if (cachedTweetsByUser.length > 0) {
-    const total = await tweetService.countTweetsByUser(
-      new ObjectId(req.tweet?._id)
-    )
-    const totalPage = Math.ceil(total / parseInt(limit as string))
-    result = { tweetsByUser: cachedTweetsByUser, total, totalPage, skip, limit }
-  } else {
-    const { tweetsByUser, total } = await tweetService.getTweetsByUser(
-      new ObjectId(user_id),
-      new ObjectId(req.decoded_authorization?.user_id as string),
-      parseInt(skip as string),
-      parseInt(limit as string)
-    )
-    if (Array.isArray(tweetsByUser) && tweetsByUser.length > 0) {
-      await Promise.all((tweetsByUser).map(async (tweet: any) => {
-        await redisService.cacheTweetsByUser(
-          user_id,
-          req.decoded_authorization?.user_id.toString() as string,
-          parseInt(skip as string),
-          parseInt(limit as string),
-          tweet
-        );
-      }));
-    }
-    const totalPage = Math.ceil(total / parseInt(limit as string))
-    result = { tweetsByUser, total, totalPage, skip, limit }
-  }
+  const totalPage = Math.ceil(total / parseInt(limit as string))
+  const result = { tweetsByUser, total, totalPage, skip, limit }
   res.status(HTTP_STATUS.OK).json({
     result,
     message: TWEET_MESSAGES.GET_TWEET_BY_USER
