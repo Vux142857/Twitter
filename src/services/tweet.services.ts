@@ -316,8 +316,8 @@ class TweetService {
         {
           $match: {
             $or: [
-              { audience: TweetAudience.Everyone },
-              { $and: [{ audience: TweetAudience.TweetCircle }, { tweet_circle: { $elemMatch: { $eq: user_id } } }] }
+              { audience: TweetAudience.Everyone, type: TweetType.Tweet },
+              { $and: [{ audience: TweetAudience.TweetCircle }, { tweet_circle: { $elemMatch: { $eq: user_id } } }, { type: TweetType.Tweet }] }
             ]
           }
         },
