@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { createServer } from 'http'
 import { Server } from 'socket.io'
+import os from 'os'
 import app from './server'
 import 'dotenv/config'
 import sessionStore from './libs/sessionStore'
@@ -13,9 +14,13 @@ import { ObjectId } from 'mongodb'
 import redisService from './services/database/redis.services'
 import messageService from './services/message.service'
 import { MessageConstructor } from './models/schemas/Message.schema'
+import { isDev } from './constants/config'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+process.env.UV_THREADPOOL_SIZE = os.cpus().length
 const port = process.env.PORT || 3000
 const server = createServer(app)
-const io = new Server(server, { cors: { origin: '*' } })
+const io = new Server(server, { cors: { origin: isDev ? '*' : process.env.CLIENT_ALIAS } })
 
 interface UserInConversation {
   userID: string
