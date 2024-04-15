@@ -62,7 +62,7 @@ class ConversationService {
       }
     ]
   }
-  
+
   async storeConversation(conversation: Conversation) {
     return await databaseService.conversations.insertOne(new Conversation(conversation))
   }
@@ -118,6 +118,10 @@ class ConversationService {
                   receiver: id,
                 }
               ]
+            }
+          }, {
+            $sort: {
+              created_at: -1
             }
           },
           ...this.aggreConversationBody
