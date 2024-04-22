@@ -23,17 +23,17 @@ const passwordSchema: ParamSchema = {
   },
   isLength: {
     options: { min: 8 },
-    errorMessage: USER_MESSAGES.PASSWORD_TOO_SHORT
-  },
-  isStrongPassword: {
-    options: {
-      minLowercase: 1,
-      minNumbers: 1,
-      minUppercase: 1,
-      minSymbols: 1
-    },
     errorMessage: USER_MESSAGES.PASSWORD_TOO_WEAK
   }
+  // isStrongPassword: {
+  //   options: {
+  //     minLowercase: 1,
+  //     minNumbers: 1,
+  //     minUppercase: 1,
+  //     minSymbols: 1
+  //   },
+  //   errorMessage: USER_MESSAGES.PASSWORD_TOO_WEAK
+  // }
 }
 
 const confirmPasswordSchema: ParamSchema = {
