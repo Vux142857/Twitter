@@ -96,14 +96,14 @@ io.on('connection', async (socket) => {
       to,
       conversation_id: new ObjectId(conversation_id)
     }
-    await Promise.all([
-      messageService.storeMessage(message),
-      redisService.cacheMessagesById(conversation_id, message)
-    ])
     const toUser = sessionStore.findSession(to)
     if (toUser) {
       socket.to(toUser.socketID).emit('receive message', message)
     }
+    await Promise.all([
+      messageService.storeMessage(message),
+      redisService.cacheMessagesById(conversation_id, message)
+    ])
   })
   socket.on('disconnect', async () => {
     sessionStore.deleteSession(userID)
