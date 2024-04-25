@@ -172,3 +172,12 @@ export const getTweetsByHashtag = async (req: Request<ParamsDictionary, any, any
     message: TWEET_MESSAGES.GET_TWEET_SUCCESS
   })
 }
+
+export const deleteTweetController = async (req: Request, res: Response) => {
+  const { tweet_id } = req.params
+  const result = await tweetService.deleteTweet(new ObjectId(tweet_id))
+  res.status(HTTP_STATUS.OK).json({
+    result,
+    message: TWEET_MESSAGES.DELETE_TWEET_SUCCESS
+  })
+}

@@ -119,6 +119,7 @@ export const TWEET_MESSAGES = {
   USER_ID_INVALID: 'User id invalid',
   GET_TWEET_CHILDREN_SUCCESS: "Get tweet's children successfully",
   GET_TWEET_BY_USER: "Get tweets by user successfully",
+  DELETE_TWEET_SUCCESS: "Delete tweet successfully",
   TWEET_INVALID: 'Tweet invalid',
   TWEET_NOT_FOUND: 'Tweet not found',
   TWEET_TYPE_INVALID: 'Tweet type invalid',
