@@ -331,3 +331,41 @@ export const hashtagValidator = validate(
     ['params']
   )
 )
+
+export const deleteTweetValidator = validate(
+  checkSchema(
+    {
+      tweet_id: {
+        notEmpty: {
+          errorMessage: TWEET_MESSAGES.TWEET_ID_IS_REQUIRED
+        },
+        custom: {
+          options: async (value: string, { req }) => {
+            if (!ObjectId.isValid(value)) {
+              throw new ErrorWithStatus({
+                message: TWEET_MESSAGES.TWEET_ID_IS_REQUIRED,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            const tweet = await tweetService.getTweetById(new ObjectId(value))
+            if (!tweet) {
+              throw new ErrorWithStatus({
+                message: TWEET_MESSAGES.TWEET_NOT_FOUND,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            const { decoded_authorization } = req
+            if (!decoded_authorization || !tweet.user_id.equals(new ObjectId(decoded_authorization.user_id))) {
+              throw new ErrorWithStatus({
+                message: USER_MESSAGES.USER_UNAUTHORIZED,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params']
+  )
+)

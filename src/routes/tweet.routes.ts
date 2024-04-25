@@ -6,11 +6,13 @@ import {
   getTweetsChildrenController,
   getTweetsByHashtag,
   getTweetsByViews,
-  getTweetsByUserController
+  getTweetsByUserController,
+  deleteTweetController
 } from '~/controllers/tweet.controllers'
 import {
   audienceValidator,
   createTweetValidator,
+  deleteTweetValidator,
   hashtagValidator,
   tweetIdValidator,
   tweetQueryValidator,
@@ -121,6 +123,20 @@ tweetRouter.post(
   verifedUserValidator,
   createTweetValidator,
   wrapAsync(createTweetController)
+)
+
+// *********************** DELETE ***********************
+
+// WIP: 90% - 100%
+// Desciption: Delete tweet
+// Route: /api/tweet/delete/:tweet_id
+// Method: DELETE
+// Response OK: {data: {result: {tweet: Tweet}}, message}
+tweetRouter.delete(
+  '/delete/:tweet_id',
+  accessTokenValidator,
+  deleteTweetValidator,
+  wrapAsync(deleteTweetController)
 )
 
 // *********************** FOR TESTING ONLY ***********************

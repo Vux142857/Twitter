@@ -523,6 +523,11 @@ class TweetService {
       }
     }
   }
+
+  // ****************************** DELETE
+  async deleteTweet(_id: ObjectId) {
+    return await databaseService.tweets.deleteOne({ _id })
+  }
 }
 const tweetService = new TweetService()
 
