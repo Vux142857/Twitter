@@ -15,23 +15,22 @@ messages.
     - Account demo: thanhvu7a1@gmail.com:admindemo
     
 ## Features
-*
-    - Authentication: + Access Token && Refresh Token (JWT)
-                      + Bcrypt for encrypt
-    - Tweet: create Tweet, ReTweet, Tweet Circle, Mention, Newfeeds, Comments
-    - Interact: comment, like, bookmark, follow and chat with other user
-    - Socket.io to handle room chat, send notification
-    - Improve performance: use redis for caching, Index field in Mongodb
-    - Search: Full-text - MongoDB Atlas Search
-    - Other:  Aggregation Mongodb to get documents
+    * Authentication: - Access Token && Refresh Token (JWT)
+                      - Bcrypt for encrypt
+    * Tweet: create Tweet, ReTweet, Tweet Circle, Mention, Newfeeds, Comments
+    * Interact: comment, like, bookmark, follow and chat with other user
+    * Socket.io to handle room chat, send notification
+    * Improve performance: use redis for caching, Index field in Mongodb
+    * Search: Full-text - MongoDB Atlas Search
+    * Other:  Aggregation Mongodb to get documents
 
 ## Prerequisites
-*
-    - MongoDB
-    - NodeJS
-    - npm
-    - Redis/Redis-server
-    - AWS account
+
+    * MongoDB
+    * NodeJS
+    * npm
+    * Redis/Redis-server
+    * AWS account
 
 ## Getting Started
 * First, run the development server:
