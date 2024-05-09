@@ -38,6 +38,7 @@ messages.
 
 ```bash
 sudo service redis-server start
+npm i
 npm run dev
 ```
 ### Client-side usage (PORT:3001)
