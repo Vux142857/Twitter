@@ -36,8 +36,8 @@ First, run the development server:
 sudo service redis-server start
 npm run dev
 ```
-# Client-side usage (PORT:3001)
-# Server-side usage (PORT:3000)
+### Client-side usage (PORT:3001)
+### Server-side usage (PORT:3000)
 
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
