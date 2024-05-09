@@ -9,12 +9,13 @@ system to inform users about activities such as new followers, likes, comments, 
 messages.
 
 ## Demo
-
+*
     - Front-end demo (Vercel): [Link](https://github.com/Vux142857/fe-twitter)
     - [https://www.mytweet.one](https://www.mytweet.one)
     - Account demo: thanhvu7a1@gmail.com:admindemo
     
 ## Features
+*
     - Authentication: + Access Token && Refresh Token (JWT)
                       + Bcrypt for encrypt
     - Tweet: create Tweet, ReTweet, Tweet Circle, Mention, Newfeeds, Comments
@@ -25,6 +26,7 @@ messages.
     - Other:  Aggregation Mongodb to get documents
 
 ## Prerequisites
+*
     - MongoDB
     - NodeJS
     - npm
@@ -32,7 +34,7 @@ messages.
     - AWS account
 
 ## Getting Started
-
+*
 First, run the development server:
 
 ```bash
