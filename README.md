@@ -16,8 +16,7 @@ messages.
     
 ## Features
 *
-    - Authentication: * Access Token && Refresh Token (JWT)
-                      * Bcrypt for encrypt
+    - Authentication: Access Token && Refresh Token (JWT) && Bcrypt for encrypt password
     - Tweet: create Tweet, ReTweet, Tweet Circle, Mention, Newfeeds, Comments
     - Interact: comment, like, bookmark, follow and chat with other user
     - Socket.io to handle room chat, send notification
