@@ -20,6 +20,7 @@ import helmet from 'helmet'
 import { rateLimit } from 'express-rate-limit'
 import { isDev } from './constants/config'
 import fakerService from './utils/faker'
+import notificationRouter from './routes/notification.route'
 
 // fakerService.clearTweetFaker().then(() => {
 //   console.log('done')
@@ -95,7 +96,7 @@ app.use('/like', likeRouter)
 app.use('/search', searchRouter)
 app.use('/message', messageRouter)
 app.use('/conversation', conversationRouter)
-
+app.use('/notification', notificationRouter)
 app.use(defaultErrorHandler)
 
 export default app

@@ -125,12 +125,12 @@ io.on('connection', async (socket) => {
 
     socket.on('disconnect', async () => {
       sessionStore.deleteSession(userID)
-      console.log('User disconnected: ' + userID)
     })
   } catch (error) {
     console.log(error)
   }
 })
+
 server.listen(port, () => {
   console.log(`App listening on port ${port}`)
 })

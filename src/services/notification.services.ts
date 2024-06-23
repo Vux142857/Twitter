@@ -1,11 +1,10 @@
 import { ObjectId } from "mongodb";
 import databaseService from "./database/database.services";
-import { NotificationConstructor } from "~/models/schemas/Notification.schema";
+import Notification, { NotificationConstructor } from "~/models/schemas/Notification.schema";
 
 class NotificationService {
     
     async storeNotification(data: NotificationConstructor) {
-        console.log(data)
         const notification = new Notification(data)
         return await databaseService.notifications.insertOne(notification)
     }
