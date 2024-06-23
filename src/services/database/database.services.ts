@@ -10,31 +10,46 @@ import Bookmark from '~/models/schemas/Bookmark.schema'
 import Like from '~/models/schemas/Like.schema'
 import Message from '~/models/schemas/Message.schema'
 import Conversation from '~/models/schemas/Conversation.schema'
+import Notification from '~/models/schemas/Notification.schema'
 
 class DatabaseService {
   private client: MongoClient
+  private slave: MongoClient
   private db: Db
+  private slaveDb: Db
   private uri: string
+  private slaveUri: string
 
   constructor() {
     this.uri = process.env.DATABASE_URI as string
+    this.slaveUri = process.env.DATABASE_SLAVE_URI as string
     this.client = new MongoClient(this.uri, {
       serverApi: {
         version: ServerApiVersion.v1,
         deprecationErrors: true
       }
     })
+    this.slave = new MongoClient(this.slaveUri, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        deprecationErrors: true
+      }
+    })
     this.db = this.client.db(process.env.DATABASE_NAME as string)
+    this.slaveDb = this.slave.db(process.env.DATABASE_NAME as string)
   }
+
   async connect() {
     try {
       await this.db.command({ ping: 1 })
+      await this.slaveDb.command({ ping: 1 })
       console.log('Pinged your deployment. You successfully connected to MongoDB!')
     } finally {
       // await this.client.close()
     }
   }
 
+  // ************************ GET COLLECTIONS
   get users(): Collection<User> {
     return this.db.collection(process.env.COLLECTION_USERS as string)
   }
@@ -75,6 +90,11 @@ class DatabaseService {
     return this.db.collection(process.env.COLLECTION_CONVERSATIONS as string)
   }
 
+  get notifications(): Collection<Notification> {
+    return this.slaveDb.collection("notifications")
+  }
+
+  // ************************ INDEX FIELDS
   async indexesUsers() {
     const checkExisted = await this.users.indexExists(['email_1', 'username_1', 'username_1_verify_1', 'username_text'])
     if (!checkExisted) {
@@ -148,6 +168,17 @@ class DatabaseService {
     const checkExisted = await this.messages.indexExists(['conversation_1'])
     if (!checkExisted) {
       this.messages.createIndex({ conversation: 1 })
+    }
+  }
+
+  async indexesNotification() {
+    try {
+      const checkExisted = await this.notifications.indexExists(['to_1'])
+      if (!checkExisted) {
+        this.notifications.createIndex({ to: 1 })
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 }

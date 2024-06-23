@@ -19,8 +19,27 @@ import conversationRouter from './routes/conversation.routes'
 import helmet from 'helmet'
 import { rateLimit } from 'express-rate-limit'
 import { isDev } from './constants/config'
-// import "./utils/faker"
+import fakerService from './utils/faker'
 
+// fakerService.clearTweetFaker().then(() => {
+//   console.log('done')
+// })
+const createFakeTweets = () => {
+  fakerService.insertMultipleUsersAndFollowerAndTweet()
+    .then(() => {
+      console.log('done');
+    })
+    .catch((err) => {
+      console.error('Error creating fake tweets:', err);
+    });
+}
+
+const startInterval = () => {
+  setInterval(createFakeTweets, 1000 * 60 * 60 * 24);
+  console.log('Interval set to run every 24 hours');
+}
+
+startInterval();
 console.log(isDev)
 // Create upload folders
 Object.keys(UPLOAD_FOLDER).forEach((key) => {
@@ -56,9 +75,10 @@ databaseService.connect().then(async () => {
     databaseService.indexesLike(),
     databaseService.indexesTweet(),
     databaseService.indexesMessage(),
-    databaseService.indexesConversation()
+    databaseService.indexesConversation(),
+    databaseService.indexesNotification()
   ])
-})
+}).catch((err) => { console.log(err) })
 redisService.connect()
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))

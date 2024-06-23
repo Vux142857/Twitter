@@ -324,6 +324,7 @@ class TweetService {
         {
           $sort: {
             user_views: -1
+            // createdAt: -1
           }
         },
         {

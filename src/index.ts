@@ -15,6 +15,8 @@ import redisService from './services/database/redis.services'
 import messageService from './services/message.service'
 import { MessageConstructor } from './models/schemas/Message.schema'
 import { isDev } from './constants/config'
+import notificationService from './services/notification.services'
+import { NotificationConstructor } from './models/schemas/Notification.schema'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 process.env.UV_THREADPOOL_SIZE = os.cpus().length
@@ -112,6 +114,15 @@ io.on('connection', async (socket) => {
         redisService.cacheMessagesById(conversation_id, message)
       ])
     })
+
+    socket.on('notify', async (data: NotificationConstructor) => {
+      const toUser = sessionStore.findSession(data.to as string)
+      if (toUser) {
+        socket.to(toUser.socketID).emit('receive notify', data)
+      }
+      await notificationService.storeNotification(data)
+    })
+
     socket.on('disconnect', async () => {
       sessionStore.deleteSession(userID)
       console.log('User disconnected: ' + userID)
